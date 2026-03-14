@@ -126,26 +126,33 @@ export class XRHandler {
             
             const leftPos = new THREE.Vector3();
             leftCtrl.getWorldPosition(leftPos);
+
+            const cameraPos = new THREE.Vector3();
+            this.camera.getWorldPosition(cameraPos);
             
             // Only aim if distance is reasonable to avoid glitchy rotation
             if (rightPos.distanceTo(leftPos) > 0.05) {
+                // Determine which hand is the back hand (closer to the headset)
+                // In billiards, the back hand holds the butt, the front hand makes the bridge
+                const rightDist = rightPos.distanceTo(cameraPos);
+                const leftDist = leftPos.distanceTo(cameraPos);
+                
+                let backHandPos, frontHandPos;
+                if (rightDist < leftDist) {
+                    backHandPos = rightPos;
+                    frontHandPos = leftPos;
+                } else {
+                    backHandPos = leftPos;
+                    frontHandPos = rightPos;
+                }
+
                 const dummy = new THREE.Object3D();
-                dummy.position.copy(rightPos);
+                dummy.position.copy(backHandPos);
+                // Look at front hand. Since the visual cue has pivot at the back and points along -Z,
+                // this correctly points the cue from the back hand towards (and past) the front hand.
+                dummy.lookAt(frontHandPos);
                 
-                // We want the cue tip (-Z axis of the cylinder) to point towards the left hand.
-                // It seems the visual geometry is built such that it extends backwards, 
-                // so we actually need to look AWAY from the left hand to point the tip towards it.
-                // Or simply look at the left hand.
-                // Wait, if "el taco apunta al reves, desde la mano izquierda hacia la mano derecha",
-                // that means the tip is at the right hand, and the back is at the left hand.
-                // So we should position it at the right hand, and look at the left hand. But that's what we did.
-                // Let's invert the look direction. We look from rightPos to a point behind rightPos.
-                
-                const direction = new THREE.Vector3().subVectors(rightPos, leftPos).normalize();
-                const targetPos = new THREE.Vector3().copy(rightPos).add(direction);
-                dummy.lookAt(targetPos);
-                
-                this.cue.update(rightPos, dummy.quaternion);
+                this.cue.update(backHandPos, dummy.quaternion);
                 cueUpdated = true;
             }
         }
@@ -174,7 +181,23 @@ export class XRHandler {
 
                 // Check collision with White Ball (index 0)
                 const whiteBall = this.balls[0];
-                const dist = this.currentTipPosition.distanceTo(whiteBall.mesh.position);
+                
+                // Continuous Collision Detection (CCD) to prevent cue passing through the ball if moved fast
+                const A = this.previousTipPosition;
+                const B = this.currentTipPosition;
+                const C = whiteBall.mesh.position;
+                
+                const AB = new THREE.Vector3().subVectors(B, A);
+                const AC = new THREE.Vector3().subVectors(C, A);
+                
+                let t = 0;
+                if (AB.lengthSq() > 0.000001) {
+                    t = AC.dot(AB) / AB.lengthSq();
+                    t = Math.max(0, Math.min(1, t)); // Clamp to segment
+                }
+                
+                const closestPoint = new THREE.Vector3().copy(A).add(AB.clone().multiplyScalar(t));
+                const dist = closestPoint.distanceTo(C);
 
                 // Ball radius 0.03075, Tip radius 0.006. 
                 // Distance to center of ball is roughly the radius when touching.
@@ -207,6 +230,7 @@ export class XRHandler {
                         const hitPointOffset = new CANNON.Vec3(0, -0.01, 0); 
                         const worldPoint = new CANNON.Vec3(whiteBall.body.position.x, whiteBall.body.position.y, whiteBall.body.position.z).vadd(hitPointOffset);
 
+                        whiteBall.body.wakeUp(); // Ensure body is awake
                         whiteBall.body.applyImpulse(impulse, worldPoint);
 
                         // Notify GameLogic
