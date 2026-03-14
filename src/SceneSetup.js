@@ -91,7 +91,7 @@ export class SceneSetup {
         this.gameLogic = new GameLogic(this.scene, this.physics, this.balls);
 
         // XR Handler
-        this.xrHandler = new XRHandler(this.renderer, this.scene, this.xrRig, this.camera, this.cue, this.balls, this.gameLogic, this.soundManager);
+        this.xrHandler = new XRHandler(this.renderer, this.scene, this.xrRig, this.camera, this.cue, this.balls, this.gameLogic, this.soundManager, this.table);
     }
 
     onWindowResize() {

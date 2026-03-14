@@ -20,19 +20,22 @@ export class SoundManager {
 
     playBallHit(impactVelocity) {
         if (!this.ctx) return;
-        let volume = impactVelocity * 0.3;
-        volume = Math.max(0.2, Math.min(volume, 1.0));
+        let volume = impactVelocity * 0.4;
+        volume = Math.max(0.1, Math.min(volume, 1.0));
         
-        this.playSound(2000, 'triangle', 0.08, volume, false);
-        this.playSound(3500, 'sine', 0.05, volume * 0.5, false);
+        // Biliard balls: high pitch, extremely sharp click (like two stones hitting)
+        this.playSound(3500, 'square', 0.02, volume, true);
+        this.playSound(6000, 'sine', 0.01, volume * 0.8, false);
     }
 
     playCushionHit(impactVelocity) {
         if (!this.ctx) return;
         let volume = impactVelocity * 0.3;
-        volume = Math.max(0.2, Math.min(volume, 1.0));
+        volume = Math.max(0.1, Math.min(volume, 1.0));
         
-        this.playSound(250, 'square', 0.15, volume * 0.8, true);
+        // Cushion: Dull, heavy thud. Low pitch, slightly longer.
+        this.playSound(150, 'sine', 0.1, volume * 0.9, false);
+        this.playSound(80, 'triangle', 0.15, volume, true);
     }
 
     playSound(freq, type, duration, volume, lowpass) {
@@ -44,11 +47,11 @@ export class SoundManager {
         
         osc.type = type;
         osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-        osc.frequency.linearRampToValueAtTime(freq * 0.2, this.ctx.currentTime + duration);
+        osc.frequency.exponentialRampToValueAtTime(Math.max(1, freq * 0.1), this.ctx.currentTime + duration);
         
         gain.gain.setValueAtTime(volume, this.ctx.currentTime);
-        // Use linearRamp instead of exponential to avoid sudden cutoffs which sometimes click or mute
-        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+        // Exponential decay for much sharper percussive click
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
         
         let targetNode = gain;
         

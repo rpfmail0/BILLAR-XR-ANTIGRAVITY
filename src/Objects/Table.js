@@ -44,25 +44,31 @@ export class Table {
         const cushionHeight = 0.05;
         const cushionMaterial = new THREE.MeshStandardMaterial({ color: 0x004400 });
 
+        this.cushionMeshes = [];
+
         // Long cushions
         const longCushionGeo = new THREE.BoxGeometry(cushionWidth, cushionHeight, this.length + cushionWidth * 2);
         const leftCushion = new THREE.Mesh(longCushionGeo, cushionMaterial);
         leftCushion.position.set(-this.width / 2 - cushionWidth / 2, this.height + 0.025, 0);
         this.scene.add(leftCushion);
+        this.cushionMeshes.push(leftCushion);
 
         const rightCushion = new THREE.Mesh(longCushionGeo, cushionMaterial);
         rightCushion.position.set(this.width / 2 + cushionWidth / 2, this.height + 0.025, 0);
         this.scene.add(rightCushion);
+        this.cushionMeshes.push(rightCushion);
 
         // Short cushions
         const shortCushionGeo = new THREE.BoxGeometry(this.width, cushionHeight, cushionWidth);
         const topCushion = new THREE.Mesh(shortCushionGeo, cushionMaterial);
         topCushion.position.set(0, this.height + 0.025, -this.length / 2 - cushionWidth / 2);
         this.scene.add(topCushion);
+        this.cushionMeshes.push(topCushion);
 
         const bottomCushion = new THREE.Mesh(shortCushionGeo, cushionMaterial);
         bottomCushion.position.set(0, this.height + 0.025, this.length / 2 + cushionWidth / 2);
         this.scene.add(bottomCushion);
+        this.cushionMeshes.push(bottomCushion);
     }
 
     createPhysics() {

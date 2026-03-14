@@ -5,7 +5,7 @@ import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerM
 import * as CANNON from 'cannon-es';
 
 export class XRHandler {
-    constructor(renderer, scene, xrRig, camera, cue, balls, gameLogic, soundManager) {
+    constructor(renderer, scene, xrRig, camera, cue, balls, gameLogic, soundManager, table) {
         this.renderer = renderer;
         this.scene = scene;
         this.xrRig = xrRig;
@@ -14,6 +14,7 @@ export class XRHandler {
         this.balls = balls;
         this.gameLogic = gameLogic;
         this.soundManager = soundManager;
+        this.table = table;
         this.controller1 = null;
         this.controller2 = null;
         this.controllerGrip1 = null;
@@ -260,21 +261,82 @@ export class XRHandler {
             if (intersects.length > 0) {
                 const intersectPoint = intersects[0].point;
                 const hitMesh = intersects[0].object;
-                const targetBall = this.balls.find(b => b.mesh === hitMesh);
+                const initialTargetBall = this.balls.find(b => b.mesh === hitMesh);
 
                 // Show the red dot where the cue will hit the ball (always when aiming at a ball)
                 this.aimDot.position.copy(intersectPoint);
                 this.aimDot.visible = true;
 
                 // Update trajectory line ONLY if charging
-                if (this.isCharging && targetBall) {
+                if (this.isCharging && initialTargetBall) {
                     this.trajectoryLine.visible = true;
-                    const startPos = targetBall.mesh.position.clone();
-                    // Length scales based on chargePower
-                    const projectedLength = Math.max(0.1, this.chargePower * 3.0);
-                    const endPos = startPos.clone().add(cueForward.clone().multiplyScalar(projectedLength));
                     
-                    this.trajectoryLine.geometry.setFromPoints([startPos, endPos]);
+                    const points = [];
+                    let currentOrigin = initialTargetBall.mesh.position.clone();
+                    let currentDirection = cueForward.clone();
+                    let remainingLength = Math.max(0.1, this.chargePower * 3.0);
+                    const maxBounces = 3;
+                    let currentTargetBall = initialTargetBall;
+                    
+                    points.push(currentOrigin.clone());
+                    
+                    for (let i = 0; i < maxBounces; i++) {
+                        if (remainingLength <= 0) break;
+                        
+                        const bounceRaycaster = new THREE.Raycaster(currentOrigin, currentDirection);
+                        const collidables = this.balls.map(b => b.mesh).filter(m => m !== currentTargetBall.mesh);
+                        if (this.table && this.table.cushionMeshes) {
+                            collidables.push(...this.table.cushionMeshes);
+                        }
+                        
+                        const hits = bounceRaycaster.intersectObjects(collidables);
+                        const validHits = hits.filter(h => h.distance > 0.01);
+                        
+                        if (validHits.length > 0) {
+                            const hit = validHits[0];
+                            const radiusOffset = 0.03075; // Ball radius roughly
+                            
+                            // Adjust distance to stop the center point At the surface of the hit bounding box
+                            let distanceToHitCenter = Math.max(0, hit.distance - radiusOffset);
+                            
+                            if (distanceToHitCenter < remainingLength) {
+                                // It bounces within remaining length
+                                const hitPointCenter = currentOrigin.clone().add(currentDirection.clone().multiplyScalar(distanceToHitCenter));
+                                points.push(hitPointCenter.clone());
+                                
+                                // Calculate reflection normal
+                                const normal = hit.face.normal ? hit.face.normal.clone().transformDirection(hit.object.matrixWorld).normalize() : new THREE.Vector3(0,1,0);
+                                
+                                if (hit.object.geometry.type === 'SphereGeometry') {
+                                    normal.copy(hitPointCenter).sub(hit.object.position).normalize();
+                                } else {
+                                    normal.y = 0;
+                                    normal.normalize();
+                                }
+                                
+                                currentDirection.reflect(normal).normalize();
+                                currentDirection.y = 0; // Keep flat on table
+                                
+                                currentOrigin = hitPointCenter;
+                                remainingLength -= distanceToHitCenter;
+                                
+                                const nextHitBallInfo = this.balls.find(b => b.mesh === hit.object);
+                                if (nextHitBallInfo) {
+                                    currentTargetBall = nextHitBallInfo;
+                                } else {
+                                    currentTargetBall = { mesh: null }; // Hit a cushion
+                                }
+                                
+                                continue;
+                            }
+                        }
+                        
+                        // No valid bounce within remaining length
+                        points.push(currentOrigin.clone().add(currentDirection.clone().multiplyScalar(remainingLength)));
+                        break;
+                    }
+                    
+                    this.trajectoryLine.geometry.setFromPoints(points);
                 }
             }
         }
