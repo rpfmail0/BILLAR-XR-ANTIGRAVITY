@@ -129,8 +129,19 @@ export class XRHandler {
             if (rightPos.distanceTo(leftPos) > 0.05) {
                 const dummy = new THREE.Object3D();
                 dummy.position.copy(rightPos);
-                // lookAt aligns the -Z axis towards the target
-                dummy.lookAt(leftPos);
+                
+                // We want the cue tip (-Z axis of the cylinder) to point towards the left hand.
+                // It seems the visual geometry is built such that it extends backwards, 
+                // so we actually need to look AWAY from the left hand to point the tip towards it.
+                // Or simply look at the left hand.
+                // Wait, if "el taco apunta al reves, desde la mano izquierda hacia la mano derecha",
+                // that means the tip is at the right hand, and the back is at the left hand.
+                // So we should position it at the right hand, and look at the left hand. But that's what we did.
+                // Let's invert the look direction. We look from rightPos to a point behind rightPos.
+                
+                const direction = new THREE.Vector3().subVectors(rightPos, leftPos).normalize();
+                const targetPos = new THREE.Vector3().copy(rightPos).add(direction);
+                dummy.lookAt(targetPos);
                 
                 this.cue.update(rightPos, dummy.quaternion);
                 cueUpdated = true;
