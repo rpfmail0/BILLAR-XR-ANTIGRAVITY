@@ -190,8 +190,16 @@ export class XRHandler {
                         // Invert thumbstick logic:
                         // Pushing forward (moveY < 0) should move along positive forward vector
                         // Pushing right (moveX > 0) should move along positive right vector
-                        this.xrRig.position.add(right.multiplyScalar(moveX * speed));
+                        this.xrRig.position.add(right.multiplyScalar(-moveX * speed));
                         this.xrRig.position.add(forward.multiplyScalar(-moveY * speed));
+
+                        // Clamp position to not walk further than 1.5m from the table.
+                        // Table dimensions: half-width=0.71, half-length=1.42
+                        // Boundaries = dimension + 1.5
+                        const maxDistX = 2.21;
+                        const maxDistZ = 2.92;
+                        this.xrRig.position.x = Math.max(-maxDistX, Math.min(maxDistX, this.xrRig.position.x));
+                        this.xrRig.position.z = Math.max(-maxDistZ, Math.min(maxDistZ, this.xrRig.position.z));
                     }
 
                     // Right controller: Snap turning
