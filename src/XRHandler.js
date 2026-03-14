@@ -177,27 +177,28 @@ export class XRHandler {
                 const dist = this.currentTipPosition.distanceTo(whiteBall.mesh.position);
 
                 // Ball radius 0.03075, Tip radius 0.006. 
-                // Collision distance approx 0.037
-                if (dist < 0.038) {
+                // Distance to center of ball is roughly the radius when touching.
+                // Let's increase the collision threshold to make hitting easier.
+                if (dist < 0.05) {
                     if (!this.canHit) return;
 
-                    // Check if moving towards ball
-                    const directionToBall = new THREE.Vector3().subVectors(whiteBall.mesh.position, this.currentTipPosition).normalize();
-                    const dot = this.velocity.dot(directionToBall);
-
-                    if (dot > 0.05) { // Moving towards ball with some speed
+                    // Check if the cue tip is actually moving fast enough to constitute a "hit"
+                    const speed = this.velocity.length();
+                    
+                    // Relax the directional check. If we are close and moving, it's a hit.
+                    // This avoids issues where the cue direction vector and movement vector don't perfectly align.
+                    if (speed > 0.1) {
                         this.canHit = false; // Prevent multiple hits instantly
                         setTimeout(() => { this.canHit = true; }, 500);
 
                         // Apply impulse
                         // Force magnitude proportional to velocity.
-                        // A real cue hit transfers a lot of momentum instantly.
-                        const speed = Math.min(this.velocity.length(), 10); // Cap max speed
-                        const forceMagnitude = speed * 15; // Increased multiplier for stronger hit
+                        const forceMagnitude = Math.min(speed * 20, 150); // Increased multiplier and cap
                         
-                        // Direction of force is the direction the cue is moving
-                        const forceDirection = this.velocity.clone().normalize();
-                        const force = forceDirection.multiplyScalar(forceMagnitude);
+                        // Direction of force: from the tip of the cue extending forward along the stick's rotation
+                        // instead of just the instantaneous velocity vector which might be jittery
+                        const cueForward = new THREE.Vector3(0, 0, -1).applyQuaternion(this.cue.mesh.quaternion).normalize();
+                        const force = cueForward.multiplyScalar(forceMagnitude);
 
                         // Apply to Cannon body
                         const impulse = new CANNON.Vec3(force.x, force.y, force.z);
