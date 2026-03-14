@@ -17,7 +17,7 @@ export class PhysicsWorld {
             this.ballMaterial,
             this.defaultMaterial,
             {
-                friction: 0.1,
+                friction: 0.45, // Increased from 0.1 to let spin effectively catch the cloth
                 restitution: 0.7 // Bounciness
             }
         );

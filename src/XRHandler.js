@@ -33,6 +33,9 @@ export class XRHandler {
         // Locomotion state
         this.snapTurnReady = true;
 
+        // VR Grabbing Context
+        this.grabbedBalls = new Map(); // maps controller to ball
+
         this.init();
     }
 
@@ -54,11 +57,17 @@ export class XRHandler {
         this.controllerGrip2.add(controllerModelFactory.createControllerModel(this.controllerGrip2));
         this.xrRig.add(this.controllerGrip2);
 
-        // Event listeners
+        // Event listeners for Trigger (Select)
         this.controller1.addEventListener('selectstart', this.onSelectStart.bind(this));
         this.controller1.addEventListener('selectend', this.onSelectEnd.bind(this));
         this.controller2.addEventListener('selectstart', this.onSelectStart.bind(this));
         this.controller2.addEventListener('selectend', this.onSelectEnd.bind(this));
+
+        // Event listeners for Grip (Squeeze)
+        this.controller1.addEventListener('squeezestart', this.onSqueezeStart.bind(this));
+        this.controller1.addEventListener('squeezeend', this.onSqueezeEnd.bind(this));
+        this.controller2.addEventListener('squeezestart', this.onSqueezeStart.bind(this));
+        this.controller2.addEventListener('squeezeend', this.onSqueezeEnd.bind(this));
         
         // HUD - Power Bar
         this.powerBarGroup = new THREE.Group();
@@ -89,9 +98,6 @@ export class XRHandler {
         this.aimDot.renderOrder = 999; // Render on top
         this.scene.add(this.aimDot);
         this.aimDot.visible = false;
-
-        // Aim Helper: Trajectory Line
-        const lineMat = new THREE.LineBasicMaterial({ color: 0x800080, depthTest: false, linewidth: 2 });
         const lineGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
         this.trajectoryLine = new THREE.Line(lineGeo, lineMat);
         this.trajectoryLine.renderOrder = 999;
@@ -146,6 +152,54 @@ export class XRHandler {
         
         if (event.target.gamepad && event.target.gamepad.hapticActuators) {
             event.target.gamepad.hapticActuators[0].pulse(1.0, 100);
+        }
+    }
+
+    onSqueezeStart(event) {
+        const controller = event.target;
+        const pos = new THREE.Vector3();
+        const quat = new THREE.Quaternion();
+        controller.getWorldPosition(pos);
+        controller.getWorldQuaternion(quat);
+        
+        const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(quat).normalize();
+        
+        const raycaster = new THREE.Raycaster(pos, forward);
+        const ballMeshes = this.balls.map(b => b.mesh);
+        // Can grab balls up to 1 meter away with the grip pointer
+        const intersects = raycaster.intersectObjects(ballMeshes).filter(h => h.distance < 1.0);
+        
+        if (intersects.length > 0) {
+            const hitMesh = intersects[0].object;
+            const targetBall = this.balls.find(b => b.mesh === hitMesh);
+            
+            if (targetBall) {
+                // Prevent ball clipping through table by making it kinematic during holding
+                targetBall.body.type = CANNON.Body.KINEMATIC;
+                targetBall.body.updateMassProperties();
+                this.grabbedBalls.set(controller, targetBall);
+                
+                if (controller.gamepad && controller.gamepad.hapticActuators) {
+                    controller.gamepad.hapticActuators[0].pulse(0.6, 50);
+                }
+            }
+        }
+    }
+
+    onSqueezeEnd(event) {
+        const controller = event.target;
+        if (this.grabbedBalls.has(controller)) {
+            const ball = this.grabbedBalls.get(controller);
+            
+            // Release ball back to gravity
+            ball.body.type = CANNON.Body.DYNAMIC;
+            ball.body.mass = 0.21;
+            ball.body.updateMassProperties();
+            ball.body.velocity.set(0, 0, 0);
+            ball.body.angularVelocity.set(0, 0, 0);
+            ball.body.wakeUp();
+            
+            this.grabbedBalls.delete(controller);
         }
     }
 
@@ -255,7 +309,6 @@ export class XRHandler {
 
         // Reset visuals each frame
         if (this.aimDot) this.aimDot.visible = false;
-        if (this.trajectoryLine) this.trajectoryLine.visible = false;
 
         if (cueUpdated && this.cue.tip) {
             // Calculate tip position in world space
@@ -277,78 +330,6 @@ export class XRHandler {
                 // Show the red dot where the cue will hit the ball (always when aiming at a ball)
                 this.aimDot.position.copy(intersectPoint);
                 this.aimDot.visible = true;
-
-                // Update trajectory line ONLY if charging
-                if (this.isCharging && initialTargetBall) {
-                    this.trajectoryLine.visible = true;
-                    
-                    const points = [];
-                    let currentOrigin = initialTargetBall.mesh.position.clone();
-                    let currentDirection = cueForward.clone();
-                    let remainingLength = Math.max(0.1, this.chargePower * 3.0);
-                    const maxBounces = 3;
-                    let currentTargetBall = initialTargetBall;
-                    
-                    points.push(currentOrigin.clone());
-                    
-                    for (let i = 0; i < maxBounces; i++) {
-                        if (remainingLength <= 0) break;
-                        
-                        const bounceRaycaster = new THREE.Raycaster(currentOrigin, currentDirection);
-                        const collidables = this.balls.map(b => b.mesh).filter(m => m !== currentTargetBall.mesh);
-                        if (this.table && this.table.cushionMeshes) {
-                            collidables.push(...this.table.cushionMeshes);
-                        }
-                        
-                        const hits = bounceRaycaster.intersectObjects(collidables);
-                        const validHits = hits.filter(h => h.distance > 0.01);
-                        
-                        if (validHits.length > 0) {
-                            const hit = validHits[0];
-                            const radiusOffset = 0.03075; // Ball radius roughly
-                            
-                            // Adjust distance to stop the center point At the surface of the hit bounding box
-                            let distanceToHitCenter = Math.max(0, hit.distance - radiusOffset);
-                            
-                            if (distanceToHitCenter < remainingLength) {
-                                // It bounces within remaining length
-                                const hitPointCenter = currentOrigin.clone().add(currentDirection.clone().multiplyScalar(distanceToHitCenter));
-                                points.push(hitPointCenter.clone());
-                                
-                                // Calculate reflection normal
-                                const normal = hit.face.normal ? hit.face.normal.clone().transformDirection(hit.object.matrixWorld).normalize() : new THREE.Vector3(0,1,0);
-                                
-                                if (hit.object.geometry.type === 'SphereGeometry') {
-                                    normal.copy(hitPointCenter).sub(hit.object.position).normalize();
-                                } else {
-                                    normal.y = 0;
-                                    normal.normalize();
-                                }
-                                
-                                currentDirection.reflect(normal).normalize();
-                                currentDirection.y = 0; // Keep flat on table
-                                
-                                currentOrigin = hitPointCenter;
-                                remainingLength -= distanceToHitCenter;
-                                
-                                const nextHitBallInfo = this.balls.find(b => b.mesh === hit.object);
-                                if (nextHitBallInfo) {
-                                    currentTargetBall = nextHitBallInfo;
-                                } else {
-                                    currentTargetBall = { mesh: null }; // Hit a cushion
-                                }
-                                
-                                continue;
-                            }
-                        }
-                        
-                        // No valid bounce within remaining length
-                        points.push(currentOrigin.clone().add(currentDirection.clone().multiplyScalar(remainingLength)));
-                        break;
-                    }
-                    
-                    this.trajectoryLine.geometry.setFromPoints(points);
-                }
             }
         }
 
@@ -366,6 +347,40 @@ export class XRHandler {
             this.powerBarMesh.scale.x = Math.max(0.001, this.chargePower);
             // Change color: green to red
             this.powerBarMesh.material.color.setHSL(0.33 * (1 - this.chargePower), 1.0, 0.5);
+        }
+
+        // Out of Bounds Ball Reset Logic
+        for (const ball of this.balls) {
+            if (ball.body.position.y < -0.5) {
+                ball.body.type = CANNON.Body.DYNAMIC;
+                ball.body.mass = 0.21;
+                ball.body.updateMassProperties();
+                
+                ball.body.velocity.set(0, 0, 0);
+                ball.body.angularVelocity.set(0, 0, 0);
+                ball.body.position.copy(ball.startPosition);
+                ball.body.quaternion.set(0, 0, 0, 1);
+                ball.mesh.position.copy(ball.startPosition);
+                ball.body.wakeUp();
+            }
+        }
+
+        // GRAB LOGIC UPDATE
+        for (const [controller, ball] of this.grabbedBalls.entries()) {
+            const pos = new THREE.Vector3();
+            const quat = new THREE.Quaternion();
+            controller.getWorldPosition(pos);
+            controller.getWorldQuaternion(quat);
+            
+            // Hold the ball exactly 15cm down the controller's forward line (-Z)
+            const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(quat).normalize();
+            pos.add(forward.multiplyScalar(0.15));
+            
+            ball.body.position.copy(pos);
+            // KINEMATIC body moves freely ignoring gravity while held, but pushes others.
+            ball.body.velocity.set(0, 0, 0);
+            ball.body.angularVelocity.set(0, 0, 0);
+            ball.mesh.position.copy(pos);
         }
     }
 
