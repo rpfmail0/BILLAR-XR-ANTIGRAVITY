@@ -80,6 +80,22 @@ export class XRHandler {
         this.powerBarGroup.add(this.powerBarMesh);
 
         this.powerBarGroup.visible = false;
+
+        // Aim Helper: Red Dot
+        const dotGeo = new THREE.SphereGeometry(0.003, 8, 8);
+        const dotMat = new THREE.MeshBasicMaterial({ color: 0xff0000, depthTest: false }); // Always visible over ball
+        this.aimDot = new THREE.Mesh(dotGeo, dotMat);
+        this.aimDot.renderOrder = 999; // Render on top
+        this.scene.add(this.aimDot);
+        this.aimDot.visible = false;
+
+        // Aim Helper: Trajectory Line
+        const lineMat = new THREE.LineBasicMaterial({ color: 0x800080, depthTest: false, linewidth: 2 });
+        const lineGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
+        this.trajectoryLine = new THREE.Line(lineGeo, lineMat);
+        this.trajectoryLine.renderOrder = 999;
+        this.scene.add(this.trajectoryLine);
+        this.trajectoryLine.visible = false;
     }
 
     onSelectStart(event) {
@@ -225,10 +241,41 @@ export class XRHandler {
             cueUpdated = true;
         }
 
-        if (cueUpdated) {
+        // Reset visuals each frame
+        if (this.aimDot) this.aimDot.visible = false;
+        if (this.trajectoryLine) this.trajectoryLine.visible = false;
+
+        if (cueUpdated && this.cue.tip) {
             // Calculate tip position in world space
-            if (this.cue.tip) {
-                this.cue.tip.getWorldPosition(this.currentTipPosition);
+            this.cue.tip.getWorldPosition(this.currentTipPosition);
+
+            // Find direction the cue is pointing
+            const cueForward = new THREE.Vector3(0, 0, -1).applyQuaternion(this.cue.mesh.quaternion).normalize();
+
+            // Raycast from tip to balls to find intersection
+            const raycaster = new THREE.Raycaster(this.currentTipPosition, cueForward);
+            const ballMeshes = this.balls.map(b => b.mesh);
+            const intersects = raycaster.intersectObjects(ballMeshes);
+
+            if (intersects.length > 0) {
+                const intersectPoint = intersects[0].point;
+                const hitMesh = intersects[0].object;
+                const targetBall = this.balls.find(b => b.mesh === hitMesh);
+
+                // Show the red dot where the cue will hit the ball (always when aiming at a ball)
+                this.aimDot.position.copy(intersectPoint);
+                this.aimDot.visible = true;
+
+                // Update trajectory line ONLY if charging
+                if (this.isCharging && targetBall) {
+                    this.trajectoryLine.visible = true;
+                    const startPos = targetBall.mesh.position.clone();
+                    // Length scales based on chargePower
+                    const projectedLength = Math.max(0.1, this.chargePower * 3.0);
+                    const endPos = startPos.clone().add(cueForward.clone().multiplyScalar(projectedLength));
+                    
+                    this.trajectoryLine.geometry.setFromPoints([startPos, endPos]);
+                }
             }
         }
 
