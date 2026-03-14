@@ -33,6 +33,7 @@ export class Ball {
             shape: shape
         });
         this.body.position.copy(this.startPosition);
+        this.body.userData = { type: 'ball' };
         // Billiard balls on felt roll for a long time but slow down eventually
         this.body.linearDamping = 0.3; // Slipping / rolling friction
         this.body.angularDamping = 0.4;

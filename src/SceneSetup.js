@@ -1,6 +1,7 @@
-import * as THREE from 'three';
+import { SceneSetup } from './SceneSetup.js';
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
 import { PhysicsWorld } from './PhysicsWorld.js';
+import { SoundManager } from './SoundManager.js';
 import { Table } from './Objects/Table.js';
 import { Ball } from './Objects/Ball.js';
 import { Cue } from './Objects/Cue.js';
@@ -14,8 +15,11 @@ export class SceneSetup {
     }
 
     init() {
+        // Sound Manager
+        this.soundManager = new SoundManager();
+
         // Physics
-        this.physics = new PhysicsWorld();
+        this.physics = new PhysicsWorld(this.soundManager);
         this.clock = new THREE.Clock();
 
         // Scene
@@ -77,7 +81,7 @@ export class SceneSetup {
         this.gameLogic = new GameLogic(this.scene, this.physics, this.balls);
 
         // XR Handler
-        this.xrHandler = new XRHandler(this.renderer, this.scene, this.xrRig, this.camera, this.cue, this.balls, this.gameLogic);
+        this.xrHandler = new XRHandler(this.renderer, this.scene, this.xrRig, this.camera, this.cue, this.balls, this.gameLogic, this.soundManager);
     }
 
     onWindowResize() {

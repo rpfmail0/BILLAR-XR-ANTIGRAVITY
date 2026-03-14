@@ -5,7 +5,7 @@ import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerM
 import * as CANNON from 'cannon-es';
 
 export class XRHandler {
-    constructor(renderer, scene, xrRig, camera, cue, balls, gameLogic) {
+    constructor(renderer, scene, xrRig, camera, cue, balls, gameLogic, soundManager) {
         this.renderer = renderer;
         this.scene = scene;
         this.xrRig = xrRig;
@@ -13,6 +13,7 @@ export class XRHandler {
         this.cue = cue;
         this.balls = balls;
         this.gameLogic = gameLogic;
+        this.soundManager = soundManager;
         this.controller1 = null;
         this.controller2 = null;
         this.controllerGrip1 = null;
@@ -277,10 +278,13 @@ export class XRHandler {
         
         // Only shoot if we found a ball and it's reasonably close
         if (targetBall && minDistance < 2.0) {
+            // Initialize audio on first user interaction if not already done
+            if (this.soundManager) this.soundManager.init();
+
             // Apply impulse
-            // Reduced maxForce by 5 times (from 5 to 1) 
-            const maxForce = 1.0; 
-            const forceMagnitude = Math.max(0.1, power * maxForce);
+            // Reduced maxForce by another 5 times (from 1.0 to 0.2) 
+            const maxForce = 0.2; 
+            const forceMagnitude = Math.max(0.02, power * maxForce);
             const force = cueForward.multiplyScalar(forceMagnitude);
             const impulse = new CANNON.Vec3(force.x, force.y, force.z);
             

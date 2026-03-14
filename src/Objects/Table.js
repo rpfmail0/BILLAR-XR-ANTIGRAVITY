@@ -87,6 +87,7 @@ export class Table {
                 mass: 0,
                 material: this.physicsWorld.cushionMaterial
             });
+            body.userData = { type: 'cushion' };
             body.addShape(shape);
             body.position.set(x, this.height + 0.025, z);
             this.physicsWorld.world.addBody(body);
