@@ -23,6 +23,7 @@ export class Cue {
         const tipGeo = new THREE.CylinderGeometry(this.tipRadius, this.tipRadius, 0.01, 32);
         tipGeo.translate(0, 0.005, 0);
         tipGeo.rotateX(-Math.PI / 2);
+        tipGeo.translate(0, 0, -this.length); // Put the tip at the end of the cue
         const tipMat = new THREE.MeshStandardMaterial({ color: 0x0000ff }); // Blue chalk
         this.tip = new THREE.Mesh(tipGeo, tipMat);
         this.mesh.add(this.tip);

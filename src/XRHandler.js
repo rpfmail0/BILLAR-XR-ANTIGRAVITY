@@ -60,10 +60,21 @@ export class XRHandler {
     }
 
     update(dt) {
-        // Handle VR Locomotion (Thumbsticks)
+        // Find left and right controllers
         const session = this.renderer.xr.getSession();
+        let rightCtrl = null;
+        let leftCtrl = null;
+
+        // Handle VR Locomotion (Thumbsticks) and hand mapping
         if (session && this.xrRig && this.camera) {
-            for (const source of session.inputSources) {
+            for (let i = 0; i < session.inputSources.length; i++) {
+                const source = session.inputSources[i];
+                if (source.handedness === 'right') {
+                    rightCtrl = this.renderer.xr.getController(i);
+                } else if (source.handedness === 'left') {
+                    leftCtrl = this.renderer.xr.getController(i);
+                }
+
                 if (!source.gamepad) continue;
                 
                 const axes = source.gamepad.axes;
@@ -103,15 +114,40 @@ export class XRHandler {
             }
         }
 
-        // Attach cue to primary controller
-        if (this.controller1) {
-            // Need global position since the cue is not inside xrRig
+        // Attach cue
+        let cueUpdated = false;
+
+        // Try two-handed aiming first
+        if (rightCtrl && leftCtrl) {
+            const rightPos = new THREE.Vector3();
+            rightCtrl.getWorldPosition(rightPos);
+            
+            const leftPos = new THREE.Vector3();
+            leftCtrl.getWorldPosition(leftPos);
+            
+            // Only aim if distance is reasonable to avoid glitchy rotation
+            if (rightPos.distanceTo(leftPos) > 0.05) {
+                const dummy = new THREE.Object3D();
+                dummy.position.copy(rightPos);
+                // lookAt aligns the -Z axis towards the target
+                dummy.lookAt(leftPos);
+                
+                this.cue.update(rightPos, dummy.quaternion);
+                cueUpdated = true;
+            }
+        }
+
+        // Fallback to primary controller if two hands are not available or too close
+        if (!cueUpdated && this.controller1) {
             const worldPos = new THREE.Vector3();
             const worldQuat = new THREE.Quaternion();
             this.controller1.getWorldPosition(worldPos);
             this.controller1.getWorldQuaternion(worldQuat);
             this.cue.update(worldPos, worldQuat);
+            cueUpdated = true;
+        }
 
+        if (cueUpdated) {
             // Calculate tip position in world space
             if (this.cue.tip) {
                 this.cue.tip.getWorldPosition(this.currentTipPosition);
@@ -152,7 +188,9 @@ export class XRHandler {
                         }
 
                         // Haptic feedback
-                        if (this.controller1.gamepad && this.controller1.gamepad.hapticActuators) {
+                        if (rightCtrl && rightCtrl.gamepad && rightCtrl.gamepad.hapticActuators) {
+                            rightCtrl.gamepad.hapticActuators[0].pulse(1.0, 100);
+                        } else if (this.controller1.gamepad && this.controller1.gamepad.hapticActuators) {
                             this.controller1.gamepad.hapticActuators[0].pulse(1.0, 100);
                         }
                     }
