@@ -98,11 +98,6 @@ export class XRHandler {
         this.aimDot.renderOrder = 999; // Render on top
         this.scene.add(this.aimDot);
         this.aimDot.visible = false;
-        const lineGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
-        this.trajectoryLine = new THREE.Line(lineGeo, lineMat);
-        this.trajectoryLine.renderOrder = 999;
-        this.scene.add(this.trajectoryLine);
-        this.trajectoryLine.visible = false;
     }
 
     onSelectStart(event) {
