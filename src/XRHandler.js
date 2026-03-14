@@ -5,9 +5,11 @@ import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerM
 import * as CANNON from 'cannon-es';
 
 export class XRHandler {
-    constructor(renderer, scene, cue, balls, gameLogic) {
+    constructor(renderer, scene, xrRig, camera, cue, balls, gameLogic) {
         this.renderer = renderer;
         this.scene = scene;
+        this.xrRig = xrRig;
+        this.camera = camera;
         this.cue = cue;
         this.balls = balls;
         this.gameLogic = gameLogic;
@@ -20,26 +22,29 @@ export class XRHandler {
         this.currentTipPosition = new THREE.Vector3();
         this.velocity = new THREE.Vector3();
 
+        // Locomotion state
+        this.snapTurnReady = true;
+
         this.init();
     }
 
     init() {
         // Controllers
         this.controller1 = this.renderer.xr.getController(0);
-        this.scene.add(this.controller1);
+        this.xrRig.add(this.controller1);
 
         this.controller2 = this.renderer.xr.getController(1);
-        this.scene.add(this.controller2);
+        this.xrRig.add(this.controller2);
 
         const controllerModelFactory = new XRControllerModelFactory();
 
         this.controllerGrip1 = this.renderer.xr.getControllerGrip(0);
         this.controllerGrip1.add(controllerModelFactory.createControllerModel(this.controllerGrip1));
-        this.scene.add(this.controllerGrip1);
+        this.xrRig.add(this.controllerGrip1);
 
         this.controllerGrip2 = this.renderer.xr.getControllerGrip(1);
         this.controllerGrip2.add(controllerModelFactory.createControllerModel(this.controllerGrip2));
-        this.scene.add(this.controllerGrip2);
+        this.xrRig.add(this.controllerGrip2);
 
         // Event listeners
         this.controller1.addEventListener('selectstart', this.onSelectStart.bind(this));
@@ -55,9 +60,57 @@ export class XRHandler {
     }
 
     update(dt) {
-        // Attach cue to right controller (controller1 usually)
+        // Handle VR Locomotion (Thumbsticks)
+        const session = this.renderer.xr.getSession();
+        if (session && this.xrRig && this.camera) {
+            for (const source of session.inputSources) {
+                if (!source.gamepad) continue;
+                
+                const axes = source.gamepad.axes;
+                // Standard VR gamepads axes: [0, 1] touchpad/thumbstick 1, [2, 3] touchpad/thumbstick 2.
+                if (axes.length >= 4) {
+                    const deadzone = 0.1;
+                    const moveX = Math.abs(axes[2]) > deadzone ? axes[2] : 0;
+                    const moveY = Math.abs(axes[3]) > deadzone ? axes[3] : 0;
+
+                    // Left controller: Movement
+                    if (source.handedness === 'left') {
+                        const speed = 2.0 * dt;
+                        
+                        // Calculate forward and right relative to camera view on XZ plane
+                        const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(this.camera.quaternion);
+                        forward.y = 0;
+                        forward.normalize();
+                        
+                        const right = new THREE.Vector3(1, 0, 0).applyQuaternion(this.camera.quaternion);
+                        right.y = 0;
+                        right.normalize();
+
+                        this.xrRig.position.add(right.multiplyScalar(moveX * speed));
+                        this.xrRig.position.add(forward.multiplyScalar(moveY * speed));
+                    }
+
+                    // Right controller: Snap turning
+                    if (source.handedness === 'right') {
+                        if (Math.abs(moveX) < deadzone) {
+                            this.snapTurnReady = true;
+                        } else if (this.snapTurnReady) {
+                            this.xrRig.rotation.y += moveX > 0 ? -Math.PI / 4 : +Math.PI / 4;
+                            this.snapTurnReady = false;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Attach cue to primary controller
         if (this.controller1) {
-            this.cue.update(this.controller1.position, this.controller1.quaternion);
+            // Need global position since the cue is not inside xrRig
+            const worldPos = new THREE.Vector3();
+            const worldQuat = new THREE.Quaternion();
+            this.controller1.getWorldPosition(worldPos);
+            this.controller1.getWorldQuaternion(worldQuat);
+            this.cue.update(worldPos, worldQuat);
 
             // Calculate tip position in world space
             if (this.cue.tip) {

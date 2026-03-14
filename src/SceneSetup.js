@@ -24,7 +24,13 @@ export class SceneSetup {
 
         // Camera
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
-        this.camera.position.set(0, 1.6, 2.5);
+        this.camera.position.set(0, 1.6, 0); // Height mostly handled by WebXR, local pos by xrRig
+
+        // XR Rig (Player grouping for locomotion and initial spawning)
+        this.xrRig = new THREE.Group();
+        this.xrRig.position.set(0, 0, 2.5); // Start slightly away from the table
+        this.scene.add(this.xrRig);
+        this.xrRig.add(this.camera);
 
         // Renderer
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -71,7 +77,7 @@ export class SceneSetup {
         this.gameLogic = new GameLogic(this.scene, this.physics, this.balls);
 
         // XR Handler
-        this.xrHandler = new XRHandler(this.renderer, this.scene, this.cue, this.balls, this.gameLogic);
+        this.xrHandler = new XRHandler(this.renderer, this.scene, this.xrRig, this.camera, this.cue, this.balls, this.gameLogic);
     }
 
     onWindowResize() {
