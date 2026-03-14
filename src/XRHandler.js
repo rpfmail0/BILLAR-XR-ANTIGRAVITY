@@ -93,6 +93,10 @@ export class XRHandler {
             }
         }
 
+        if (this.soundManager) {
+            this.soundManager.init();
+        }
+
         this.isCharging = true;
         this.chargePower = 0;
         this.chargeDirection = 1;
@@ -196,14 +200,19 @@ export class XRHandler {
 
             // Only aim if distance is reasonable to avoid glitchy rotation
             if (rightPos.distanceTo(leftPos) > 0.05) {
+                // Vector FORWARD from right hand TO left hand
+                const direction = new THREE.Vector3().subVectors(leftPos, rightPos).normalize();
+                
+                // We want the right hand to be the pivot (butt of the cue)
+                // and point it towards the left hand
+                const targetPos = new THREE.Vector3().copy(rightPos).add(direction);
+                
                 const dummy = new THREE.Object3D();
                 dummy.position.copy(rightPos);
-                
-                // Vector FROM right TO left hand ensures the -Z axis of the cue aligns properly
-                const direction = new THREE.Vector3().subVectors(leftPos, rightPos).normalize();
-                const targetPos = new THREE.Vector3().copy(rightPos).add(direction);
                 dummy.lookAt(targetPos);
                 
+                // The visual cue is oriented with its butt at origin and tip extending along -Z.
+                // By making dummy look at targetPos, its -Z axis points towards the left hand.
                 this.cue.update(rightPos, dummy.quaternion);
                 cueUpdated = true;
             }
