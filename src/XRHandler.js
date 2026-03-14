@@ -394,9 +394,9 @@ export class XRHandler {
         // Only shoot if we found a ball and it's reasonably close
         if (targetBall && minDistance < 2.0) {
             // Apply impulse
-            // Reduced maxForce by another 5 times (from 1.0 to 0.2) 
-            const maxForce = 0.2; 
-            const forceMagnitude = Math.max(0.02, power * maxForce);
+            // Applied force further reduced by factor of 5 based on user request
+            const maxForce = 0.04; 
+            const forceMagnitude = Math.max(0.005, power * maxForce);
             const force = cueForward.multiplyScalar(forceMagnitude);
             const impulse = new CANNON.Vec3(force.x, force.y, force.z);
             

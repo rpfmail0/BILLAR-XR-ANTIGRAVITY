@@ -21,21 +21,22 @@ export class SoundManager {
     playBallHit(impactVelocity) {
         if (!this.ctx) return;
         let volume = impactVelocity * 0.4;
-        volume = Math.max(0.1, Math.min(volume, 1.0));
+        volume = Math.max(0.05, Math.min(volume, 0.8));
         
-        // Biliard balls: high pitch, extremely sharp click (like two stones hitting)
-        this.playSound(3500, 'square', 0.02, volume, true);
-        this.playSound(6000, 'sine', 0.01, volume * 0.8, false);
+        // Softer, more natural billiard clack (less strident)
+        // A single short high-pitch sine wave drop gives a "pop/click" without stridency
+        this.playSound(2500, 'sine', 0.03, volume, true);
+        this.playSound(1800, 'sine', 0.02, volume * 0.6, false);
     }
 
     playCushionHit(impactVelocity) {
         if (!this.ctx) return;
         let volume = impactVelocity * 0.3;
-        volume = Math.max(0.1, Math.min(volume, 1.0));
+        volume = Math.max(0.05, Math.min(volume, 0.7));
         
-        // Cushion: Dull, heavy thud. Low pitch, slightly longer.
-        this.playSound(150, 'sine', 0.1, volume * 0.9, false);
-        this.playSound(80, 'triangle', 0.15, volume, true);
+        // Very soft, muffled thud for the cushion
+        this.playSound(100, 'sine', 0.12, volume, true);
+        this.playSound(60, 'sine', 0.15, volume * 0.8, true);
     }
 
     playSound(freq, type, duration, volume, lowpass) {
@@ -58,7 +59,8 @@ export class SoundManager {
         if (lowpass) {
             const filter = this.ctx.createBiquadFilter();
             filter.type = 'lowpass';
-            filter.frequency.value = freq * 1.5;
+            // Lower target frequency for a more muffled, natural tone
+            filter.frequency.value = freq;
             gain.connect(filter);
             targetNode = filter;
         }
