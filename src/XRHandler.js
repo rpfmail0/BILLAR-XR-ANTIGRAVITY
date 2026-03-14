@@ -127,32 +127,16 @@ export class XRHandler {
             const leftPos = new THREE.Vector3();
             leftCtrl.getWorldPosition(leftPos);
 
-            const cameraPos = new THREE.Vector3();
-            this.camera.getWorldPosition(cameraPos);
-            
             // Only aim if distance is reasonable to avoid glitchy rotation
             if (rightPos.distanceTo(leftPos) > 0.05) {
-                // Determine which hand is the back hand (closer to the headset)
-                // In billiards, the back hand holds the butt, the front hand makes the bridge
-                const rightDist = rightPos.distanceTo(cameraPos);
-                const leftDist = leftPos.distanceTo(cameraPos);
-                
-                let backHandPos, frontHandPos;
-                if (rightDist < leftDist) {
-                    backHandPos = rightPos;
-                    frontHandPos = leftPos;
-                } else {
-                    backHandPos = leftPos;
-                    frontHandPos = rightPos;
-                }
-
                 const dummy = new THREE.Object3D();
-                dummy.position.copy(backHandPos);
-                // Look at front hand. Since the visual cue has pivot at the back and points along -Z,
-                // this correctly points the cue from the back hand towards (and past) the front hand.
-                dummy.lookAt(frontHandPos);
+                dummy.position.copy(rightPos);
                 
-                this.cue.update(backHandPos, dummy.quaternion);
+                const direction = new THREE.Vector3().subVectors(rightPos, leftPos).normalize();
+                const targetPos = new THREE.Vector3().copy(rightPos).add(direction);
+                dummy.lookAt(targetPos);
+                
+                this.cue.update(rightPos, dummy.quaternion);
                 cueUpdated = true;
             }
         }
@@ -208,18 +192,17 @@ export class XRHandler {
                     // Check if the cue tip is actually moving fast enough to constitute a "hit"
                     const speed = this.velocity.length();
                     
-                    // Relax the directional check. If we are close and moving, it's a hit.
-                    // This avoids issues where the cue direction vector and movement vector don't perfectly align.
-                    if (speed > 0.1) {
+                    if (speed > 0.02) { // Lower speed requirement so soft taps work
                         this.canHit = false; // Prevent multiple hits instantly
                         setTimeout(() => { this.canHit = true; }, 500);
 
                         // Apply impulse
-                        // Force magnitude proportional to velocity.
-                        const forceMagnitude = Math.min(speed * 20, 150); // Increased multiplier and cap
+                        // For a ball of mass 0.21kg, an impulse of 1 means velocity change of ~4.7 m/s.
+                        // We scale the speed heavily down to realistic values so the ball stays on the table.
+                        // Using a lower multiplier prevents the ball teleporting out of bounds.
+                        const forceMagnitude = speed * 0.4;
                         
                         // Direction of force: from the tip of the cue extending forward along the stick's rotation
-                        // instead of just the instantaneous velocity vector which might be jittery
                         const cueForward = new THREE.Vector3(0, 0, -1).applyQuaternion(this.cue.mesh.quaternion).normalize();
                         const force = cueForward.multiplyScalar(forceMagnitude);
 
