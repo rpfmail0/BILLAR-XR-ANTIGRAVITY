@@ -203,10 +203,12 @@ export class XRHandler {
                 const dummy = new THREE.Object3D();
                 dummy.position.copy(rightPos);
                 
-                // Point the -Z axis of the dummy towards the left hand.
-                // Since the visual cue is oriented with its butt at origin and tip extending along -Z,
-                // its tip will point towards the left hand, and the butt will be at the right hand.
-                dummy.lookAt(leftPos);
+                // User repeatedly indicated the cue aiming was inverse.
+                // We point the dummy opposite to the left hand relative to the right hand.
+                // This means the butt (-Z) points AWAY from the left hand.
+                const directionAwayFromLeft = new THREE.Vector3().subVectors(rightPos, leftPos).normalize();
+                const targetPos = new THREE.Vector3().copy(rightPos).add(directionAwayFromLeft);
+                dummy.lookAt(targetPos);
                 
                 this.cue.update(rightPos, dummy.quaternion);
                 cueUpdated = true;
