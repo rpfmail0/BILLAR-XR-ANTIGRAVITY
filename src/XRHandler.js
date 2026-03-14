@@ -55,6 +55,8 @@ export class XRHandler {
         // Event listeners
         this.controller1.addEventListener('selectstart', this.onSelectStart.bind(this));
         this.controller1.addEventListener('selectend', this.onSelectEnd.bind(this));
+        this.controller2.addEventListener('selectstart', this.onSelectStart.bind(this));
+        this.controller2.addEventListener('selectend', this.onSelectEnd.bind(this));
         
         // HUD - Power Bar
         this.powerBarGroup = new THREE.Group();
@@ -80,6 +82,16 @@ export class XRHandler {
     }
 
     onSelectStart(event) {
+        const session = this.renderer.xr.getSession();
+        if (session) {
+            for (let i = 0; i < session.inputSources.length; i++) {
+                if (this.renderer.xr.getController(i) === event.target) {
+                    if (session.inputSources[i].handedness !== 'right') return;
+                    break;
+                }
+            }
+        }
+
         this.isCharging = true;
         this.chargePower = 0;
         this.chargeDirection = 1;
@@ -92,6 +104,18 @@ export class XRHandler {
 
     onSelectEnd(event) {
         if (!this.isCharging) return;
+        
+        // Ensure it's the right controller that is ending the selection
+        const session = this.renderer.xr.getSession();
+        if (session) {
+            for (let i = 0; i < session.inputSources.length; i++) {
+                if (this.renderer.xr.getController(i) === event.target) {
+                    if (session.inputSources[i].handedness !== 'right') return;
+                    break;
+                }
+            }
+        }
+
         this.isCharging = false;
         this.powerBarGroup.visible = false;
         
@@ -254,8 +278,9 @@ export class XRHandler {
         // Only shoot if we found a ball and it's reasonably close
         if (targetBall && minDistance < 2.0) {
             // Apply impulse
-            const maxForce = 5; // realistic force magnitude
-            const forceMagnitude = Math.max(0.2, power * maxForce);
+            // Reduced maxForce by 5 times (from 5 to 1) 
+            const maxForce = 1.0; 
+            const forceMagnitude = Math.max(0.1, power * maxForce);
             const force = cueForward.multiplyScalar(forceMagnitude);
             const impulse = new CANNON.Vec3(force.x, force.y, force.z);
             
