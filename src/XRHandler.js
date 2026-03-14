@@ -187,8 +187,11 @@ export class XRHandler {
                         right.y = 0;
                         right.normalize();
 
+                        // Invert thumbstick logic:
+                        // Pushing forward (moveY < 0) should move along positive forward vector
+                        // Pushing right (moveX > 0) should move along positive right vector
                         this.xrRig.position.add(right.multiplyScalar(moveX * speed));
-                        this.xrRig.position.add(forward.multiplyScalar(moveY * speed));
+                        this.xrRig.position.add(forward.multiplyScalar(-moveY * speed));
                     }
 
                     // Right controller: Snap turning

@@ -20,8 +20,8 @@ export class SoundManager {
 
     playBallHit(impactVelocity) {
         if (!this.ctx) return;
-        let volume = impactVelocity * 0.4;
-        volume = Math.max(0.05, Math.min(volume, 0.8));
+        let volume = impactVelocity * 0.8; // Doubled from 0.4
+        volume = Math.max(0.1, Math.min(volume, 1.0)); // Adjusted floor limit
         
         // Softer, more natural billiard clack (less strident)
         // A single short high-pitch sine wave drop gives a "pop/click" without stridency
@@ -31,8 +31,8 @@ export class SoundManager {
 
     playCushionHit(impactVelocity) {
         if (!this.ctx) return;
-        let volume = impactVelocity * 0.3;
-        volume = Math.max(0.05, Math.min(volume, 0.7));
+        let volume = impactVelocity * 0.6; // Doubled from 0.3
+        volume = Math.max(0.1, Math.min(volume, 1.0)); // Adjusted floor limit
         
         // Very soft, muffled thud for the cushion
         this.playSound(100, 'sine', 0.12, volume, true);
