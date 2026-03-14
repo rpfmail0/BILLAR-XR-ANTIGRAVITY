@@ -93,10 +93,6 @@ export class XRHandler {
             }
         }
 
-        if (this.soundManager) {
-            this.soundManager.init();
-        }
-
         this.isCharging = true;
         this.chargePower = 0;
         this.chargeDirection = 1;
@@ -287,9 +283,6 @@ export class XRHandler {
         
         // Only shoot if we found a ball and it's reasonably close
         if (targetBall && minDistance < 2.0) {
-            // Initialize audio on first user interaction if not already done
-            if (this.soundManager) this.soundManager.init();
-
             // Apply impulse
             // Reduced maxForce by another 5 times (from 1.0 to 0.2) 
             const maxForce = 0.2; 

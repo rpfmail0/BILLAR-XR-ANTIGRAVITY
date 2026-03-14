@@ -45,7 +45,17 @@ export class SceneSetup {
         document.body.appendChild(this.renderer.domElement);
 
         // VR Button
-        document.body.appendChild(VRButton.createButton(this.renderer));
+        const vrButton = VRButton.createButton(this.renderer);
+        document.body.appendChild(vrButton);
+        
+        // Initialize audio context on the actual DOM button click (required by browsers)
+        vrButton.addEventListener('click', () => {
+            if (this.soundManager) {
+                this.soundManager.init();
+                // Play a tiny silent sound to force the context to unlock
+                this.soundManager.playSound(1, 'sine', 0.01, 0.001, false);
+            }
+        });
 
         // Lights
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);

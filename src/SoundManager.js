@@ -39,6 +39,7 @@ export class SoundManager {
     }
 
     playSound(freq, type, duration, volume, lowpass) {
+        if (!this.ctx) return;
         if (this.ctx.state === 'suspended') this.ctx.resume();
         
         const osc = this.ctx.createOscillator();
