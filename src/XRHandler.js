@@ -196,11 +196,10 @@ export class XRHandler {
 
             // Only aim if distance is reasonable to avoid glitchy rotation
             if (rightPos.distanceTo(leftPos) > 0.05) {
-                // Vector FORWARD from right hand TO left hand
-                const direction = new THREE.Vector3().subVectors(leftPos, rightPos).normalize();
+                // Vector correctly pointing from left to right so that -Z local axis of dummy points table-ward
+                const direction = new THREE.Vector3().subVectors(rightPos, leftPos).normalize();
                 
                 // We want the right hand to be the pivot (butt of the cue)
-                // and point it towards the left hand
                 const targetPos = new THREE.Vector3().copy(rightPos).add(direction);
                 
                 const dummy = new THREE.Object3D();

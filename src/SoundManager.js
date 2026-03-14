@@ -14,28 +14,25 @@ export class SoundManager {
 
     playCueHit(power) {
         if (!this.ctx) return;
-        const volume = Math.min(1.0, 0.5 + power);
-        this.playSound(600, 'sine', 0.05, volume, true);
+        const volume = Math.min(1.0, 0.8 + power * 0.5);
+        this.playSound(400, 'sine', 0.1, volume, true);
     }
 
     playBallHit(impactVelocity) {
         if (!this.ctx) return;
-        // Map impact velocity to volume (e.g. 0.1 to 5.0)
-        let volume = impactVelocity * 0.2;
-        volume = Math.max(0.05, Math.min(volume, 1.0));
+        let volume = impactVelocity * 0.3;
+        volume = Math.max(0.2, Math.min(volume, 1.0));
         
-        // High pitch sharp click
-        this.playSound(2500, 'triangle', 0.03, volume, false);
-        this.playSound(4000, 'sine', 0.02, volume * 0.5, false);
+        this.playSound(2000, 'triangle', 0.08, volume, false);
+        this.playSound(3500, 'sine', 0.05, volume * 0.5, false);
     }
 
     playCushionHit(impactVelocity) {
         if (!this.ctx) return;
-        let volume = impactVelocity * 0.2;
-        volume = Math.max(0.05, Math.min(volume, 1.0));
+        let volume = impactVelocity * 0.3;
+        volume = Math.max(0.2, Math.min(volume, 1.0));
         
-        // Lower pitch thud
-        this.playSound(300, 'square', 0.1, volume * 0.6, true);
+        this.playSound(250, 'square', 0.15, volume * 0.8, true);
     }
 
     playSound(freq, type, duration, volume, lowpass) {
@@ -47,11 +44,11 @@ export class SoundManager {
         
         osc.type = type;
         osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-        // Quick drop off for percussive sound
-        osc.frequency.exponentialRampToValueAtTime(freq * 0.1, this.ctx.currentTime + duration);
+        osc.frequency.linearRampToValueAtTime(freq * 0.2, this.ctx.currentTime + duration);
         
         gain.gain.setValueAtTime(volume, this.ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+        // Use linearRamp instead of exponential to avoid sudden cutoffs which sometimes click or mute
+        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + duration);
         
         let targetNode = gain;
         
