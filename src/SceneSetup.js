@@ -1,4 +1,4 @@
-import { SceneSetup } from './SceneSetup.js';
+import * as THREE from 'three';
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
 import { PhysicsWorld } from './PhysicsWorld.js';
 import { SoundManager } from './SoundManager.js';
