@@ -378,27 +378,28 @@ export class XRHandler {
         
         let targetBall = null;
         let minDistance = Infinity;
+        let exactHitPoint = null;
         
-        // 1. Check if the cue tip is physically close to any ball
-        for (const ball of this.balls) {
-            const dist = this.currentTipPosition.distanceTo(ball.mesh.position);
-            if (dist < 0.2) { // within 20cm
-                targetBall = ball;
-                minDistance = dist;
-                break;
-            }
-        }
+        // Always raycast first to find the exact surface point for off-center spin physics
+        const raycaster = new THREE.Raycaster(this.currentTipPosition, cueForward);
+        const ballMeshes = this.balls.map(b => b.mesh);
+        const intersects = raycaster.intersectObjects(ballMeshes);
         
-        // 2. If not close, raycast to find the ball we are pointing at
-        if (!targetBall) {
-            const raycaster = new THREE.Raycaster(this.currentTipPosition, cueForward);
-            const ballMeshes = this.balls.map(b => b.mesh);
-            const intersects = raycaster.intersectObjects(ballMeshes);
-            
-            if (intersects.length > 0) {
-                const hitMesh = intersects[0].object;
-                targetBall = this.balls.find(b => b.mesh === hitMesh);
-                minDistance = intersects[0].distance;
+        if (intersects.length > 0) {
+            const hitMesh = intersects[0].object;
+            targetBall = this.balls.find(b => b.mesh === hitMesh);
+            minDistance = intersects[0].distance;
+            exactHitPoint = intersects[0].point;
+        } else {
+            // Fallback: If raycast completely misses but cue is physically inside the ball
+            for (const ball of this.balls) {
+                const dist = this.currentTipPosition.distanceTo(ball.mesh.position);
+                if (dist < 0.2) { // within 20cm
+                    targetBall = ball;
+                    minDistance = dist;
+                    exactHitPoint = ball.mesh.position.clone();
+                    break;
+                }
             }
         }
         
@@ -411,8 +412,9 @@ export class XRHandler {
             const force = cueForward.multiplyScalar(forceMagnitude);
             const impulse = new CANNON.Vec3(force.x, force.y, force.z);
             
-            const hitPointOffset = new CANNON.Vec3(0, -0.01, 0); 
-            const worldPoint = new CANNON.Vec3(targetBall.body.position.x, targetBall.body.position.y, targetBall.body.position.z).vadd(hitPointOffset);
+            // Apply the physics push AT the exact hit point coordinate. 
+            // If this is off-center, Cannon.js will automatically convert the offset into angular rotation (Billiard English)
+            const worldPoint = new CANNON.Vec3(exactHitPoint.x, exactHitPoint.y, exactHitPoint.z);
 
             targetBall.body.wakeUp();
             targetBall.body.applyImpulse(impulse, worldPoint);
