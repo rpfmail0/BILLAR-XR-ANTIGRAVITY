@@ -22,7 +22,11 @@ export class XRHandler {
         this.currentTipPosition = new THREE.Vector3();
         this.velocity = new THREE.Vector3();
         
-        this.canHit = true;
+        // Charging state for button-based shooting
+        this.isCharging = false;
+        this.chargePower = 0;
+        this.chargeDirection = 1;
+        this.chargeSpeed = 1.0; // 1 second to reach full power
 
         // Locomotion state
         this.snapTurnReady = true;
@@ -51,14 +55,52 @@ export class XRHandler {
         // Event listeners
         this.controller1.addEventListener('selectstart', this.onSelectStart.bind(this));
         this.controller1.addEventListener('selectend', this.onSelectEnd.bind(this));
+        
+        // HUD - Power Bar
+        this.powerBarGroup = new THREE.Group();
+        this.powerBarGroup.position.set(0, -0.2, -1); // Slightly down, 1m away from camera
+        this.camera.add(this.powerBarGroup);
+
+        const bgGeo = new THREE.PlaneGeometry(0.5, 0.02);
+        const bgMat = new THREE.MeshBasicMaterial({ color: 0x444444, depthTest: false, transparent: true, opacity: 0.5 });
+        const bgMesh = new THREE.Mesh(bgGeo, bgMat);
+        bgMesh.renderOrder = 999;
+        this.powerBarGroup.add(bgMesh);
+
+        const fgGeo = new THREE.PlaneGeometry(0.5, 0.02);
+        fgGeo.translate(0.25, 0, 0); // Pivot at left
+        const fgMat = new THREE.MeshBasicMaterial({ color: 0x00ff00, depthTest: false, transparent: true, opacity: 0.8 });
+        this.powerBarMesh = new THREE.Mesh(fgGeo, fgMat);
+        this.powerBarMesh.position.x = -0.25;
+        this.powerBarMesh.scale.x = 0.001;
+        this.powerBarMesh.renderOrder = 1000;
+        this.powerBarGroup.add(this.powerBarMesh);
+
+        this.powerBarGroup.visible = false;
     }
 
-    onSelectStart() {
-        // Reset game or place ball?
+    onSelectStart(event) {
+        this.isCharging = true;
+        this.chargePower = 0;
+        this.chargeDirection = 1;
+        this.powerBarGroup.visible = true;
+        
+        if (event.target.gamepad && event.target.gamepad.hapticActuators) {
+            event.target.gamepad.hapticActuators[0].pulse(0.5, 50);
+        }
     }
 
-    onSelectEnd() {
-
+    onSelectEnd(event) {
+        if (!this.isCharging) return;
+        this.isCharging = false;
+        this.powerBarGroup.visible = false;
+        
+        this.shootBall(this.chargePower);
+        this.chargePower = 0;
+        
+        if (event.target.gamepad && event.target.gamepad.hapticActuators) {
+            event.target.gamepad.hapticActuators[0].pulse(1.0, 100);
+        }
     }
 
     update(dt) {
@@ -132,7 +174,8 @@ export class XRHandler {
                 const dummy = new THREE.Object3D();
                 dummy.position.copy(rightPos);
                 
-                const direction = new THREE.Vector3().subVectors(rightPos, leftPos).normalize();
+                // Vector FROM right TO left hand ensures the -Z axis of the cue aligns properly
+                const direction = new THREE.Vector3().subVectors(leftPos, rightPos).normalize();
                 const targetPos = new THREE.Vector3().copy(rightPos).add(direction);
                 dummy.lookAt(targetPos);
                 
@@ -155,80 +198,75 @@ export class XRHandler {
             // Calculate tip position in world space
             if (this.cue.tip) {
                 this.cue.tip.getWorldPosition(this.currentTipPosition);
+            }
+        }
 
-                // Calculate velocity
-                if (dt > 0) {
-                    this.velocity.subVectors(this.currentTipPosition, this.previousTipPosition).divideScalar(dt);
-                }
+        // Update power bar charging
+        if (this.isCharging) {
+            this.chargePower += this.chargeDirection * this.chargeSpeed * dt;
+            if (this.chargePower >= 1.0) {
+                this.chargePower = 1.0;
+                this.chargeDirection = -1;
+            } else if (this.chargePower <= 0.0) {
+                this.chargePower = 0.0;
+                this.chargeDirection = 1;
+            }
+            
+            this.powerBarMesh.scale.x = Math.max(0.001, this.chargePower);
+            // Change color: green to red
+            this.powerBarMesh.material.color.setHSL(0.33 * (1 - this.chargePower), 1.0, 0.5);
+        }
+    }
 
-                this.previousTipPosition.copy(this.currentTipPosition);
+    shootBall(power) {
+        if (!this.cue.tip) return;
+        
+        // Find direction the cue is pointing
+        const cueForward = new THREE.Vector3(0, 0, -1).applyQuaternion(this.cue.mesh.quaternion).normalize();
+        this.cue.tip.getWorldPosition(this.currentTipPosition);
+        
+        let targetBall = null;
+        let minDistance = Infinity;
+        
+        // 1. Check if the cue tip is physically close to any ball
+        for (const ball of this.balls) {
+            const dist = this.currentTipPosition.distanceTo(ball.mesh.position);
+            if (dist < 0.2) { // within 20cm
+                targetBall = ball;
+                minDistance = dist;
+                break;
+            }
+        }
+        
+        // 2. If not close, raycast to find the ball we are pointing at
+        if (!targetBall) {
+            const raycaster = new THREE.Raycaster(this.currentTipPosition, cueForward);
+            const ballMeshes = this.balls.map(b => b.mesh);
+            const intersects = raycaster.intersectObjects(ballMeshes);
+            
+            if (intersects.length > 0) {
+                const hitMesh = intersects[0].object;
+                targetBall = this.balls.find(b => b.mesh === hitMesh);
+                minDistance = intersects[0].distance;
+            }
+        }
+        
+        // Only shoot if we found a ball and it's reasonably close
+        if (targetBall && minDistance < 2.0) {
+            // Apply impulse
+            const maxForce = 5; // realistic force magnitude
+            const forceMagnitude = Math.max(0.2, power * maxForce);
+            const force = cueForward.multiplyScalar(forceMagnitude);
+            const impulse = new CANNON.Vec3(force.x, force.y, force.z);
+            
+            const hitPointOffset = new CANNON.Vec3(0, -0.01, 0); 
+            const worldPoint = new CANNON.Vec3(targetBall.body.position.x, targetBall.body.position.y, targetBall.body.position.z).vadd(hitPointOffset);
 
-                // Check collision with White Ball (index 0)
-                const whiteBall = this.balls[0];
-                
-                // Continuous Collision Detection (CCD) to prevent cue passing through the ball if moved fast
-                const A = this.previousTipPosition;
-                const B = this.currentTipPosition;
-                const C = whiteBall.mesh.position;
-                
-                const AB = new THREE.Vector3().subVectors(B, A);
-                const AC = new THREE.Vector3().subVectors(C, A);
-                
-                let t = 0;
-                if (AB.lengthSq() > 0.000001) {
-                    t = AC.dot(AB) / AB.lengthSq();
-                    t = Math.max(0, Math.min(1, t)); // Clamp to segment
-                }
-                
-                const closestPoint = new THREE.Vector3().copy(A).add(AB.clone().multiplyScalar(t));
-                const dist = closestPoint.distanceTo(C);
+            targetBall.body.wakeUp();
+            targetBall.body.applyImpulse(impulse, worldPoint);
 
-                // Ball radius 0.03075, Tip radius 0.006. 
-                // Distance to center of ball is roughly the radius when touching.
-                // Let's increase the collision threshold to make hitting easier.
-                if (dist < 0.05) {
-                    if (!this.canHit) return;
-
-                    // Check if the cue tip is actually moving fast enough to constitute a "hit"
-                    const speed = this.velocity.length();
-                    
-                    if (speed > 0.02) { // Lower speed requirement so soft taps work
-                        this.canHit = false; // Prevent multiple hits instantly
-                        setTimeout(() => { this.canHit = true; }, 500);
-
-                        // Apply impulse
-                        // For a ball of mass 0.21kg, an impulse of 1 means velocity change of ~4.7 m/s.
-                        // We scale the speed heavily down to realistic values so the ball stays on the table.
-                        // Using a lower multiplier prevents the ball teleporting out of bounds.
-                        const forceMagnitude = speed * 0.4;
-                        
-                        // Direction of force: from the tip of the cue extending forward along the stick's rotation
-                        const cueForward = new THREE.Vector3(0, 0, -1).applyQuaternion(this.cue.mesh.quaternion).normalize();
-                        const force = cueForward.multiplyScalar(forceMagnitude);
-
-                        // Apply to Cannon body
-                        const impulse = new CANNON.Vec3(force.x, force.y, force.z);
-                        
-                        // Hit point (slightly below center for natural roll, simplified)
-                        const hitPointOffset = new CANNON.Vec3(0, -0.01, 0); 
-                        const worldPoint = new CANNON.Vec3(whiteBall.body.position.x, whiteBall.body.position.y, whiteBall.body.position.z).vadd(hitPointOffset);
-
-                        whiteBall.body.wakeUp(); // Ensure body is awake
-                        whiteBall.body.applyImpulse(impulse, worldPoint);
-
-                        // Notify GameLogic
-                        if (this.gameLogic) {
-                            this.gameLogic.startShot();
-                        }
-
-                        // Haptic feedback
-                        if (rightCtrl && rightCtrl.gamepad && rightCtrl.gamepad.hapticActuators) {
-                            rightCtrl.gamepad.hapticActuators[0].pulse(1.0, 100);
-                        } else if (this.controller1.gamepad && this.controller1.gamepad.hapticActuators) {
-                            this.controller1.gamepad.hapticActuators[0].pulse(1.0, 100);
-                        }
-                    }
-                }
+            if (this.gameLogic) {
+                this.gameLogic.startShot();
             }
         }
     }
