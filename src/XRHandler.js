@@ -21,6 +21,8 @@ export class XRHandler {
         this.previousTipPosition = new THREE.Vector3();
         this.currentTipPosition = new THREE.Vector3();
         this.velocity = new THREE.Vector3();
+        
+        this.canHit = true;
 
         // Locomotion state
         this.snapTurnReady = true;
@@ -177,19 +179,32 @@ export class XRHandler {
                 // Ball radius 0.03075, Tip radius 0.006. 
                 // Collision distance approx 0.037
                 if (dist < 0.038) {
+                    if (!this.canHit) return;
+
                     // Check if moving towards ball
                     const directionToBall = new THREE.Vector3().subVectors(whiteBall.mesh.position, this.currentTipPosition).normalize();
                     const dot = this.velocity.dot(directionToBall);
 
-                    if (dot > 0.1) { // Moving towards ball with some speed
+                    if (dot > 0.05) { // Moving towards ball with some speed
+                        this.canHit = false; // Prevent multiple hits instantly
+                        setTimeout(() => { this.canHit = true; }, 500);
+
                         // Apply impulse
-                        // Force magnitude proportional to velocity
-                        const force = this.velocity.clone().multiplyScalar(5); // Adjust multiplier
+                        // Force magnitude proportional to velocity.
+                        // A real cue hit transfers a lot of momentum instantly.
+                        const speed = Math.min(this.velocity.length(), 10); // Cap max speed
+                        const forceMagnitude = speed * 15; // Increased multiplier for stronger hit
+                        
+                        // Direction of force is the direction the cue is moving
+                        const forceDirection = this.velocity.clone().normalize();
+                        const force = forceDirection.multiplyScalar(forceMagnitude);
 
                         // Apply to Cannon body
-                        // Cannon uses Vec3
                         const impulse = new CANNON.Vec3(force.x, force.y, force.z);
-                        const worldPoint = new CANNON.Vec3(this.currentTipPosition.x, this.currentTipPosition.y, this.currentTipPosition.z);
+                        
+                        // Hit point (slightly below center for natural roll, simplified)
+                        const hitPointOffset = new CANNON.Vec3(0, -0.01, 0); 
+                        const worldPoint = new CANNON.Vec3(whiteBall.body.position.x, whiteBall.body.position.y, whiteBall.body.position.z).vadd(hitPointOffset);
 
                         whiteBall.body.applyImpulse(impulse, worldPoint);
 

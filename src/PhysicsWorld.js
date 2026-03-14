@@ -37,7 +37,7 @@ export class PhysicsWorld {
             this.ballMaterial,
             {
                 friction: 0.1,
-                restitution: 0.9 // Very bouncy collisions between balls
+                restitution: 0.98 // Very bouncy collisions between billiard balls
             }
         );
         this.world.addContactMaterial(ballBallContactMaterial);
