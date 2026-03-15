@@ -251,10 +251,11 @@ export class XRHandler {
                         this.xrRig.position.add(right.multiplyScalar(-moveX * speed));
                         this.xrRig.position.add(forward.multiplyScalar(-moveY * speed));
 
-                        // Undo Shortcut (Button X = index 3)
+                        // Undo Shortcut (Button X = index 4 on Quest left controller)
                         const now = performance.now() / 1000;
                         if (this.preShotState && (now - this.lastUndoTime > this.undoCooldown)) {
-                            if (source.gamepad.buttons[3]?.pressed) {
+                            // index 4 is X button, index 3 is thumbstick click
+                            if (source.gamepad.buttons[4]?.pressed) {
                                 this.restorePreShotState();
                                 this.lastUndoTime = now;
                                 if (source.gamepad.hapticActuators) {
@@ -469,9 +470,6 @@ export class XRHandler {
     shootBall(power) {
         if (!this.cue.tip) return;
         
-        // Save state for undo BEFORE applying impulse
-        this.savePreShotState();
-
         // Find direction the cue is pointing
         const cueForward = new THREE.Vector3(0, 0, -1).applyQuaternion(this.cue.mesh.quaternion).normalize();
         this.cue.tip.getWorldPosition(this.currentTipPosition);
@@ -505,6 +503,9 @@ export class XRHandler {
         
         // Only shoot if we found a ball and it's reasonably close
         if (targetBall && minDistance < 2.0) {
+            // Save state for undo ONLY when a valid shot is about to happen
+            this.savePreShotState();
+
             // Apply impulse
             // Applied force further reduced by factor of 5 based on user request
             const maxForce = 0.04; 
