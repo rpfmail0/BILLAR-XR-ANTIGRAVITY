@@ -35,6 +35,10 @@ export class XRHandler {
 
         // VR Grabbing Context
         this.grabbedBalls = new Map(); // maps controller to ball
+        
+        // Teleport cooldown to prevent multiple triggers
+        this.lastTeleportTime = 0;
+        this.teleportCooldown = 0.5; // 500ms
 
         this.init();
     }
@@ -251,13 +255,53 @@ export class XRHandler {
                         this.xrRig.position.z = Math.max(-maxDistZ, Math.min(maxDistZ, this.xrRig.position.z));
                     }
 
-                    // Right controller: Snap turning
+                    // Right controller: Snap turning and Strategic Teleport
                     if (source.handedness === 'right') {
+                        // Snap turning
                         if (Math.abs(moveX) < deadzone) {
                             this.snapTurnReady = true;
                         } else if (this.snapTurnReady) {
                             this.xrRig.rotation.y += moveX > 0 ? -Math.PI / 4 : +Math.PI / 4;
                             this.snapTurnReady = false;
+                        }
+
+                        // Strategic Teleport (A button = index 4, B button = index 5)
+                        const now = performance.now() / 1000;
+                        if (now - this.lastTeleportTime > this.teleportCooldown) {
+                            const buttonA = source.gamepad.buttons[4]?.pressed;
+                            const buttonB = source.gamepad.buttons[5]?.pressed;
+
+                            if (buttonA || buttonB) {
+                                // balls[0] = White, balls[1] = Yellow, balls[2] = Red
+                                const whiteBall = this.balls[0];
+                                const targetBall = buttonA ? this.balls[2] : this.balls[1];
+
+                                if (whiteBall && targetBall) {
+                                    const whitePos = whiteBall.mesh.position.clone();
+                                    const targetPos = targetBall.mesh.position.clone();
+                                    
+                                    // Calculate direction from white ball to target ball
+                                    const direction = new THREE.Vector3().subVectors(targetPos, whitePos);
+                                    direction.y = 0; // Keep teleport on the floor plane
+                                    direction.normalize();
+
+                                    // Move rig 1 meter behind white ball along that line
+                                    const newRigPos = whitePos.clone().sub(direction.clone().multiplyScalar(1.0));
+                                    newRigPos.y = 0; // Fix rig to floor
+                                    
+                                    this.xrRig.position.copy(newRigPos);
+                                    
+                                    // Point the rig so the camera looks at the white/target line
+                                    // Since xrRig rotation affects camera, we lookAt the target ball
+                                    this.xrRig.lookAt(targetPos.x, 0, targetPos.z);
+                                    
+                                    this.lastTeleportTime = now;
+                                    
+                                    if (source.gamepad.hapticActuators) {
+                                        source.gamepad.hapticActuators[0].pulse(0.3, 50);
+                                    }
+                                }
+                            }
                         }
                     }
                 }
