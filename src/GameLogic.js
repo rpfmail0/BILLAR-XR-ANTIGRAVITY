@@ -52,6 +52,12 @@ export class GameLogic {
         console.log("Shot started");
     }
 
+    cancelShot() {
+        this.shotActive = false;
+        this.pointScoredThisShot = true; // Pretend we scored so update() doesn't reset streak
+        console.log("Shot cancelled (Undo)");
+    }
+
     initCollisionListeners() {
         const whiteBallBody = this.balls[0].body;
 

@@ -602,6 +602,10 @@ export class XRHandler {
     restorePreShotState() {
         if (!this.preShotState) return;
         
+        if (this.gameLogic) {
+            this.gameLogic.cancelShot();
+        }
+        
         this.balls.forEach((ball, index) => {
             const state = this.preShotState[index];
             ball.body.position.copy(state.position);
@@ -619,6 +623,13 @@ export class XRHandler {
 
     shootBall(power) {
         if (!this.cue.tip) return;
+        
+        // Save state for undo BEFORE applying impulse
+        this.savePreShotState();
+
+        if (this.gameLogic) {
+            this.gameLogic.startShot();
+        }
         
         // Find direction the cue is pointing
         const cueForward = new THREE.Vector3(0, 0, -1).applyQuaternion(this.cue.mesh.quaternion).normalize();

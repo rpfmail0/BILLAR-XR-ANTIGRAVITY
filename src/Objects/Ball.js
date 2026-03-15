@@ -23,6 +23,20 @@ export class Ball {
         this.mesh = new THREE.Mesh(geometry, material);
         this.mesh.castShadow = true;
         this.scene.add(this.mesh);
+
+        // Add rotation marker (especially for white ball to see spin)
+        if (this.color === 0xffffff || this.color === 'white') {
+            const markerGeo = new THREE.SphereGeometry(0.005, 8, 8);
+            const markerMat = new THREE.MeshStandardMaterial({ color: 0x0000ff });
+            const marker = new THREE.Mesh(markerGeo, markerMat);
+            marker.position.set(0, this.radius - 0.002, 0); // Just on the surface
+            this.mesh.add(marker);
+
+            // Add a second one for better visibility on the other side
+            const marker2 = marker.clone();
+            marker2.position.set(0, -(this.radius - 0.002), 0);
+            this.mesh.add(marker2);
+        }
     }
 
     createPhysics() {
