@@ -248,10 +248,16 @@ export class XRHandler {
         
         if (this.passthroughEnabled) {
             this.scene.background = null;
+            this.renderer.setClearColor(0x000000, 0);
             this.renderer.setClearAlpha(0);
+            // Higher foveation can sometimes interfere with passthrough transparency
+            if (this.renderer.xr.setFoveation) this.renderer.xr.setFoveation(0);
         } else {
             this.scene.background = this.originalBackground;
+            const bgColor = this.originalBackground instanceof THREE.Color ? this.originalBackground : new THREE.Color(0x222222);
+            this.renderer.setClearColor(bgColor, 1);
             this.renderer.setClearAlpha(1);
+            if (this.renderer.xr.setFoveation) this.renderer.xr.setFoveation(1);
         }
     }
 

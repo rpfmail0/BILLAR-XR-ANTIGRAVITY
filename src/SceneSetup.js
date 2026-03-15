@@ -46,7 +46,8 @@ export class SceneSetup {
 
         // VR Button
         const vrButton = VRButton.createButton(this.renderer, { 
-            optionalFeatures: ['local-floor', 'bounded-floor', 'passthrough'] 
+            requiredFeatures: ['passthrough'],
+            optionalFeatures: ['local-floor', 'bounded-floor'] 
         });
         document.body.appendChild(vrButton);
         
