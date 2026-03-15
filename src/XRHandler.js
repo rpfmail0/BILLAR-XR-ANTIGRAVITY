@@ -343,30 +343,44 @@ export class XRHandler {
                 if (!source.gamepad) continue;
                 
                 const axes = source.gamepad.axes;
+                const whiteBall = this.balls ? this.balls[0] : null;
+                const whiteBallPos = whiteBall ? whiteBall.mesh.position.clone() : new THREE.Vector3(0, 0, 0);
+                whiteBallPos.y = 0; // Only use XZ plane
+
                 // Standard VR gamepads axes: [0, 1] touchpad/thumbstick 1, [2, 3] touchpad/thumbstick 2.
                 if (axes.length >= 4) {
                     const deadzone = 0.1;
                     const moveX = Math.abs(axes[2]) > deadzone ? axes[2] : 0;
                     const moveY = Math.abs(axes[3]) > deadzone ? axes[3] : 0;
 
-                    // Left controller: Movement
-                    if (source.handedness === 'left') {
+                    // Left controller: Movement relative to White Ball
+                    if (source.handedness === 'left' && whiteBall) {
                         const speed = 2.0 * dt;
                         
-                        // Calculate forward and right relative to camera view on XZ plane
-                        const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(this.camera.quaternion);
-                        forward.y = 0;
-                        forward.normalize();
+                        // Vector from rig to white ball (XZ only)
+                        const rigPos = this.xrRig.position.clone();
+                        rigPos.y = 0;
                         
-                        const right = new THREE.Vector3(1, 0, 0).applyQuaternion(this.camera.quaternion);
-                        right.y = 0;
-                        right.normalize();
+                        const toBall = new THREE.Vector3().subVectors(whiteBallPos, rigPos);
+                        const distanceToBall = toBall.length();
+                        
+                        // Default forward is camera if too close to ball, else use ball direction
+                        let forward;
+                        if (distanceToBall > 0.1) {
+                            forward = toBall.clone().normalize();
+                        } else {
+                            forward = new THREE.Vector3(0, 0, -1).applyQuaternion(this.camera.quaternion);
+                            forward.y = 0;
+                            forward.normalize();
+                        }
+                        
+                        const right = new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), forward).normalize();
 
-                        // Invert thumbstick logic:
-                        // Pushing forward (moveY < 0) should move along positive forward vector
-                        // Pushing right (moveX > 0) should move along positive right vector
-                        this.xrRig.position.add(right.multiplyScalar(-moveX * speed));
+                        // Move forward/back (towards/away from ball)
+                        // moveY < 0 is stick forward
                         this.xrRig.position.add(forward.multiplyScalar(-moveY * speed));
+                        // Move sideways (strafe)
+                        this.xrRig.position.add(right.multiplyScalar(moveX * speed));
 
                         // Undo Shortcut (Button X = index 4 on Quest left controller)
                         const now = performance.now() / 1000;
@@ -390,13 +404,26 @@ export class XRHandler {
                         this.xrRig.position.z = Math.max(-maxDistZ, Math.min(maxDistZ, this.xrRig.position.z));
                     }
 
-                    // Right controller: Snap turning and Strategic Teleport
-                    if (source.handedness === 'right') {
-                        // Snap turning
+                    // Right controller: Orbit Rotation around White Ball
+                    if (source.handedness === 'right' && whiteBall) {
                         if (Math.abs(moveX) < deadzone) {
                             this.snapTurnReady = true;
                         } else if (this.snapTurnReady) {
-                            this.xrRig.rotation.y += moveX > 0 ? -Math.PI / 4 : +Math.PI / 4;
+                            const angle = moveX > 0 ? -Math.PI / 4 : +Math.PI / 4;
+                            
+                            // Orbit: Move rig around the white ball
+                            const rigPos = this.xrRig.position.clone();
+                            const offset = new THREE.Vector3().subVectors(rigPos, whiteBallPos);
+                            
+                            // Rotate offset vector
+                            offset.applyAxisAngle(new THREE.Vector3(0, 1, 0), angle);
+                            
+                            // Set new rig position
+                            this.xrRig.position.addVectors(whiteBallPos, offset);
+                            
+                            // Also rotate the rig itself to keep orientation consistent
+                            this.xrRig.rotation.y += angle;
+                            
                             this.snapTurnReady = false;
                         }
 
