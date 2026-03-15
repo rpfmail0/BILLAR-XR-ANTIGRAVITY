@@ -43,6 +43,11 @@ export class XRHandler {
         this.lastUndoTime = 0;
         this.undoCooldown = 0.5;
 
+        // Passthrough state
+        this.passthroughEnabled = false;
+        this.lastPassthroughTime = 0;
+        this.originalBackground = this.scene.background;
+
         this.init();
     }
 
@@ -222,8 +227,32 @@ export class XRHandler {
         ctx.fillStyle = 'white';
         ctx.fillText('X', 38, y-1);
         ctx.fillText(' ⟲ DESHACER TIRO', 85, y);
+        y += gap;
+
+        // Y - Passthrough
+        ctx.beginPath();
+        ctx.arc(45, y-10, 15, 0, Math.PI*2);
+        ctx.fillStyle = '#333';
+        ctx.fill();
+        ctx.strokeStyle = '#555';
+        ctx.stroke();
+        ctx.fillStyle = 'white';
+        ctx.fillText('Y', 38, y-1);
+        ctx.fillText(' 👁 TOGGLE PASSTHROUGH', 85, y);
 
         this.hudTexture.needsUpdate = true;
+    }
+
+    togglePassthrough() {
+        this.passthroughEnabled = !this.passthroughEnabled;
+        
+        if (this.passthroughEnabled) {
+            this.scene.background = null;
+            this.renderer.setClearAlpha(0);
+        } else {
+            this.scene.background = this.originalBackground;
+            this.renderer.setClearAlpha(1);
+        }
     }
 
     onSelectStart(event) {
@@ -391,6 +420,17 @@ export class XRHandler {
                                 this.lastUndoTime = now;
                                 if (source.gamepad.hapticActuators) {
                                     source.gamepad.hapticActuators[0].pulse(0.5, 100);
+                                }
+                            }
+                        }
+
+                        // Passthrough Toggle (Button Y = index 5 on Quest left controller)
+                        if (now - this.lastPassthroughTime > 0.5) {
+                            if (source.gamepad.buttons[5]?.pressed) {
+                                this.togglePassthrough();
+                                this.lastPassthroughTime = now;
+                                if (source.gamepad.hapticActuators) {
+                                    source.gamepad.hapticActuators[0].pulse(0.3, 50);
                                 }
                             }
                         }

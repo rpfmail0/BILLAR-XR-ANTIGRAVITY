@@ -37,7 +37,7 @@ export class SceneSetup {
         this.xrRig.add(this.camera);
 
         // Renderer
-        this.renderer = new THREE.WebGLRenderer({ antialias: true });
+        this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.xr.enabled = true;
@@ -45,7 +45,9 @@ export class SceneSetup {
         document.body.appendChild(this.renderer.domElement);
 
         // VR Button
-        const vrButton = VRButton.createButton(this.renderer);
+        const vrButton = VRButton.createButton(this.renderer, { 
+            optionalFeatures: ['local-floor', 'bounded-floor', 'passthrough'] 
+        });
         document.body.appendChild(vrButton);
         
         // Initialize audio context on the actual DOM button click (required by browsers)
