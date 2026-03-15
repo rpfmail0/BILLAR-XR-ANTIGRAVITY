@@ -86,15 +86,8 @@ export class GameLogic {
 
     checkScore() {
         if (this.ballsHit.size === 2) {
-            if (this.cushionContacts >= 3) {
-                console.log("POINT SCORED!");
-                this.updateScore(1);
-                // Reset for next shot logic handled by stopShot or timeout?
-                // Usually we wait for balls to stop.
-            } else {
-                console.log("No point. Not enough cushions.");
-            }
-            // End shot logic effectively
+            console.log("POINT SCORED!");
+            this.updateScore(1);
         }
     }
 
