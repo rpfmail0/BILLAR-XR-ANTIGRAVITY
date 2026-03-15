@@ -107,6 +107,59 @@ export class XRHandler {
         this.aimDot.renderOrder = 999; // Render on top
         this.scene.add(this.aimDot);
         this.aimDot.visible = false;
+
+        // VR HUD
+        this.createVRHUD();
+    }
+
+    createVRHUD() {
+        this.hudDiv = document.createElement('div');
+        this.hudDiv.style.width = '240px';
+        this.hudDiv.style.height = '140px';
+        this.hudDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+        this.hudDiv.style.color = 'white';
+        this.hudDiv.style.padding = '10px';
+        this.hudDiv.style.fontFamily = 'monospace';
+        this.hudDiv.style.fontSize = '14px';
+        this.hudDiv.style.borderRadius = '10px';
+        this.hudDiv.style.pointerEvents = 'none';
+        this.hudDiv.style.userSelect = 'none';
+
+        // Initial content
+        this.updateHUDContent(0);
+
+        this.hudMesh = new HTMLMesh(this.hudDiv);
+        // Position top-left in camera view
+        // Scale it down to be small enough in XR
+        this.hudMesh.scale.setScalar(0.2); 
+        this.hudMesh.position.set(-0.25, 0.15, -0.6); // Top-left, 60cm away
+        this.camera.add(this.hudMesh);
+    }
+
+    updateHUDContent(streak) {
+        this.hudDiv.innerHTML = `
+            <div style="font-size: 16px; margin-bottom: 8px; border-bottom: 1px solid #666; padding-bottom: 4px;">
+                Carambolas: <span style="color: #4CAF50;">${streak}</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <span style="background: #555; padding: 0 4px; border-radius: 3px;">Trigger R</span>
+                    <span style="font-weight: bold; transform: rotate(45deg); display: inline-block;">|</span> Disparar
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <span style="background: #333; padding: 0 5px; border-radius: 50%; border: 1px solid #555;">B</span>
+                    <span style="width: 10px; height: 10px; background: yellow; border-radius: 50%;"></span> Amarilla
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <span style="background: #333; padding: 0 5px; border-radius: 50%; border: 1px solid #555;">A</span>
+                    <span style="width: 10px; height: 10px; background: red; border-radius: 50%;"></span> Roja
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <span style="background: #333; padding: 0 5px; border-radius: 50%; border: 1px solid #555;">X</span>
+                    <span style="font-size: 16px;">⟲</span> Deshacer
+                </div>
+            </div>
+        `;
     }
 
     onSelectStart(event) {
@@ -439,6 +492,12 @@ export class XRHandler {
             ball.body.velocity.set(0, 0, 0);
             ball.body.angularVelocity.set(0, 0, 0);
             ball.mesh.position.copy(pos);
+        }
+
+        // Update VR HUD with streak and redraw
+        if (this.gameLogic && this.hudMesh) {
+            this.updateHUDContent(this.gameLogic.streak);
+            this.hudMesh.update();
         }
     }
 

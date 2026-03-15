@@ -16,6 +16,7 @@ export class GameLogic {
     }
 
     createScoreDisplay() {
+        // We will keep the 2D scoreboard for spectator/debug but VR HUD is primary
         const div = document.createElement('div');
         div.id = 'score-board';
         div.style.position = 'absolute';
@@ -23,22 +24,29 @@ export class GameLogic {
         div.style.left = '20px';
         div.style.color = 'white';
         div.style.fontSize = '24px';
-        div.style.fontFamily = 'sans-serif';
-        div.innerText = 'Score: 0';
+        div.style.fontFamily = 'monospace';
+        div.style.padding = '10px';
+        div.style.background = 'rgba(0,0,0,0.5)';
+        div.innerText = 'Score: 0 | Streak: 0';
         document.body.appendChild(div);
         this.scoreElement = div;
     }
 
     updateScore(points) {
         this.score += points;
-        this.scoreElement.innerText = `Score: ${this.score}`;
+        if (points > 0) {
+            this.streak += points;
+            this.pointScoredThisShot = true;
+        }
+        this.scoreElement.innerText = `Score: ${this.score} | Streak: ${this.streak}`;
     }
 
     startShot() {
-        if (this.shotActive) return; // Already active
+        if (this.shotActive) return; 
         this.shotActive = true;
         this.cushionContacts = 0;
         this.ballsHit.clear();
+        this.pointScoredThisShot = false;
         console.log("Shot started");
     }
 
@@ -111,6 +119,11 @@ export class GameLogic {
 
         if (totalSpeed < 0.01 && this.shotActive) {
             this.shotActive = false;
+            // If no point was scored this shot, reset streak
+            if (!this.pointScoredThisShot) {
+                this.streak = 0;
+                this.updateScore(0); // Update display
+            }
             console.log("Balls stopped. Shot ended.");
         }
     }
