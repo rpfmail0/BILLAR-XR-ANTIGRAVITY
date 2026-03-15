@@ -40,6 +40,11 @@ export class XRHandler {
         this.lastTeleportTime = 0;
         this.teleportCooldown = 0.5; // 500ms
 
+        // Undo states
+        this.preShotState = null;
+        this.lastUndoTime = 0;
+        this.undoCooldown = 0.5;
+
         this.init();
     }
 
@@ -246,6 +251,18 @@ export class XRHandler {
                         this.xrRig.position.add(right.multiplyScalar(-moveX * speed));
                         this.xrRig.position.add(forward.multiplyScalar(-moveY * speed));
 
+                        // Undo Shortcut (Button X = index 3)
+                        const now = performance.now() / 1000;
+                        if (this.preShotState && (now - this.lastUndoTime > this.undoCooldown)) {
+                            if (source.gamepad.buttons[3]?.pressed) {
+                                this.restorePreShotState();
+                                this.lastUndoTime = now;
+                                if (source.gamepad.hapticActuators) {
+                                    source.gamepad.hapticActuators[0].pulse(0.5, 100);
+                                }
+                            }
+                        }
+
                         // Clamp position to not walk further than 1.5m from the table.
                         // Table dimensions: half-width=0.71, half-length=1.42
                         // Boundaries = dimension + 1.5
@@ -424,9 +441,37 @@ export class XRHandler {
         }
     }
 
+    savePreShotState() {
+        this.preShotState = this.balls.map(ball => ({
+            position: ball.body.position.clone(),
+            quaternion: ball.body.quaternion.clone()
+        }));
+    }
+
+    restorePreShotState() {
+        if (!this.preShotState) return;
+        
+        this.balls.forEach((ball, index) => {
+            const state = this.preShotState[index];
+            ball.body.position.copy(state.position);
+            ball.body.quaternion.copy(state.quaternion);
+            ball.body.velocity.set(0, 0, 0);
+            ball.body.angularVelocity.set(0, 0, 0);
+            
+            // Sync mesh immediately
+            ball.mesh.position.copy(state.position);
+            ball.mesh.quaternion.copy(state.quaternion);
+            
+            ball.body.wakeUp();
+        });
+    }
+
     shootBall(power) {
         if (!this.cue.tip) return;
         
+        // Save state for undo BEFORE applying impulse
+        this.savePreShotState();
+
         // Find direction the cue is pointing
         const cueForward = new THREE.Vector3(0, 0, -1).applyQuaternion(this.cue.mesh.quaternion).normalize();
         this.cue.tip.getWorldPosition(this.currentTipPosition);
