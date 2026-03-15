@@ -292,8 +292,9 @@ export class XRHandler {
                                     this.xrRig.position.copy(newRigPos);
                                     
                                     // Point the rig so the camera looks at the white/target line
-                                    // Since xrRig rotation affects camera, we lookAt the target ball
                                     this.xrRig.lookAt(targetPos.x, 0, targetPos.z);
+                                    // The user reported being facing away, so we rotate 180 degrees
+                                    this.xrRig.rotation.y += Math.PI;
                                     
                                     this.lastTeleportTime = now;
                                     
