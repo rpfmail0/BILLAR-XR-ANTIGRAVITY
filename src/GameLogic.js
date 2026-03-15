@@ -7,9 +7,11 @@ export class GameLogic {
         this.balls = balls; // [White, Yellow, Red]
 
         this.score = 0;
+        this.streak = 0;
         this.shotActive = false;
         this.cushionContacts = 0;
         this.ballsHit = new Set();
+        this.pointScoredThisShot = false;
 
         this.initCollisionListeners();
         this.createScoreDisplay();

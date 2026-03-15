@@ -1,6 +1,4 @@
 import * as THREE from 'three';
-import { HTMLMesh } from 'three/examples/jsm/interactive/HTMLMesh.js';
-import { InteractiveGroup } from 'three/examples/jsm/interactive/InteractiveGroup.js';
 import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerModelFactory.js';
 import * as CANNON from 'cannon-es';
 
@@ -113,53 +111,119 @@ export class XRHandler {
     }
 
     createVRHUD() {
-        this.hudDiv = document.createElement('div');
-        this.hudDiv.style.width = '240px';
-        this.hudDiv.style.height = '140px';
-        this.hudDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
-        this.hudDiv.style.color = 'white';
-        this.hudDiv.style.padding = '10px';
-        this.hudDiv.style.fontFamily = 'monospace';
-        this.hudDiv.style.fontSize = '14px';
-        this.hudDiv.style.borderRadius = '10px';
-        this.hudDiv.style.pointerEvents = 'none';
-        this.hudDiv.style.userSelect = 'none';
+        // Create canvas for the HUD
+        this.hudCanvas = document.createElement('canvas');
+        this.hudCanvas.width = 512;
+        this.hudCanvas.height = 256;
+        this.hudContext = this.hudCanvas.getContext('2d');
 
-        // Initial content
-        this.updateHUDContent(0);
-
-        this.hudMesh = new HTMLMesh(this.hudDiv);
-        // Position top-left in camera view
-        // Scale it down to be small enough in XR
-        this.hudMesh.scale.setScalar(0.2); 
-        this.hudMesh.position.set(-0.25, 0.15, -0.6); // Top-left, 60cm away
+        this.hudTexture = new THREE.CanvasTexture(this.hudCanvas);
+        const material = new THREE.MeshBasicMaterial({ 
+            map: this.hudTexture, 
+            transparent: true, 
+            opacity: 0.9,
+            depthTest: false 
+        });
+        
+        const geometry = new THREE.PlaneGeometry(0.3, 0.15);
+        this.hudMesh = new THREE.Mesh(geometry, material);
+        this.hudMesh.position.set(-0.25, 0.15, -0.6); // Top-left
+        this.hudMesh.renderOrder = 1001;
         this.camera.add(this.hudMesh);
+
+        this.lastHUDStreak = -1;
+        this.updateHUDContent(0);
     }
 
     updateHUDContent(streak) {
-        this.hudDiv.innerHTML = `
-            <div style="font-size: 16px; margin-bottom: 8px; border-bottom: 1px solid #666; padding-bottom: 4px;">
-                Carambolas: <span style="color: #4CAF50;">${streak}</span>
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 4px;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                    <span style="background: #555; padding: 0 4px; border-radius: 3px;">Trigger R</span>
-                    <span style="font-weight: bold; transform: rotate(45deg); display: inline-block;">|</span> Disparar
-                </div>
-                <div style="display: flex; align-items: center; gap: 6px;">
-                    <span style="background: #333; padding: 0 5px; border-radius: 50%; border: 1px solid #555;">B</span>
-                    <span style="width: 10px; height: 10px; background: yellow; border-radius: 50%;"></span> Amarilla
-                </div>
-                <div style="display: flex; align-items: center; gap: 6px;">
-                    <span style="background: #333; padding: 0 5px; border-radius: 50%; border: 1px solid #555;">A</span>
-                    <span style="width: 10px; height: 10px; background: red; border-radius: 50%;"></span> Roja
-                </div>
-                <div style="display: flex; align-items: center; gap: 6px;">
-                    <span style="background: #333; padding: 0 5px; border-radius: 50%; border: 1px solid #555;">X</span>
-                    <span style="font-size: 16px;">⟲</span> Deshacer
-                </div>
-            </div>
-        `;
+        if (streak === this.lastHUDStreak) return;
+        this.lastHUDStreak = streak;
+
+        const ctx = this.hudContext;
+        ctx.clearRect(0, 0, 512, 256);
+
+        // Background
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.roundRect(0, 0, 512, 256, 20);
+        ctx.fill();
+
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 36px monospace';
+        
+        // Streak / Carambolas
+        ctx.fillText(`CARAMBOLAS: `, 30, 60);
+        ctx.fillStyle = '#4CAF50';
+        ctx.fillText(`${streak}`, 290, 60);
+
+        // Separator
+        ctx.strokeStyle = '#666';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(30, 85);
+        ctx.lineTo(482, 85);
+        ctx.stroke();
+
+        ctx.font = '24px monospace';
+        ctx.fillStyle = 'white';
+
+        // Controls
+        let y = 130;
+        const gap = 35;
+
+        // Trigger R
+        ctx.fillStyle = '#888';
+        ctx.fillRect(30, y-25, 140, 32);
+        ctx.fillStyle = 'white';
+        ctx.fillText('TRIGGER R', 40, y);
+        ctx.fillText(' | DISPARAR (TACO)', 180, y);
+        y += gap;
+
+        // B - Yellow
+        ctx.beginPath();
+        ctx.arc(45, y-10, 15, 0, Math.PI*2);
+        ctx.fillStyle = '#333';
+        ctx.fill();
+        ctx.strokeStyle = '#555';
+        ctx.stroke();
+        ctx.fillStyle = 'white';
+        ctx.fillText('B', 38, y-1);
+        
+        ctx.beginPath();
+        ctx.arc(100, y-10, 10, 0, Math.PI*2);
+        ctx.fillStyle = 'yellow';
+        ctx.fill();
+        ctx.fillText('APUNTAR AMARILLA', 130, y);
+        y += gap;
+
+        // A - Red
+        ctx.beginPath();
+        ctx.arc(45, y-10, 15, 0, Math.PI*2);
+        ctx.fillStyle = '#333';
+        ctx.fill();
+        ctx.strokeStyle = '#555';
+        ctx.stroke();
+        ctx.fillStyle = 'white';
+        ctx.fillText('A', 38, y-1);
+
+        ctx.beginPath();
+        ctx.arc(100, y-10, 10, 0, Math.PI*2);
+        ctx.fillStyle = 'red';
+        ctx.fill();
+        ctx.fillText('APUNTAR ROJA', 130, y);
+        y += gap;
+
+        // X - Undo
+        ctx.beginPath();
+        ctx.arc(45, y-10, 15, 0, Math.PI*2);
+        ctx.fillStyle = '#333';
+        ctx.fill();
+        ctx.strokeStyle = '#555';
+        ctx.stroke();
+        ctx.fillStyle = 'white';
+        ctx.fillText('X', 38, y-1);
+        ctx.fillText(' ⟲ DESHACER TIRO', 85, y);
+
+        this.hudTexture.needsUpdate = true;
     }
 
     onSelectStart(event) {
@@ -494,10 +558,10 @@ export class XRHandler {
             ball.mesh.position.copy(pos);
         }
 
-        // Update VR HUD with streak and redraw
+        // Update VR HUD with streak
         if (this.gameLogic && this.hudMesh) {
-            this.updateHUDContent(this.gameLogic.streak);
-            this.hudMesh.update();
+            const streak = typeof this.gameLogic.streak === 'number' ? this.gameLogic.streak : 0;
+            this.updateHUDContent(streak);
         }
     }
 
