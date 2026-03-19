@@ -93,8 +93,49 @@ export class SceneSetup {
         // Game Logic
         this.gameLogic = new GameLogic(this.scene, this.physics, this.balls);
 
+        // Env Map generation
+        this.setupEnvironment();
+
         // XR Handler
         this.xrHandler = new XRHandler(this.renderer, this.scene, this.xrRig, this.camera, this.cue, this.balls, this.gameLogic, this.soundManager, this.table);
+    }
+
+    setupEnvironment() {
+        const pmremGenerator = new THREE.PMREMGenerator(this.renderer);
+        pmremGenerator.compileEquirectangularShader();
+
+        // Create a temporary "lights" scene for the environment
+        const envScene = new THREE.Scene();
+        
+        // Add some "overhead lights" for the billiard room reflection
+        const roomBox = new THREE.BoxGeometry(10, 10, 10);
+        const roomMat = new THREE.MeshBasicMaterial({ color: 0x111111, side: THREE.BackSide });
+        const room = new THREE.Mesh(roomBox, roomMat);
+        envScene.add(room);
+
+        // Add 3 large bright "softboxes" on the ceiling for nice speculars
+        const lightGeo = new THREE.PlaneGeometry(2, 4);
+        const lightMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        
+        const light1 = new THREE.Mesh(lightGeo, lightMat);
+        light1.position.set(0, 4.9, 0);
+        light1.rotation.x = Math.PI / 2;
+        envScene.add(light1);
+
+        const light2 = new THREE.Mesh(lightGeo, lightMat);
+        light2.position.set(3, 4.9, 1);
+        light2.rotation.x = Math.PI / 2;
+        envScene.add(light2);
+
+        const light3 = new THREE.Mesh(lightGeo, lightMat);
+        light3.position.set(-3, 4.9, -1);
+        light3.rotation.x = Math.PI / 2;
+        envScene.add(light3);
+
+        const envRT = pmremGenerator.fromScene(envScene);
+        this.scene.environment = envRT.texture;
+
+        pmremGenerator.dispose();
     }
 
     onWindowResize() {

@@ -15,10 +15,13 @@ export class Ball {
 
     createVisuals() {
         const geometry = new THREE.SphereGeometry(this.radius, 32, 32);
-        const material = new THREE.MeshStandardMaterial({
+        const material = new THREE.MeshPhysicalMaterial({
             color: this.color,
-            roughness: 0.1,
-            metalness: 0.1
+            roughness: 0.05,
+            metalness: 0.2,
+            clearcoat: 1.0,
+            clearcoatRoughness: 0.02,
+            reflectivity: 0.5
         });
         this.mesh = new THREE.Mesh(geometry, material);
         this.mesh.castShadow = true;
