@@ -156,16 +156,27 @@ export class XRHandler {
         ctx.roundRect(0, 0, 512, 256, 15);
         ctx.fill();
 
-        // Title or Active Message
+        // Title or Active Message (Expanded for readability)
         if (this.hudMessage) {
-            // High-visibility announcement box
+            const fontTitle = 'bold 24px Arial';
+            const fontDesc = '18px Arial';
+            const x = 256;
+            let y = 40;
+            
+            // Background box for message
             ctx.fillStyle = '#ffcc00';
-            ctx.fillRect(10, 10, 492, 70);
+            ctx.fillRect(5, 5, 502, 130);
             ctx.fillStyle = 'black';
-            ctx.font = 'bold 22px Arial';
             ctx.textAlign = 'center';
-            // Wrap text if needed or just show first line
-            ctx.fillText(this.hudMessage, 256, 50);
+
+            // Wrap and draw message
+            const lines = this.wrapText(ctx, this.hudMessage, 480);
+            lines.forEach((line, index) => {
+                ctx.font = index === 0 ? fontTitle : fontDesc;
+                ctx.fillText(line, x, y);
+                y += index === 0 ? 30 : 22;
+            });
+
             ctx.textAlign = 'left';
             ctx.fillStyle = 'white';
         } else {
@@ -178,16 +189,16 @@ export class XRHandler {
         ctx.strokeStyle = '#444';
         ctx.lineWidth = 1;
         ctx.beginPath();
-        ctx.moveTo(30, 85);
-        ctx.lineTo(482, 85);
+        ctx.moveTo(30, 140); // Shifted down
+        ctx.lineTo(482, 140);
         ctx.stroke();
 
-        ctx.font = '20px monospace';
+        ctx.font = '18px monospace';
         ctx.fillStyle = 'white';
 
         // Controls
-        let y = 130;
-        const gap = 35;
+        let y = 175; // Shifted down
+        const gap = 30;
 
         // Trigger R
         ctx.fillStyle = '#888';
@@ -773,5 +784,24 @@ export class XRHandler {
             this.hudMessage = "";
             this.updateHUDContent();
         }, duration);
+    }
+
+    wrapText(ctx, text, maxWidth) {
+        const words = text.split(' ');
+        const lines = [];
+        let currentLine = words[0];
+
+        for (let i = 1; i < words.length; i++) {
+            const word = words[i];
+            const width = ctx.measureText(currentLine + " " + word).width;
+            if (width < maxWidth) {
+                currentLine += " " + word;
+            } else {
+                lines.push(currentLine);
+                currentLine = word;
+            }
+        }
+        lines.push(currentLine);
+        return lines;
     }
 }
