@@ -198,7 +198,10 @@ export class MasterPlayManager {
     }
 
     showNextPlay() {
-        if (this.isSimulating) return "Simulación en curso...";
+        if (this.isSimulating) {
+            if (this.xrHandler) this.xrHandler.showHUDMessage("Maestro analizando o ejecutando...", 2000);
+            return "Simulación en curso...";
+        }
         
         const play = this.plays[this.currentPlayIndex];
         this.currentPlayIndex = (this.currentPlayIndex + 1) % this.plays.length;
@@ -231,15 +234,45 @@ export class MasterPlayManager {
         setTimeout(() => {
             this.executeShot(optimizedShot);
             this.startLogging();
-            
-            setTimeout(() => {
-                this.isSimulating = false;
-                this.stopLogging();
-                console.log("MAESTRO: Demostración finalizada, listo para la siguiente.");
-            }, 6000);
+            this.monitorShotAndReleaseLock();
         }, 3000); 
 
         return play.name;
+    }
+
+    monitorShotAndReleaseLock() {
+        if (this.monitorInterval) clearInterval(this.monitorInterval);
+        
+        let quietFrames = 0;
+        this.monitorInterval = setInterval(() => {
+            let totalVelocity = 0;
+            this.balls.forEach(b => {
+                totalVelocity += b.body.velocity.length();
+            });
+
+            // If balls are essentially still for a few checks
+            if (totalVelocity < 0.01) {
+                quietFrames++;
+            } else {
+                quietFrames = 0;
+            }
+
+            if (quietFrames > 5) { // 1 second of stillness
+                clearInterval(this.monitorInterval);
+                this.isSimulating = false;
+                this.stopLogging();
+                console.log("MAESTRO: Movimiento cesado. Listo para nueva jugada.");
+            }
+        }, 200);
+
+        // Safety timeout (15 seconds)
+        setTimeout(() => {
+            if (this.isSimulating) {
+                clearInterval(this.monitorInterval);
+                this.isSimulating = false;
+                this.stopLogging();
+            }
+        }, 15000);
     }
 
     findOptimizedShot(play) {
@@ -347,7 +380,7 @@ export class MasterPlayManager {
                 // O si llevamos 3 bandas ANTES de dar a la segunda (independientemente de la primera)
                 if (hitFirst && cushionCount >= 3) hitSecond = true;
                 // Nota: En billar 3 bandas, si das a 3 bandas ANTES de la primera bola también vale (Bricole)
-                if (!hitFirst && cushionCount >= 3) hitRed = true; // En este caso invertimos
+                if (!hitFirst && cushionCount >= 3) hitFirst = true; // Fix typo: hitRed -> hitFirst
             }
         });
 

@@ -91,6 +91,9 @@ export class SceneSetup {
         // Cue
         this.cue = new Cue(this.scene);
 
+        // Game Logic
+        this.gameLogic = new GameLogic(this.scene, this.physics, this.balls);
+
         // Master Play Manager
         this.masterPlayManager = new MasterPlayManager(this.scene, this.balls, this.gameLogic, null);
 
@@ -100,7 +103,7 @@ export class SceneSetup {
         // XR Handler
         this.xrHandler = new XRHandler(this.renderer, this.scene, this.xrRig, this.camera, this.cue, this.balls, this.gameLogic, this.soundManager, this.table, this.masterPlayManager);
         
-        // Link manager back to handler for undo/state logic
+        // Link manager back to handler
         this.masterPlayManager.xrHandler = this.xrHandler;
     }
 

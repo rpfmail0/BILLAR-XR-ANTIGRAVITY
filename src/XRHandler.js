@@ -281,21 +281,29 @@ export class XRHandler {
     }
 
     onSelectStart(event) {
+        // Detect hand more reliably
+        const controller = event.target;
         const session = this.renderer.xr.getSession();
+        let handedness = 'unknown';
+
         if (session) {
             for (let i = 0; i < session.inputSources.length; i++) {
-                if (this.renderer.xr.getController(i) === event.target) {
-                    if (session.inputSources[i].handedness === 'left') {
-                        if (this.masterPlayManager) {
-                            this.masterPlayManager.showNextPlay();
-                        }
-                        return;
-                    }
-                    if (session.inputSources[i].handedness !== 'right') return;
+                if (this.renderer.xr.getController(i) === controller) {
+                    handedness = session.inputSources[i].handedness;
                     break;
                 }
             }
         }
+
+        if (handedness === 'left') {
+            if (this.masterPlayManager) {
+                this.masterPlayManager.showNextPlay();
+            }
+            return;
+        }
+
+        // Only proceed to charging if it's the RIGHT hand (or unknown/single hand)
+        if (handedness === 'left') return;
 
         if (this.soundManager) {
             this.soundManager.init();
