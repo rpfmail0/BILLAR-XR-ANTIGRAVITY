@@ -58,10 +58,12 @@ export class MasterPlayManager {
     }
 
     showNextPlay() {
+        if (this.isSimulating) return "Simulación en curso...";
+        
         const play = this.plays[this.currentPlayIndex];
         this.currentPlayIndex = (this.currentPlayIndex + 1) % this.plays.length;
         
-        // Save state for undo before moving balls
+        // Save state for undo BEFORE moving balls so user can go back to their own game
         this.xrHandler.savePreShotState();
         
         // Reposition balls
@@ -74,11 +76,41 @@ export class MasterPlayManager {
             ball.body.wakeUp();
             
             ball.mesh.position.set(pos.x, pos.y, pos.z);
+            ball.mesh.quaternion.set(0, 0, 0, 1);
         });
         
+        this.isSimulating = true;
         console.log(`Proponiendo jugada: ${play.name}`);
         
-        // Brief haptic feedback or visual cue could go here
+        // Schedule the master shot
+        setTimeout(() => {
+            this.executeShot(play);
+            this.isSimulating = false;
+        }, 1500); 
+
         return play.name;
+    }
+
+    executeShot(play) {
+        const whiteBall = this.balls[0];
+        const { power, direction, hitOffset } = play.shot;
+        
+        // Match XRHandler's non-linear power curve
+        const maxForce = 0.12;
+        const forceMagnitude = Math.max(0.005, Math.pow(power, 2) * maxForce);
+        const force = direction.clone().multiplyScalar(forceMagnitude);
+        const impulse = new CANNON.Vec3(force.x, force.y, force.z);
+        
+        // Calculate hit point for side spin (English)
+        // hitOffset is relative to ball center in world coords
+        const hitPoint = whiteBall.mesh.position.clone().add(hitOffset);
+        const worldPoint = new CANNON.Vec3(hitPoint.x, hitPoint.y, hitPoint.z);
+
+        if (this.gameLogic) {
+            this.gameLogic.startShot();
+        }
+        
+        whiteBall.body.wakeUp();
+        whiteBall.body.applyImpulse(impulse, worldPoint);
     }
 }
