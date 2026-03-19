@@ -795,12 +795,21 @@ export class XRHandler {
         const x = 256;
         let y = 85;
 
-        // Wrap and draw message
-        const lines = this.wrapText(ctx, message, 460);
+        // Split by newlines first to honor manual breaks, then wrap each segment
+        const segments = message.split('\n');
+        let lines = [];
+        segments.forEach(seg => {
+            if (seg.trim() === "") {
+                lines.push(""); // empty line
+            } else {
+                lines = lines.concat(this.wrapText(ctx, seg, 460));
+            }
+        });
+
         lines.forEach((line, index) => {
-            ctx.font = index === 0 ? fontTitle : fontDesc;
+            ctx.font = (index === 0 && segments.length > 1) ? fontTitle : fontDesc;
             ctx.fillText(line, x, y);
-            y += index === 0 ? 32 : 24;
+            y += (index === 0 && segments.length > 1) ? 32 : 24;
         });
 
         this.annTexture.needsUpdate = true;

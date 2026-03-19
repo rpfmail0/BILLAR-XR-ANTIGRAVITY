@@ -46,6 +46,6 @@ export class PhysicsWorld {
     }
 
     step(dt) {
-        this.world.step(1 / 60, dt, 3);
+        this.world.step(1 / 60, dt, 10);
     }
 }

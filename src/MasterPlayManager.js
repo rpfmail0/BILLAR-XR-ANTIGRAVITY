@@ -10,32 +10,44 @@ export class MasterPlayManager {
         
         this.plays = [
             {
-                name: "1. Bricole: Tres Bandas Larga-Corta-Larga",
-                description: "Tiro espectacular de banda. La blanca toca Banda Izquierda -> Superior -> Derecha antes de la roja.",
+                name: "1. Bricole LKL",
+                strategy: "Tres Bandas Larga-Corta-Larga (Bricole)",
+                aim: "Apuntar a la banda IZQUIERDA, 1.3m desde el fondo.",
+                effect: "Efecto DERECHA (12mm)",
+                power: "92%",
                 positions: [
                     { x: 0.0, y: 0.83075, z: 1.3 }, { x: 0.5, y: 0.83075, z: -0.2 }, { x: 0.4, y: 0.83075, z: -0.4 }
                 ],
-                shot: { power: 0.92, direction: new THREE.Vector3(-0.55, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.012, 0, 0) } // Efecto derecha
+                shot: { power: 0.92, direction: new THREE.Vector3(-0.55, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.012, 0, 0) }
             },
             {
-                name: "2. Natural: Alrededor de la Mesa",
-                description: "Recorrido clásico LKL empezando por bola roja. La blanca recorre todo el perímetro.",
+                name: "2. Alrededor de la Mesa",
+                strategy: "Recorrido Natural LKL empezando por roja.",
+                aim: "Apuntar a la bola ROJA finamente por la derecha.",
+                effect: "Efecto DERECHA ligero (5mm)",
+                power: "82%",
                 positions: [
                     { x: 0.355, y: 0.83075, z: 1.0 }, { x: 0.55, y: 0.83075, z: -0.2 }, { x: -0.5, y: 0.83075, z: 0.8 }
                 ],
                 shot: { power: 0.82, direction: new THREE.Vector3(0.25, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.005, 0, 0) }
             },
             {
-                name: "3. Renverse: El Zig-Zag",
-                description: "La blanca recorre la mesa en forma de 'N' tocando banda corta, larga y corta.",
+                name: "3. Renverse Zig-Zag",
+                strategy: "Zig-Zag Corta-Larga-Corta en forma de 'N'.",
+                aim: "Apuntar a la banda inferior a 0.4m del rincón.",
+                effect: "Efecto IZQUIERDA fuerte (15mm)",
+                power: "88%",
                 positions: [
                     { x: -0.4, y: 0.83075, z: 1.2 }, { x: 0.3, y: 0.83075, z: 1.0 }, { x: 0.5, y: 0.83075, z: -1.0 }
                 ],
-                shot: { power: 0.88, direction: new THREE.Vector3(0.75, 0, -1).normalize(), hitOffset: new THREE.Vector3(-0.015, 0, 0) } // Efecto contrario (izq)
+                shot: { power: 0.88, direction: new THREE.Vector3(0.75, 0, -1).normalize(), hitOffset: new THREE.Vector3(-0.015, 0, 0) }
             },
             {
-                name: "4. Tick-Tack: Doble Banda Corta",
-                description: "Tiro técnico tocando dos bandas cortas seguidas en el mismo extremo.",
+                name: "4. Tick-Tack Doble Corta",
+                strategy: "Doble banda corta seguida en el cabezal.",
+                aim: "Apuntar a la banda superior a la izquierda.",
+                effect: "Efecto DERECHA (10mm)",
+                power: "72%",
                 positions: [
                     { x: 0.0, y: 0.83075, z: -1.0 }, { x: -0.3, y: 0.83075, z: -1.3 }, { x: 0.3, y: 0.83075, z: -1.3 }
                 ],
@@ -43,23 +55,32 @@ export class MasterPlayManager {
             },
             {
                 name: "5. Cajón de 3 Bandas",
-                description: "Tiro de precisión para cuando las bolas están en un rincón. LKL cerrada.",
+                strategy: "Cajón LKL cerrado técnica de rincón.",
+                aim: "Apuntar bola ROJA directamente a la banda larga.",
+                effect: "Efecto DERECHA (8mm)",
+                power: "78%",
                 positions: [
                     { x: -0.5, y: 0.83075, z: 1.1 }, { x: -0.6, y: 0.83075, z: 0.2 }, { x: -0.4, y: 0.83075, z: 0.0 }
                 ],
                 shot: { power: 0.78, direction: new THREE.Vector3(0.12, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.008, 0, 0) }
             },
             {
-                name: "6. Pase de Banda (Inversión)",
-                description: "La blanca toca banda larga y vuelve sobre sí misma para hacer 3 bandas.",
+                name: "6. Pase de Banda Reverso",
+                strategy: "Inversión de trayectoria tras banda larga.",
+                aim: "Apuntar banda derecha con efecto contrario.",
+                effect: "Efecto IZQUIERDA fuerte (12mm)",
+                power: "85%",
                 positions: [
                     { x: 0.5, y: 0.83075, z: 0.5 }, { x: 0.55, y: 0.83075, z: -0.8 }, { x: -0.2, y: 0.83075, z: -0.5 }
                 ],
                 shot: { power: 0.85, direction: new THREE.Vector3(0.08, 0, -1).normalize(), hitOffset: new THREE.Vector3(-0.012, 0, 0) }
             },
             {
-                name: "7. Cruce de Mesa",
-                description: "Recorrido diagonal cruzando la mesa tres veces entre bandas largas.",
+                name: "7. Cruce Diagonal",
+                strategy: "Tres diagonales consecutivas entre bandas largas.",
+                aim: "Apuntar bola ROJA al centro de la mesa.",
+                effect: "Efecto DERECHA suave (5mm)",
+                power: "95%",
                 positions: [
                     { x: -0.6, y: 0.83075, z: 1.3 }, { x: -0.4, y: 0.83075, z: 0.8 }, { x: 0.6, y: 0.83075, z: -1.2 }
                 ],
@@ -67,47 +88,65 @@ export class MasterPlayManager {
             },
             {
                 name: "8. Retro-Banda Corta",
-                description: "Uso del retroceso para tocar banda corta y luego 2 largas.",
+                strategy: "Uso de retroceso (Draw) hacia banda corta.",
+                aim: "Apuntar centro de bola ROJA abajo (Retro).",
+                effect: "Retroceso fuerte abajo (15mm)",
+                power: "90%",
                 positions: [
                     { x: 0.0, y: 0.83075, z: 0.0 }, { x: 0.0, y: 0.83075, z: -0.8 }, { x: -0.5, y: 0.83075, z: 0.5 }
                 ],
-                shot: { power: 0.9, direction: new THREE.Vector3(0.02, 0, -1).normalize(), hitOffset: new THREE.Vector3(0, -0.015, 0) } // Retro (Y negativo)
+                shot: { power: 0.9, direction: new THREE.Vector3(0.02, 0, -1).normalize(), hitOffset: new THREE.Vector3(0, -0.015, 0) }
             },
             {
-                name: "9. Doble el Raíl (Lado a Lado)",
-                description: "Tiro donde la blanca toca dos veces la misma banda larga con rebotes intermedios.",
+                name: "9. Doble el Raíl",
+                strategy: "Rebote en la misma banda larga dos veces.",
+                aim: "Apuntar paralelo a la banda larga derecha.",
+                effect: "Efecto DERECHA (12mm)",
+                power: "75%",
                 positions: [
                     { x: 0.6, y: 0.83075, z: 1.0 }, { x: 0.55, y: 0.83075, z: 0.5 }, { x: 0.6, y: 0.83075, z: -1.0 }
                 ],
                 shot: { power: 0.75, direction: new THREE.Vector3(0.1, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.012, 0, 0) }
             },
             {
-                name: "10. La Omega: 4 Bandas",
-                description: "Recorrido en forma de herradura tocando 4 o 5 bandas.",
+                name: "10. La Omega 5 Bandas",
+                strategy: "Recorrido completo por todo el perímetro.",
+                aim: "Apuntar bola ROJA muy finamente al rincón.",
+                effect: "Efecto DERECHA máximo (15mm)",
+                power: "98%",
                 positions: [
                     { x: 0.0, y: 0.83075, z: 1.3 }, { x: 0.6, y: 0.83075, z: 0.8 }, { x: -0.3, y: 0.83075, z: 1.2 }
                 ],
                 shot: { power: 0.98, direction: new THREE.Vector3(0.75, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.015, 0, 0) }
             },
             {
-                name: "11. Bricole Corta-Larga-Corta",
-                description: "Empiece por banda corta para ganar ángulo hacia las largas.",
+                name: "11. Bricole Corta Inicial",
+                strategy: "Banda corta antes de las largas para ganar ángulo.",
+                aim: "Apuntar banda inferior (abajo a la dcha).",
+                effect: "Efecto IZQUIERDA fuerte (10mm)",
+                power: "88%",
                 positions: [
                     { x: 0.2, y: 0.83075, z: 1.3 }, { x: -0.5, y: 0.83075, z: -0.5 }, { x: 0.0, y: 0.83075, z: -1.0 }
                 ],
                 shot: { power: 0.88, direction: new THREE.Vector3(-0.35, 0, 1).normalize(), hitOffset: new THREE.Vector3(-0.01, 0, 0) }
             },
             {
-                name: "12. Ángulo Fino Alrededor",
-                description: "Tocar la primera bola muy finamente para entrar en el sistema de diamantes.",
+                name: "12. Ángulo Fino Diamante",
+                strategy: "Tiro técnico de precisión en el sistema Diamond.",
+                aim: "Apuntar al borde exterior de la bola ROJA.",
+                effect: "Efecto DERECHA suave (5mm)",
+                power: "85%",
                 positions: [
                     { x: -0.2, y: 0.83075, z: 1.2 }, { x: -0.6, y: 0.83075, z: 1.25 }, { x: 0.5, y: 0.83075, z: -0.8 }
                 ],
                 shot: { power: 0.85, direction: new THREE.Vector3(-1, 0, 0.05).normalize(), hitOffset: new THREE.Vector3(0.005, 0, 0) }
             },
             {
-                name: "13. El Siete (Zig Zag Corto)",
-                description: "Similar al Renverse pero más cerrado, formando un 7 en la mesa.",
+                name: "13. El Siete (Zig Zag)",
+                strategy: "Recorrido en forma de 7 para bolas separadas.",
+                aim: "Apuntar banda izquierda superior.",
+                effect: "Efecto IZQUIERDA máximo (15mm)",
+                power: "88%",
                 positions: [
                     { x: 0.5, y: 0.83075, z: 1.3 }, { x: 0.4, y: 0.83075, z: 0.8 }, { x: 0.6, y: 0.83075, z: -0.5 }
                 ],
@@ -115,7 +154,10 @@ export class MasterPlayManager {
             },
             {
                 name: "14. Doble Inversión",
-                description: "Tiro de banda que invierte el sentido de giro al chocar.",
+                strategy: "Giro invertido tras choque inicial para cerrar ángulo.",
+                aim: "Apuntar banda inferior izquierda.",
+                effect: "Efecto DERECHA fuerte (12mm)",
+                power: "85%",
                 positions: [
                     { x: -0.5, y: 0.83075, z: 0.0 }, { x: -0.55, y: 0.83075, z: 0.8 }, { x: 0.3, y: 0.83075, z: 0.0 }
                 ],
@@ -123,15 +165,21 @@ export class MasterPlayManager {
             },
             {
                 name: "15. La Serpiente (5 Bandas)",
-                description: "Recorrido sinuoso de cinco bandas.",
+                strategy: "Culebrilla por las bandas largas.",
+                aim: "Apuntar a la bola ROJA medio-llena.",
+                effect: "Efecto DERECHA máximo (15mm)",
+                power: "100%",
                 positions: [
                     { x: 0.6, y: 0.83075, z: 1.4 }, { x: 0.55, y: 0.83075, z: 0.7 }, { x: -0.1, y: 0.83075, z: 1.3 }
                 ],
                 shot: { power: 1.0, direction: new THREE.Vector3(-0.05, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.015, 0, 0) }
             },
             {
-                name: "16. Cajón Reverso",
-                description: "Cajón que empieza por banda corta alejada.",
+                name: "16. Cajón Reverso Cerrado",
+                strategy: "Cajón corto desde el fondo de la mesa.",
+                aim: "Apuntar banda superior derecha.",
+                effect: "Efecto IZQUIERDA fuerte (10mm)",
+                power: "88%",
                 positions: [
                     { x: 0.0, y: 0.83075, z: -1.0 }, { x: 0.5, y: 0.83075, z: -1.2 }, { x: -0.4, y: 0.83075, z: -0.5 }
                 ],
@@ -139,15 +187,21 @@ export class MasterPlayManager {
             },
             {
                 name: "17. Cruce Largo LKL",
-                description: "Cruce de banda larga a banda larga por el centro.",
+                strategy: "Cruce central de banda larga a banda larga.",
+                aim: "Apuntar bola ROJA suavemente al lateral.",
+                effect: "Efecto DERECHA suave (5mm)",
+                power: "88%",
                 positions: [
                     { x: -0.6, y: 0.83075, z: 0.0 }, { x: -0.55, y: 0.83075, z: -0.8 }, { x: 0.4, y: 0.83075, z: 1.2 }
                 ],
                 shot: { power: 0.88, direction: new THREE.Vector3(0.08, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.005, 0, 0) }
             },
             {
-                name: "18. Especial: Diamante 50",
-                description: "Tiro basado en el sistema Diamond de salida 50.",
+                name: "18. Diamante 50 (Sistema)",
+                strategy: "Tiro clásico por diamantes para ganar el rincón.",
+                aim: "Apuntar al diamante 5 (banda larga derecha).",
+                effect: "Efecto DERECHA fuerte (12mm)",
+                power: "95%",
                 positions: [
                     { x: 0.0, y: 0.83075, z: 1.42 }, { x: 0.5, y: 0.83075, z: 0.0 }, { x: -0.6, y: 0.83075, z: 0.1 }
                 ],
@@ -155,15 +209,21 @@ export class MasterPlayManager {
             },
             {
                 name: "19. El Avión (Vuelo Largo)",
-                description: "Tiro en 'V' muy abierta tocando 3 bandas largas.",
+                strategy: "Triple diagonal cruzada entre bandas extremas.",
+                aim: "Apuntar bola ROJA finamente arriba.",
+                effect: "Efecto DERECHA máximo (15mm)",
+                power: "95%",
                 positions: [
                     { x: -0.4, y: 0.83075, z: 1.2 }, { x: 0.4, y: 0.83075, z: 1.3 }, { x: -0.2, y: 0.83075, z: -1.3 }
                 ],
                 shot: { power: 0.95, direction: new THREE.Vector3(1, 0, 0.05).normalize(), hitOffset: new THREE.Vector3(0.015, 0, 0) }
             },
             {
-                name: "20. Gran Maestro: Pincelada",
-                description: "Toque ultra-fino para recorrer toda la mesa suavemente.",
+                name: "20. Gran Maestro Pincelada",
+                strategy: "Toque ultra-fino para recorrer toda la mesa suavemente.",
+                aim: "Apuntar al borde de la bola AMARILLA.",
+                effect: "Efecto IZQUIERDA máximo (18mm)",
+                power: "95%",
                 positions: [
                     { x: 0.6, y: 0.83075, z: -1.2 }, { x: 0.65, y: 0.83075, z: 1.2 }, { x: -0.5, y: 0.83075, z: -1.0 }
                 ],
@@ -221,23 +281,22 @@ export class MasterPlayManager {
             ball.mesh.position.set(pos.x, pos.y, pos.z);
         });
 
-        this.isSimulating = true;
-        
-        // 1. Optimize the shot in internal simulation
-        console.log(`MAESTRO: Buscando ángulo perfecto para "${play.name}"...`);
-        const optimizedShot = this.findOptimizedShot(play);
-        
-        // 2. Announce play
+        // MOSTRAR ESTRATEGIA DETALLADA
         if (this.xrHandler) {
-            this.xrHandler.showHUDMessage(play.name + ": " + play.description, 3000);
+            const strategyInfo = `${play.name}\nESTRATEGIA: ${play.strategy}\nAPUNTAR: ${play.aim}\nEFECTO: ${play.effect}\nFUERZA: ${play.power}`.trim();
+            this.xrHandler.showHUDMessage(strategyInfo, 5000);
         }
 
-        // 3. Execute
+        // ESPERAR A QUE EL USUARIO LEA Y LUEGO CALCULAR/EJECUTAR
         this.shotTimeout = setTimeout(() => {
+            this.isSimulating = true;
+            console.log(`MAESTRO: Buscando ángulo perfecto para "${play.name}"...`);
+            const optimizedShot = this.findOptimizedShot(play);
+            
             this.executeShot(optimizedShot);
             this.startLogging();
             this.monitorShotAndReleaseLock();
-        }, 3000); 
+        }, 5000); 
 
         return play.name;
     }
