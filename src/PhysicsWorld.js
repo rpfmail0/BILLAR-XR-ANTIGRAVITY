@@ -6,7 +6,7 @@ export class PhysicsWorld {
         this.world = new CANNON.World();
         this.world.gravity.set(0, -9.82, 0); // Earth gravity
         this.world.broadphase = new CANNON.NaiveBroadphase();
-        this.world.solver.iterations = 10;
+        this.world.solver.iterations = 20; // Increased for high-precision collisions
 
         // Materials
         this.defaultMaterial = new CANNON.Material('default');
@@ -28,7 +28,7 @@ export class PhysicsWorld {
             this.cushionMaterial,
             {
                 friction: 0.01,
-                restitution: 0.9 // High-performance cushions for 3-cushion
+                restitution: 0.8 // Lowered to prevent energy gain artifacts
             }
         );
         this.world.addContactMaterial(ballCushionContactMaterial);
@@ -38,7 +38,7 @@ export class PhysicsWorld {
             this.ballMaterial,
             {
                 friction: 0.1,
-                restitution: 0.99 // Elite billiard ball steel-like impact
+                restitution: 0.95 // High-elasticity but within stable limits
             }
         );
         this.world.addContactMaterial(ballBallContactMaterial);

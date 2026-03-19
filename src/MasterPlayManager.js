@@ -18,7 +18,7 @@ export class MasterPlayManager {
                     { x: 0.4, y: 0.83075, z: -0.4 }     // Amarilla (Esperando)
                 ],
                 shot: {
-                    power: 0.65, // Reducido para nuevo damping 0.08
+                    power: 0.70, // Re-calibrado para restitution 0.8
                     direction: new THREE.Vector3(-0.71, 0, -1.3).normalize(), 
                     hitOffset: new THREE.Vector3(0, 0, 0)
                 }
@@ -146,15 +146,15 @@ export class MasterPlayManager {
         // Setup mini-world with EXACT parameters from PhysicsWorld.js, Table.js and Ball.js
         const world = new CANNON.World();
         world.gravity.set(0, -9.82, 0);
-        world.solver.iterations = 10;
+        world.solver.iterations = 20; // Match PhysicsWorld.js exactly
 
         const ballMat = new CANNON.Material();
         const cushionMat = new CANNON.Material();
         const tableMat = new CANNON.Material();
 
-        world.addContactMaterial(new CANNON.ContactMaterial(ballMat, cushionMat, { friction: 0.01, restitution: 0.9 }));
+        world.addContactMaterial(new CANNON.ContactMaterial(ballMat, cushionMat, { friction: 0.01, restitution: 0.8 }));
         world.addContactMaterial(new CANNON.ContactMaterial(ballMat, tableMat, { friction: 0.225, restitution: 0.7 }));
-        world.addContactMaterial(new CANNON.ContactMaterial(ballMat, ballMat, { friction: 0.1, restitution: 0.99 }));
+        world.addContactMaterial(new CANNON.ContactMaterial(ballMat, ballMat, { friction: 0.1, restitution: 0.95 }));
 
         // Add balls with correct mass and DAMPING (MATCH Ball.js)
         const balls = play.positions.map((pos, i) => {
