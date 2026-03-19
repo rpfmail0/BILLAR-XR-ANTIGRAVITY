@@ -133,9 +133,9 @@ export class XRHandler {
             depthTest: false 
         });
         
-        const geometry = new THREE.PlaneGeometry(0.3, 0.15);
+        const geometry = new THREE.PlaneGeometry(0.5, 0.25); // Slightly larger for central focus
         this.hudMesh = new THREE.Mesh(geometry, material);
-        this.hudMesh.position.set(-0.25, 0.15, -0.6); // Top-left
+        this.hudMesh.position.set(0, 0.05, -0.5); // Center and slightly up to stay in view
         this.hudMesh.renderOrder = 1001;
         this.camera.add(this.hudMesh);
 
@@ -163,11 +163,12 @@ export class XRHandler {
             const x = 256;
             let y = 40;
             
-            // Background box for message
+            // Background box for message - centered in the HUD plane
             ctx.fillStyle = '#ffcc00';
-            ctx.fillRect(5, 5, 502, 130);
+            ctx.fillRect(5, 50, 502, 150);
             ctx.fillStyle = 'black';
             ctx.textAlign = 'center';
+            y = 85; 
 
             // Wrap and draw message
             const lines = this.wrapText(ctx, this.hudMessage, 480);
