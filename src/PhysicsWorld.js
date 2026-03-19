@@ -27,7 +27,7 @@ export class PhysicsWorld {
             this.ballMaterial,
             this.cushionMaterial,
             {
-                friction: 0.1,
+                friction: 0.01, // Greatly reduced from 0.1 for more geometric/natural bounces
                 restitution: 0.8 // High bounce for cushions
             }
         );
