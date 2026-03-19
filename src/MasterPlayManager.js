@@ -257,7 +257,7 @@ export class MasterPlayManager {
                 quietFrames = 0;
             }
 
-            if (quietFrames > 5) { // 1 second of stillness
+            if (quietFrames > 3) { // 0.6 seconds of stillness
                 clearInterval(this.monitorInterval);
                 this.isSimulating = false;
                 this.stopLogging();
@@ -265,14 +265,15 @@ export class MasterPlayManager {
             }
         }, 200);
 
-        // Safety timeout (15 seconds)
+        // Safety timeout (10 seconds)
         setTimeout(() => {
             if (this.isSimulating) {
                 clearInterval(this.monitorInterval);
                 this.isSimulating = false;
                 this.stopLogging();
+                console.log("MAESTRO: Seguridad activada. Bloqueo liberado por tiempo.");
             }
-        }, 15000);
+        }, 10000);
     }
 
     findOptimizedShot(play) {
@@ -280,33 +281,41 @@ export class MasterPlayManager {
         const baseDir = play.shot.direction;
         const baseAngle = Math.atan2(baseDir.x, baseDir.z);
         
-        // Búsqueda profunda en un rango de +/- 30 grados
-        const range = 1.05; // aprox 60 deg total (+/- 30)
-        const steps = 120; // Resolución fina
+        const totalRange = 1.05; // 60 deg total
         
+        // FASE 1: Búsqueda gruesa (Coarse search)
+        const coarseSteps = 40;
+        let coarseBest = baseAngle;
         let found = false;
-        for (let i = 0; i < steps; i++) {
-            const offset = (i / steps - 0.5) * range;
+
+        for (let i = 0; i < coarseSteps; i++) {
+            const offset = (i / coarseSteps - 0.5) * totalRange;
             const angle = baseAngle + offset;
-            
             if (this.testShot(play, angle)) {
-                bestAngle = angle;
+                coarseBest = angle;
                 found = true;
-                const offsetDeg = (offset * 180 / Math.PI).toFixed(1);
-                console.log(`MAESTRO: ¡Trayectoria encontrada! Corrección: ${offsetDeg}º`);
                 break;
             }
         }
-        
-        if (!found) {
-            console.warn("MAESTRO: No se encontró trayectoria perfecta, usando base.");
-            bestAngle = baseAngle;
-        }
 
-        return {
-            ...play.shot,
-            direction: new THREE.Vector3(Math.sin(bestAngle), 0, Math.cos(bestAngle))
-        };
+        // FASE 2: Búsqueda fina alrededor del éxito (Fine search)
+        if (found) {
+            const fineRange = totalRange / coarseSteps; 
+            const fineSteps = 20;
+            for (let i = 0; i < fineSteps; i++) {
+                const offset = (i / fineSteps - 0.5) * fineRange;
+                const angle = coarseBest + offset;
+                if (this.testShot(play, angle)) {
+                    bestAngle = angle;
+                    console.log(`MAESTRO: Trayectoria optimizada encontrada.`);
+                    return { ...play.shot, direction: new THREE.Vector3(Math.sin(bestAngle), 0, Math.cos(bestAngle)) };
+                }
+            }
+            return { ...play.shot, direction: new THREE.Vector3(Math.sin(coarseBest), 0, Math.cos(coarseBest)) };
+        }
+        
+        console.warn("MAESTRO: No se encontró trayectoria perfecta, usando base.");
+        return { ...play.shot, direction: baseDir.clone() };
     }
 
     testShot(play, angle) {
@@ -384,8 +393,8 @@ export class MasterPlayManager {
             }
         });
 
-        // Simulación extendida (10 segundos para trayectorias largas)
-        for (let i = 0; i < 600; i++) {
+        // Simulación optimizada (8 segundos)
+        for (let i = 0; i < 480; i++) {
             world.step(1/60);
             
             // Condición de victoria real de 3 bandas:
