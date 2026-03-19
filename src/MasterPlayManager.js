@@ -15,7 +15,7 @@ export class MasterPlayManager {
                 positions: [
                     { x: 0.0, y: 0.83075, z: 1.3 }, { x: 0.5, y: 0.83075, z: -0.2 }, { x: 0.4, y: 0.83075, z: -0.4 }
                 ],
-                shot: { power: 0.9, direction: new THREE.Vector3(-0.6, 0, -1).normalize(), hitOffset: new THREE.Vector3(0, 0, 0) }
+                shot: { power: 0.92, direction: new THREE.Vector3(-0.55, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.012, 0, 0) } // Efecto derecha
             },
             {
                 name: "2. Natural: Alrededor de la Mesa",
@@ -23,7 +23,7 @@ export class MasterPlayManager {
                 positions: [
                     { x: 0.355, y: 0.83075, z: 1.0 }, { x: 0.55, y: 0.83075, z: -0.2 }, { x: -0.5, y: 0.83075, z: 0.8 }
                 ],
-                shot: { power: 0.8, direction: new THREE.Vector3(0.2, 0, -1).normalize(), hitOffset: new THREE.Vector3(0, 0, 0) }
+                shot: { power: 0.82, direction: new THREE.Vector3(0.25, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.005, 0, 0) }
             },
             {
                 name: "3. Renverse: El Zig-Zag",
@@ -31,7 +31,7 @@ export class MasterPlayManager {
                 positions: [
                     { x: -0.4, y: 0.83075, z: 1.2 }, { x: 0.3, y: 0.83075, z: 1.0 }, { x: 0.5, y: 0.83075, z: -1.0 }
                 ],
-                shot: { power: 0.85, direction: new THREE.Vector3(0.8, 0, -1).normalize(), hitOffset: new THREE.Vector3(0, 0, 0) }
+                shot: { power: 0.88, direction: new THREE.Vector3(0.75, 0, -1).normalize(), hitOffset: new THREE.Vector3(-0.015, 0, 0) } // Efecto contrario (izq)
             },
             {
                 name: "4. Tick-Tack: Doble Banda Corta",
@@ -39,7 +39,7 @@ export class MasterPlayManager {
                 positions: [
                     { x: 0.0, y: 0.83075, z: -1.0 }, { x: -0.3, y: 0.83075, z: -1.3 }, { x: 0.3, y: 0.83075, z: -1.3 }
                 ],
-                shot: { power: 0.7, direction: new THREE.Vector3(-0.5, 0, -1).normalize(), hitOffset: new THREE.Vector3(0, 0, 0) }
+                shot: { power: 0.72, direction: new THREE.Vector3(-0.45, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.01, 0, 0) }
             },
             {
                 name: "5. Cajón de 3 Bandas",
@@ -47,7 +47,7 @@ export class MasterPlayManager {
                 positions: [
                     { x: -0.5, y: 0.83075, z: 1.1 }, { x: -0.6, y: 0.83075, z: 0.2 }, { x: -0.4, y: 0.83075, z: 0.0 }
                 ],
-                shot: { power: 0.75, direction: new THREE.Vector3(0.1, 0, -1).normalize(), hitOffset: new THREE.Vector3(0, 0, 0) }
+                shot: { power: 0.78, direction: new THREE.Vector3(0.12, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.008, 0, 0) }
             },
             {
                 name: "6. Pase de Banda (Inversión)",
@@ -55,7 +55,7 @@ export class MasterPlayManager {
                 positions: [
                     { x: 0.5, y: 0.83075, z: 0.5 }, { x: 0.55, y: 0.83075, z: -0.8 }, { x: -0.2, y: 0.83075, z: -0.5 }
                 ],
-                shot: { power: 0.8, direction: new THREE.Vector3(0.1, 0, -1).normalize(), hitOffset: new THREE.Vector3(0, 0, 0) }
+                shot: { power: 0.85, direction: new THREE.Vector3(0.08, 0, -1).normalize(), hitOffset: new THREE.Vector3(-0.012, 0, 0) }
             },
             {
                 name: "7. Cruce de Mesa",
@@ -63,7 +63,7 @@ export class MasterPlayManager {
                 positions: [
                     { x: -0.6, y: 0.83075, z: 1.3 }, { x: -0.4, y: 0.83075, z: 0.8 }, { x: 0.6, y: 0.83075, z: -1.2 }
                 ],
-                shot: { power: 0.9, direction: new THREE.Vector3(0.5, 0, -1).normalize(), hitOffset: new THREE.Vector3(0, 0, 0) }
+                shot: { power: 0.95, direction: new THREE.Vector3(0.45, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.005, 0, 0) }
             },
             {
                 name: "8. Retro-Banda Corta",
@@ -71,7 +71,7 @@ export class MasterPlayManager {
                 positions: [
                     { x: 0.0, y: 0.83075, z: 0.0 }, { x: 0.0, y: 0.83075, z: -0.8 }, { x: -0.5, y: 0.83075, z: 0.5 }
                 ],
-                shot: { power: 0.85, direction: new THREE.Vector3(0, 0, -1).normalize(), hitOffset: new THREE.Vector3(0, 0, 0) }
+                shot: { power: 0.9, direction: new THREE.Vector3(0.02, 0, -1).normalize(), hitOffset: new THREE.Vector3(0, -0.015, 0) } // Retro (Y negativo)
             },
             {
                 name: "9. Doble el Raíl (Lado a Lado)",
@@ -79,7 +79,7 @@ export class MasterPlayManager {
                 positions: [
                     { x: 0.6, y: 0.83075, z: 1.0 }, { x: 0.55, y: 0.83075, z: 0.5 }, { x: 0.6, y: 0.83075, z: -1.0 }
                 ],
-                shot: { power: 0.7, direction: new THREE.Vector3(0.1, 0, -1).normalize(), hitOffset: new THREE.Vector3(0, 0, 0) }
+                shot: { power: 0.75, direction: new THREE.Vector3(0.1, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.012, 0, 0) }
             },
             {
                 name: "10. La Omega: 4 Bandas",
@@ -87,7 +87,7 @@ export class MasterPlayManager {
                 positions: [
                     { x: 0.0, y: 0.83075, z: 1.3 }, { x: 0.6, y: 0.83075, z: 0.8 }, { x: -0.3, y: 0.83075, z: 1.2 }
                 ],
-                shot: { power: 0.95, direction: new THREE.Vector3(0.8, 0, -1).normalize(), hitOffset: new THREE.Vector3(0, 0, 0) }
+                shot: { power: 0.98, direction: new THREE.Vector3(0.75, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.015, 0, 0) }
             },
             {
                 name: "11. Bricole Corta-Larga-Corta",
@@ -95,7 +95,7 @@ export class MasterPlayManager {
                 positions: [
                     { x: 0.2, y: 0.83075, z: 1.3 }, { x: -0.5, y: 0.83075, z: -0.5 }, { x: 0.0, y: 0.83075, z: -1.0 }
                 ],
-                shot: { power: 0.85, direction: new THREE.Vector3(-0.4, 0, 1).normalize(), hitOffset: new THREE.Vector3(0, 0, 0) }
+                shot: { power: 0.88, direction: new THREE.Vector3(-0.35, 0, 1).normalize(), hitOffset: new THREE.Vector3(-0.01, 0, 0) }
             },
             {
                 name: "12. Ángulo Fino Alrededor",
@@ -103,7 +103,7 @@ export class MasterPlayManager {
                 positions: [
                     { x: -0.2, y: 0.83075, z: 1.2 }, { x: -0.6, y: 0.83075, z: 1.25 }, { x: 0.5, y: 0.83075, z: -0.8 }
                 ],
-                shot: { power: 0.8, direction: new THREE.Vector3(-1, 0, 0.1).normalize(), hitOffset: new THREE.Vector3(0, 0, 0) }
+                shot: { power: 0.85, direction: new THREE.Vector3(-1, 0, 0.05).normalize(), hitOffset: new THREE.Vector3(0.005, 0, 0) }
             },
             {
                 name: "13. El Siete (Zig Zag Corto)",
@@ -111,7 +111,7 @@ export class MasterPlayManager {
                 positions: [
                     { x: 0.5, y: 0.83075, z: 1.3 }, { x: 0.4, y: 0.83075, z: 0.8 }, { x: 0.6, y: 0.83075, z: -0.5 }
                 ],
-                shot: { power: 0.85, direction: new THREE.Vector3(-0.2, 0, -1).normalize(), hitOffset: new THREE.Vector3(0, 0, 0) }
+                shot: { power: 0.88, direction: new THREE.Vector3(-0.15, 0, -1).normalize(), hitOffset: new THREE.Vector3(-0.015, 0, 0) }
             },
             {
                 name: "14. Doble Inversión",
@@ -119,7 +119,7 @@ export class MasterPlayManager {
                 positions: [
                     { x: -0.5, y: 0.83075, z: 0.0 }, { x: -0.55, y: 0.83075, z: 0.8 }, { x: 0.3, y: 0.83075, z: 0.0 }
                 ],
-                shot: { power: 0.8, direction: new THREE.Vector3(0.05, 0, 1).normalize(), hitOffset: new THREE.Vector3(0, 0, 0) }
+                shot: { power: 0.85, direction: new THREE.Vector3(0.04, 0, 1).normalize(), hitOffset: new THREE.Vector3(0.012, 0, 0) }
             },
             {
                 name: "15. La Serpiente (5 Bandas)",
@@ -127,7 +127,7 @@ export class MasterPlayManager {
                 positions: [
                     { x: 0.6, y: 0.83075, z: 1.4 }, { x: 0.55, y: 0.83075, z: 0.7 }, { x: -0.1, y: 0.83075, z: 1.3 }
                 ],
-                shot: { power: 0.95, direction: new THREE.Vector3(-0.1, 0, -1).normalize(), hitOffset: new THREE.Vector3(0, 0, 0) }
+                shot: { power: 1.0, direction: new THREE.Vector3(-0.05, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.015, 0, 0) }
             },
             {
                 name: "16. Cajón Reverso",
@@ -135,7 +135,7 @@ export class MasterPlayManager {
                 positions: [
                     { x: 0.0, y: 0.83075, z: -1.0 }, { x: 0.5, y: 0.83075, z: -1.2 }, { x: -0.4, y: 0.83075, z: -0.5 }
                 ],
-                shot: { power: 0.85, direction: new THREE.Vector3(1, 0, -0.3).normalize(), hitOffset: new THREE.Vector3(0, 0, 0) }
+                shot: { power: 0.88, direction: new THREE.Vector3(1, 0, -0.25).normalize(), hitOffset: new THREE.Vector3(-0.01, 0, 0) }
             },
             {
                 name: "17. Cruce Largo LKL",
@@ -143,7 +143,7 @@ export class MasterPlayManager {
                 positions: [
                     { x: -0.6, y: 0.83075, z: 0.0 }, { x: -0.55, y: 0.83075, z: -0.8 }, { x: 0.4, y: 0.83075, z: 1.2 }
                 ],
-                shot: { power: 0.85, direction: new THREE.Vector3(0.1, 0, -1).normalize(), hitOffset: new THREE.Vector3(0, 0, 0) }
+                shot: { power: 0.88, direction: new THREE.Vector3(0.08, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.005, 0, 0) }
             },
             {
                 name: "18. Especial: Diamante 50",
@@ -151,7 +151,7 @@ export class MasterPlayManager {
                 positions: [
                     { x: 0.0, y: 0.83075, z: 1.42 }, { x: 0.5, y: 0.83075, z: 0.0 }, { x: -0.6, y: 0.83075, z: 0.1 }
                 ],
-                shot: { power: 0.9, direction: new THREE.Vector3(0.7, 0, -1).normalize(), hitOffset: new THREE.Vector3(0, 0, 0) }
+                shot: { power: 0.95, direction: new THREE.Vector3(0.65, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.012, 0, 0) }
             },
             {
                 name: "19. El Avión (Vuelo Largo)",
@@ -159,7 +159,7 @@ export class MasterPlayManager {
                 positions: [
                     { x: -0.4, y: 0.83075, z: 1.2 }, { x: 0.4, y: 0.83075, z: 1.3 }, { x: -0.2, y: 0.83075, z: -1.3 }
                 ],
-                shot: { power: 0.9, direction: new THREE.Vector3(1, 0, 0.1).normalize(), hitOffset: new THREE.Vector3(0, 0, 0) }
+                shot: { power: 0.95, direction: new THREE.Vector3(1, 0, 0.05).normalize(), hitOffset: new THREE.Vector3(0.015, 0, 0) }
             },
             {
                 name: "20. Gran Maestro: Pincelada",
@@ -167,7 +167,7 @@ export class MasterPlayManager {
                 positions: [
                     { x: 0.6, y: 0.83075, z: -1.2 }, { x: 0.65, y: 0.83075, z: 1.2 }, { x: -0.5, y: 0.83075, z: -1.0 }
                 ],
-                shot: { power: 0.92, direction: new THREE.Vector3(-0.05, 0, 1).normalize(), hitOffset: new THREE.Vector3(0, 0, 0) }
+                shot: { power: 0.95, direction: new THREE.Vector3(-0.02, 0, 1).normalize(), hitOffset: new THREE.Vector3(-0.018, 0, 0) }
             }
         ];
         
@@ -285,35 +285,30 @@ export class MasterPlayManager {
         
         const totalRange = 1.05; // 60 deg total
         
-        // FASE 1: Búsqueda gruesa (Coarse search)
-        const coarseSteps = 40;
-        let coarseBest = baseAngle;
+        // Búsqueda exhaustiva (120 pasos) para máxima precisión
+        // Ahora que el sistema es interrumpible, no importa si tarda 1-2 segundos.
+        const steps = 120;
         let found = false;
 
-        for (let i = 0; i < coarseSteps; i++) {
-            const offset = (i / coarseSteps - 0.5) * totalRange;
+        if (this.xrHandler) this.xrHandler.showHUDMessage("Maestro calculando trayectoria perfecta...", 1000);
+
+        for (let i = 0; i < steps; i++) {
+            const offset = (i / steps - 0.5) * totalRange;
             const angle = baseAngle + offset;
             if (this.testShot(play, angle)) {
-                coarseBest = angle;
+                bestAngle = angle;
                 found = true;
-                break;
+                const offsetDeg = (offset * 180 / Math.PI).toFixed(1);
+                console.log(`MAESTRO: ¡Trayectoria encontrada! Corrección: ${offsetDeg}º`);
+                break; // Usamos el primero que funcione para velocidad
             }
         }
 
-        // FASE 2: Búsqueda fina alrededor del éxito (Fine search)
         if (found) {
-            const fineRange = totalRange / coarseSteps; 
-            const fineSteps = 20;
-            for (let i = 0; i < fineSteps; i++) {
-                const offset = (i / fineSteps - 0.5) * fineRange;
-                const angle = coarseBest + offset;
-                if (this.testShot(play, angle)) {
-                    bestAngle = angle;
-                    console.log(`MAESTRO: Trayectoria optimizada encontrada.`);
-                    return { ...play.shot, direction: new THREE.Vector3(Math.sin(bestAngle), 0, Math.cos(bestAngle)) };
-                }
-            }
-            return { ...play.shot, direction: new THREE.Vector3(Math.sin(coarseBest), 0, Math.cos(coarseBest)) };
+            return {
+                ...play.shot,
+                direction: new THREE.Vector3(Math.sin(bestAngle), 0, Math.cos(bestAngle))
+            };
         }
         
         console.warn("MAESTRO: No se encontró trayectoria perfecta, usando base.");
@@ -366,11 +361,28 @@ export class MasterPlayManager {
         addCushion(tw, cushionThickness, 0, tl / 2 + cushionThickness / 2);  // B
 
         // Execute shot
-        const impulseMag = Math.pow(play.shot.power, 2) * 0.10; // Reducido a 0.10
-        const impulse = new CANNON.Vec3(Math.sin(angle) * impulseMag, 0, Math.cos(angle) * impulseMag);
+        const impulseMag = Math.pow(play.shot.power, 2) * 0.10; 
+        const dir = new THREE.Vector3(Math.sin(angle), 0, Math.cos(angle)).normalize();
+        const impulse = new CANNON.Vec3(dir.x * impulseMag, 0, dir.z * impulseMag);
         
-        // Apply impulse at world center (no spin for stability in test)
-        balls[0].applyImpulse(impulse, balls[0].position);
+        // APLICAR SPIN EN TEST
+        const worldPos = balls[0].position;
+        const hitOffset = play.shot.hitOffset;
+        
+        // Vector lateral (right) y vertical (up) relativo a la dirección del tiro
+        const right = new THREE.Vector3(0, 1, 0).cross(dir).normalize();
+        const up = new THREE.Vector3(0, 1, 0);
+        
+        const offsetWorld = right.clone().multiplyScalar(hitOffset.x)
+                             .add(up.clone().multiplyScalar(hitOffset.y));
+
+        const worldPoint = new CANNON.Vec3(
+            worldPos.x + offsetWorld.x, 
+            worldPos.y + offsetWorld.y,
+            worldPos.z + offsetWorld.z
+        );
+
+        balls[0].applyImpulse(impulse, worldPoint);
 
         let hitFirst = false;
         let hitSecond = false;
@@ -395,8 +407,8 @@ export class MasterPlayManager {
             }
         });
 
-        // Simulación optimizada (8 segundos)
-        for (let i = 0; i < 480; i++) {
+        // Simulación completa (10 segundos)
+        for (let i = 0; i < 600; i++) {
             world.step(1/60);
             
             // Condición de victoria real de 3 bandas:
@@ -423,15 +435,22 @@ export class MasterPlayManager {
         dir.y = 0;
         dir.normalize();
 
-        const force = dir.multiplyScalar(forceMagnitude);
-        const impulse = new CANNON.Vec3(force.x, 0, force.z); // Force Y to 0
+        const force = dir.clone().multiplyScalar(forceMagnitude);
+        const impulse = new CANNON.Vec3(force.x, 0, force.z); 
         
-        // Use current body position for hit point to avoid vertical offsets
+        // APLICAR SPIN: El punto de impacto NO es el centro si hitOffset != 0
         const worldPos = whiteBall.body.position;
+        // hitOffset.x = lado, hitOffset.y = altura (retro/corrida)
+        const right = new THREE.Vector3(0, 1, 0).cross(dir).normalize();
+        const up = new THREE.Vector3(0, 1, 0);
+        
+        const offsetWorld = right.clone().multiplyScalar(hitOffset.x)
+                             .add(up.clone().multiplyScalar(hitOffset.y));
+
         const worldPoint = new CANNON.Vec3(
-            worldPos.x + hitOffset.x, 
-            worldPos.y, // Strictly at center height
-            worldPos.z + hitOffset.z
+            worldPos.x + offsetWorld.x, 
+            worldPos.y + offsetWorld.y,
+            worldPos.z + offsetWorld.z
         );
 
         if (this.gameLogic) this.gameLogic.startShot();
