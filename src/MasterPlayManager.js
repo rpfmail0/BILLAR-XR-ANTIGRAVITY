@@ -198,10 +198,12 @@ export class MasterPlayManager {
     }
 
     showNextPlay() {
-        if (this.isSimulating) {
-            if (this.xrHandler) this.xrHandler.showHUDMessage("Maestro analizando o ejecutando...", 2000);
-            return "Simulación en curso...";
-        }
+        // CANCEL any pending or ongoing simulation
+        if (this.monitorInterval) clearInterval(this.monitorInterval);
+        if (this.shotTimeout) clearTimeout(this.shotTimeout);
+        if (this.safetyTimeout) clearTimeout(this.safetyTimeout);
+        
+        this.isSimulating = false;
         
         const play = this.plays[this.currentPlayIndex];
         this.currentPlayIndex = (this.currentPlayIndex + 1) % this.plays.length;
@@ -231,7 +233,7 @@ export class MasterPlayManager {
         }
 
         // 3. Execute
-        setTimeout(() => {
+        this.shotTimeout = setTimeout(() => {
             this.executeShot(optimizedShot);
             this.startLogging();
             this.monitorShotAndReleaseLock();
@@ -266,7 +268,7 @@ export class MasterPlayManager {
         }, 200);
 
         // Safety timeout (10 seconds)
-        setTimeout(() => {
+        this.safetyTimeout = setTimeout(() => {
             if (this.isSimulating) {
                 clearInterval(this.monitorInterval);
                 this.isSimulating = false;
