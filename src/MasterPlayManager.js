@@ -355,6 +355,14 @@ export class MasterPlayManager {
         
         const tw = 1.42; // Table width
         const tl = 2.84; // Table length
+        
+        // AGREGAR SUELO (IMPORTANTE: Faltaba en el test anterior)
+        const bedShape = new CANNON.Box(new CANNON.Vec3(tw / 2, 0.025, tl / 2));
+        const bedBody = new CANNON.Body({ mass: 0, material: tableMat });
+        bedBody.addShape(bedShape);
+        bedBody.position.set(0, 0.8, 0);
+        world.addBody(bedBody);
+
         addCushion(cushionThickness, tl, -tw / 2 - cushionThickness / 2, 0); // L
         addCushion(cushionThickness, tl, tw / 2 + cushionThickness / 2, 0);  // R
         addCushion(tw, cushionThickness, 0, -tl / 2 - cushionThickness / 2); // T
