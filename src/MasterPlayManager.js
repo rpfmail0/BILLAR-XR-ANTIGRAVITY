@@ -43,6 +43,11 @@ export class MasterPlayManager {
         this.isSimulating = false;
         this.logInterval = null;
         
+        // Internal physics world for pre-simulation
+        this.tempWorld = new CANNON.World();
+        this.tempWorld.gravity.set(0, -9.82, 0);
+        this.tempWorld.solver.iterations = 10;
+        
         this.createTrajectoryLine();
     }
 
@@ -66,76 +71,152 @@ export class MasterPlayManager {
         const play = this.plays[this.currentPlayIndex];
         this.currentPlayIndex = (this.currentPlayIndex + 1) % this.plays.length;
         
-        // Save state for undo BEFORE moving balls so user can go back to their own game
+        // Save state for undo
         this.xrHandler.savePreShotState();
         
-        // Reposition balls
+        // Reposition balls in main world
         this.balls.forEach((ball, i) => {
             const pos = play.positions[i];
             ball.body.position.set(pos.x, pos.y, pos.z);
             ball.body.velocity.set(0, 0, 0);
             ball.body.angularVelocity.set(0, 0, 0);
-            ball.body.quaternion.set(0, 0, 0, 1);
             ball.body.wakeUp();
-            
             ball.mesh.position.set(pos.x, pos.y, pos.z);
-            ball.mesh.quaternion.set(0, 0, 0, 1);
         });
-        
+
         this.isSimulating = true;
-        console.log(`PROPO_JUGADA: ${play.name}`);
         
-        // Show description on HUD
+        // 1. Optimize the shot in internal simulation
+        console.log(`MAESTRO: Buscando ángulo perfecto para "${play.name}"...`);
+        const optimizedShot = this.findOptimizedShot(play);
+        
+        // 2. Announce play
         if (this.xrHandler) {
             this.xrHandler.showHUDMessage(play.name + ": " + play.description, 4000);
         }
 
-        // Schedule the master shot
+        // 3. Execute
         setTimeout(() => {
-            this.executeShot(play);
-            this.startLogging(); // Empieza a loguear la posición
+            this.executeShot(optimizedShot);
+            this.startLogging();
             
             setTimeout(() => {
                 this.isSimulating = false;
                 this.stopLogging();
-            }, 6000); // 6s de simulación
+            }, 6000);
         }, 3000); 
 
         return play.name;
     }
 
-    startLogging() {
-        if (this.logInterval) clearInterval(this.logInterval);
-        const whiteBall = this.balls[0];
-        this.logInterval = setInterval(() => {
-            console.log(`DEBUG_POS_BLANCA: X:${whiteBall.body.position.x.toFixed(3)}, Z:${whiteBall.body.position.z.toFixed(3)}`);
-        }, 200);
-    }
-
-    stopLogging() {
-        if (this.logInterval) {
-            clearInterval(this.logInterval);
-            this.logInterval = null;
-        }
-    }
-
-    executeShot(play) {
-        const whiteBall = this.balls[0];
-        const { power, direction, hitOffset } = play.shot;
+    findOptimizedShot(play) {
+        let bestAngle = 0;
+        const baseDir = play.shot.direction;
+        const baseAngle = Math.atan2(baseDir.x, baseDir.z);
         
-        // Match XRHandler's non-linear power curve
-        const maxForce = 0.15; // Ligeramente aumentado para asegurar el recorrido
+        // Search in a range of +/- 10 degrees
+        const range = 0.18; // approx 10 deg
+        const steps = 40;
+        
+        let found = false;
+        for (let i = 0; i < steps; i++) {
+            const offset = (i / steps - 0.5) * range;
+            const angle = baseAngle + offset;
+            
+            if (this.testShot(play, angle)) {
+                bestAngle = angle;
+                found = true;
+                console.log(`MAESTRO: ¡Ángulo rectificado! Offset: ${(offset * 180 / Math.PI).toFixed(2)}º`);
+                break;
+            }
+        }
+        
+        if (!found) {
+            console.warn("MAESTRO: No se encontró trayectoria perfecta, usando base.");
+            bestAngle = baseAngle;
+        }
+
+        return {
+            ...play.shot,
+            direction: new THREE.Vector3(Math.sin(bestAngle), 0, Math.cos(bestAngle))
+        };
+    }
+
+    testShot(play, angle) {
+        // Setup mini-world with same parameters as PhysicsWorld.js
+        const world = new CANNON.World();
+        world.gravity.set(0, -9.82, 0);
+
+        const ballMat = new CANNON.Material();
+        const cushionMat = new CANNON.Material();
+        const tableMat = new CANNON.Material();
+
+        world.addContactMaterial(new CANNON.ContactMaterial(ballMat, cushionMat, { friction: 0.01, restitution: 0.8 }));
+        world.addContactMaterial(new CANNON.ContactMaterial(ballMat, tableMat, { friction: 0.225, restitution: 0.7 }));
+        world.addContactMaterial(new CANNON.ContactMaterial(ballMat, ballMat, { friction: 0.1, restitution: 0.98 }));
+
+        // Add balls
+        const balls = play.positions.map((pos, i) => {
+            const b = new CANNON.Body({ 
+                mass: 0.17, 
+                shape: new CANNON.Sphere(0.03075),
+                material: ballMat
+            });
+            b.position.set(pos.x, pos.y, pos.z);
+            world.addBody(b);
+            return b;
+        });
+
+        // Add invisible cushions as planes
+        const addPlane = (pos, norm) => {
+            const b = new CANNON.Body({ mass: 0, material: cushionMat });
+            b.addShape(new CANNON.Plane());
+            b.position.copy(pos);
+            b.quaternion.setFromVectors(new CANNON.Vec3(0, 0, 1), norm);
+            world.addBody(b);
+        };
+        addPlane(new CANNON.Vec3(-0.71, 0, 0), new CANNON.Vec3(1, 0, 0)); // L
+        addPlane(new CANNON.Vec3(0.71, 0, 0), new CANNON.Vec3(-1, 0, 0)); // R
+        addPlane(new CANNON.Vec3(0, 0, -1.42), new CANNON.Vec3(0, 0, 1)); // T
+        addPlane(new CANNON.Vec3(0, 0, 1.42), new CANNON.Vec3(0, 0, -1)); // B
+
+        // Execute shot
+        const impulseMag = Math.pow(play.shot.power, 2) * 0.15;
+        const impulse = new CANNON.Vec3(Math.sin(angle) * impulseMag, 0, Math.cos(angle) * impulseMag);
+        balls[0].applyImpulse(impulse, balls[0].position);
+
+        let hitRed = false;
+        let hitYellow = false;
+        let cushions = 0;
+
+        balls[0].addEventListener('collide', (e) => {
+            if (e.body === balls[1]) hitRed = true;
+            if (e.body === balls[2]) hitYellow = true;
+            if (e.body.material === cushionMat) cushions++;
+        });
+
+        // Sim 4 seconds
+        for (let i = 0; i < 240; i++) {
+            world.step(1/60);
+            if (hitRed && hitYellow && cushions >= 3) return true;
+        }
+
+        return false;
+    }
+
+    executeShot(shot) {
+        const whiteBall = this.balls[0];
+        const { power, direction, hitOffset } = shot;
+        
+        const maxForce = 0.15;
         const forceMagnitude = Math.pow(power, 2) * maxForce;
         const force = direction.clone().multiplyScalar(forceMagnitude);
         const impulse = new CANNON.Vec3(force.x, force.y, force.z);
         
-        // Calculate hit point for side spin (English)
         const hitPoint = whiteBall.mesh.position.clone().add(hitOffset);
         const worldPoint = new CANNON.Vec3(hitPoint.x, hitPoint.y, hitPoint.z);
 
-        if (this.gameLogic) {
-            this.gameLogic.startShot();
-        }
+        if (this.gameLogic) this.gameLogic.startShot();
         
         whiteBall.body.wakeUp();
         whiteBall.body.applyImpulse(impulse, worldPoint);
