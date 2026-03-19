@@ -418,8 +418,8 @@ export class XRHandler {
                 // Standard VR gamepads axes: [0, 1] touchpad/thumbstick 1, [2, 3] touchpad/thumbstick 2.
                 if (axes.length >= 4) {
                     const deadzone = 0.1;
-                    const moveX = Math.abs(axes[2]) > deadzone ? axes[2] : 0;
-                    const moveY = Math.abs(axes[3]) > deadzone ? axes[3] : 0;
+                    const moveX = Math.abs(axes[0]) > deadzone ? axes[0] : 0;
+                    const moveY = Math.abs(axes[1]) > deadzone ? axes[1] : 0;
 
                     // Left controller: Movement relative to White Ball
                     if (source.handedness === 'left' && whiteBall) {

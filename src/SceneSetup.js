@@ -156,7 +156,7 @@ export class SceneSetup {
     }
 
     render() {
-        const dt = this.clock.getDelta();
+        const dt = Math.min(0.1, this.clock.getDelta());
         this.physics.step(dt);
 
         this.balls.forEach(ball => ball.update());
