@@ -27,8 +27,8 @@ export class PhysicsWorld {
             this.ballMaterial,
             this.cushionMaterial,
             {
-                friction: 0.01, // Greatly reduced from 0.1 for more geometric/natural bounces
-                restitution: 0.8 // High bounce for cushions
+                friction: 0.01,
+                restitution: 0.9 // High-performance cushions for 3-cushion
             }
         );
         this.world.addContactMaterial(ballCushionContactMaterial);
@@ -38,7 +38,7 @@ export class PhysicsWorld {
             this.ballMaterial,
             {
                 friction: 0.1,
-                restitution: 0.98 // Very bouncy collisions between billiard balls
+                restitution: 0.99 // Elite billiard ball steel-like impact
             }
         );
         this.world.addContactMaterial(ballBallContactMaterial);

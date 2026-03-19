@@ -152,18 +152,18 @@ export class MasterPlayManager {
         const cushionMat = new CANNON.Material();
         const tableMat = new CANNON.Material();
 
-        world.addContactMaterial(new CANNON.ContactMaterial(ballMat, cushionMat, { friction: 0.01, restitution: 0.8 }));
+        world.addContactMaterial(new CANNON.ContactMaterial(ballMat, cushionMat, { friction: 0.01, restitution: 0.9 }));
         world.addContactMaterial(new CANNON.ContactMaterial(ballMat, tableMat, { friction: 0.225, restitution: 0.7 }));
-        world.addContactMaterial(new CANNON.ContactMaterial(ballMat, ballMat, { friction: 0.1, restitution: 0.98 }));
+        world.addContactMaterial(new CANNON.ContactMaterial(ballMat, ballMat, { friction: 0.1, restitution: 0.99 }));
 
-        // Add balls with correct mass and DAMPING
+        // Add balls with correct mass and DAMPING (MATCH Ball.js)
         const balls = play.positions.map((pos, i) => {
             const b = new CANNON.Body({ 
-                mass: 0.21, // Match Ball.js
+                mass: 0.21, 
                 shape: new CANNON.Sphere(0.03075),
                 material: ballMat,
-                linearDamping: 0.3, // CRITICAL: match Ball.js
-                angularDamping: 0.4
+                linearDamping: 0.08, // Match new realistic damping
+                angularDamping: 0.1
             });
             b.position.set(pos.x, pos.y, pos.z);
             world.addBody(b);
@@ -205,8 +205,8 @@ export class MasterPlayManager {
             if (other.material === cushionMat) cushionHits++;
         });
 
-        // Sim 5 seconds (300 steps)
-        for (let i = 0; i < 300; i++) {
+        // Sim up to 8 seconds (480 steps) due to lower damping
+        for (let i = 0; i < 480; i++) {
             world.step(1/60);
             if (hitRed && hitYellow && cushionHits >= 3) return true;
         }
