@@ -28,7 +28,7 @@ export class PhysicsWorld {
             this.cushionMaterial,
             {
                 friction: 0.01,
-                restitution: 0.8 // Lowered to prevent energy gain artifacts
+                restitution: 0.72 // Realistic high-quality rubber cushion
             }
         );
         this.world.addContactMaterial(ballCushionContactMaterial);
@@ -38,7 +38,7 @@ export class PhysicsWorld {
             this.ballMaterial,
             {
                 friction: 0.1,
-                restitution: 0.95 // High-elasticity but within stable limits
+                restitution: 0.9 // Standard high-impact phenolic resin
             }
         );
         this.world.addContactMaterial(ballBallContactMaterial);

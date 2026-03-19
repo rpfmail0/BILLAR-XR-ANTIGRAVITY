@@ -18,7 +18,7 @@ export class MasterPlayManager {
                     { x: 0.4, y: 0.83075, z: -0.4 }     // Amarilla (Esperando)
                 ],
                 shot: {
-                    power: 0.70, // Re-calibrado para restitution 0.8
+                    power: 0.88, // Aumentado para compensar rozamiento 0.15
                     direction: new THREE.Vector3(-0.71, 0, -1.3).normalize(), 
                     hitOffset: new THREE.Vector3(0, 0, 0)
                 }
@@ -152,9 +152,9 @@ export class MasterPlayManager {
         const cushionMat = new CANNON.Material();
         const tableMat = new CANNON.Material();
 
-        world.addContactMaterial(new CANNON.ContactMaterial(ballMat, cushionMat, { friction: 0.01, restitution: 0.8 }));
+        world.addContactMaterial(new CANNON.ContactMaterial(ballMat, cushionMat, { friction: 0.01, restitution: 0.72 }));
         world.addContactMaterial(new CANNON.ContactMaterial(ballMat, tableMat, { friction: 0.225, restitution: 0.7 }));
-        world.addContactMaterial(new CANNON.ContactMaterial(ballMat, ballMat, { friction: 0.1, restitution: 0.95 }));
+        world.addContactMaterial(new CANNON.ContactMaterial(ballMat, ballMat, { friction: 0.1, restitution: 0.9 }));
 
         // Add balls with correct mass and DAMPING (MATCH Ball.js)
         const balls = play.positions.map((pos, i) => {
@@ -162,8 +162,8 @@ export class MasterPlayManager {
                 mass: 0.21, 
                 shape: new CANNON.Sphere(0.03075),
                 material: ballMat,
-                linearDamping: 0.08, // Match new realistic damping
-                angularDamping: 0.1
+                linearDamping: 0.15, // Match new tournament damping
+                angularDamping: 0.2
             });
             b.position.set(pos.x, pos.y, pos.z);
             world.addBody(b);

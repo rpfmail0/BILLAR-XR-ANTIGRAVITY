@@ -52,8 +52,9 @@ export class Ball {
         this.body.position.copy(this.startPosition);
         this.body.userData = { type: 'ball' };
         // Billiard balls on felt roll for a long time but slow down eventually
-        this.body.linearDamping = 0.08; // More realistic for smooth felt
-        this.body.angularDamping = 0.1;
+        this.body.linearDamping = 0.15; // Professional tournament cloth speed
+        this.body.angularDamping = 0.2;
+        
         
         // Listen to collision specifically on the body to avoid global missing contact bugs
         this.body.addEventListener('collide', (event) => {
