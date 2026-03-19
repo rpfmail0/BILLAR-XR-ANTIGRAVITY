@@ -119,32 +119,42 @@ export class XRHandler {
     }
 
     createVRHUD() {
-        // Create canvas for the HUD
+        // 1. Permanent Score/Controls HUD (Top-Left)
         this.hudCanvas = document.createElement('canvas');
         this.hudCanvas.width = 512;
         this.hudCanvas.height = 256;
         this.hudContext = this.hudCanvas.getContext('2d');
-
         this.hudTexture = new THREE.CanvasTexture(this.hudCanvas);
-        const material = new THREE.MeshBasicMaterial({ 
-            map: this.hudTexture, 
-            transparent: true, 
-            opacity: 0.9,
-            depthTest: false 
-        });
         
-        const geometry = new THREE.PlaneGeometry(0.5, 0.25); // Slightly larger for central focus
-        this.hudMesh = new THREE.Mesh(geometry, material);
-        this.hudMesh.position.set(0, 0.05, -0.5); // Center and slightly up to stay in view
+        const hudMaterial = new THREE.MeshBasicMaterial({ 
+            map: this.hudTexture, transparent: true, opacity: 0.9, depthTest: false 
+        });
+        this.hudMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 0.15), hudMaterial);
+        this.hudMesh.position.set(-0.25, 0.15, -0.6); // BACK TO TOP-LEFT
         this.hudMesh.renderOrder = 1001;
         this.camera.add(this.hudMesh);
+
+        // 2. Temporary Announcement HUD (Center)
+        this.annCanvas = document.createElement('canvas');
+        this.annCanvas.width = 512;
+        this.annCanvas.height = 256;
+        this.annContext = this.annCanvas.getContext('2d');
+        this.annTexture = new THREE.CanvasTexture(this.annCanvas);
+        
+        const annMaterial = new THREE.MeshBasicMaterial({ 
+            map: this.annTexture, transparent: true, opacity: 1.0, depthTest: false 
+        });
+        this.annMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.25), annMaterial);
+        this.annMesh.position.set(0, 0.05, -0.5); // CENTER
+        this.annMesh.renderOrder = 1002;
+        this.annMesh.visible = false; // Hidden by default
+        this.camera.add(this.annMesh);
 
         this.lastHUDStreak = -1;
         this.updateHUDContent(0);
     }
 
     updateHUDContent(streak) {
-        // Remove the guard to allow message updates without streak changes
         if (streak !== undefined) this.lastHUDStreak = streak;
         const currentStreak = this.lastHUDStreak;
 
@@ -152,39 +162,14 @@ export class XRHandler {
         ctx.clearRect(0, 0, 512, 256);
 
         // Background
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         ctx.roundRect(0, 0, 512, 256, 15);
         ctx.fill();
 
-        // Title or Active Message (Expanded for readability)
-        if (this.hudMessage) {
-            const fontTitle = 'bold 24px Arial';
-            const fontDesc = '18px Arial';
-            const x = 256;
-            let y = 40;
-            
-            // Background box for message - centered in the HUD plane
-            ctx.fillStyle = '#ffcc00';
-            ctx.fillRect(5, 50, 502, 150);
-            ctx.fillStyle = 'black';
-            ctx.textAlign = 'center';
-            y = 85; 
-
-            // Wrap and draw message
-            const lines = this.wrapText(ctx, this.hudMessage, 480);
-            lines.forEach((line, index) => {
-                ctx.font = index === 0 ? fontTitle : fontDesc;
-                ctx.fillText(line, x, y);
-                y += index === 0 ? 30 : 22;
-            });
-
-            ctx.textAlign = 'left';
-            ctx.fillStyle = 'white';
-        } else {
-            ctx.fillStyle = '#00ffff';
-            ctx.font = 'bold 32px monospace';
-            ctx.fillText(`CARAMBOLAS: ${currentStreak}`, 30, 60);
-        }
+        ctx.fillStyle = '#00ffff';
+        ctx.font = 'bold 36px monospace';
+        ctx.textAlign = 'left';
+        ctx.fillText(`CARAMBOLAS: ${currentStreak}`, 30, 60);
 
         // Separator
         ctx.strokeStyle = '#444';
@@ -777,14 +762,41 @@ export class XRHandler {
     }
 
     showHUDMessage(msg, duration = 3000) {
-        this.hudMessage = msg;
-        this.updateHUDContent();
+        this.updateAnnouncementHUD(msg);
         
         if (this.hudMessageTimeout) clearTimeout(this.hudMessageTimeout);
         this.hudMessageTimeout = setTimeout(() => {
-            this.hudMessage = "";
-            this.updateHUDContent();
+            this.annMesh.visible = false;
         }, duration);
+    }
+
+    updateAnnouncementHUD(message) {
+        const ctx = this.annContext;
+        ctx.clearRect(0, 0, 512, 256);
+
+        // Background box for message - centered in the HUD plane
+        ctx.fillStyle = '#ffcc00';
+        ctx.roundRect(5, 50, 502, 150, 10);
+        ctx.fill();
+        
+        ctx.fillStyle = 'black';
+        ctx.textAlign = 'center';
+        
+        const fontTitle = 'bold 24px Arial';
+        const fontDesc = '18px Arial';
+        const x = 256;
+        let y = 85;
+
+        // Wrap and draw message
+        const lines = this.wrapText(ctx, message, 460);
+        lines.forEach((line, index) => {
+            ctx.font = index === 0 ? fontTitle : fontDesc;
+            ctx.fillText(line, x, y);
+            y += index === 0 ? 32 : 24;
+        });
+
+        this.annTexture.needsUpdate = true;
+        this.annMesh.visible = true;
     }
 
     wrapText(ctx, text, maxWidth) {

@@ -224,7 +224,7 @@ export class MasterPlayManager {
         
         // 2. Announce play
         if (this.xrHandler) {
-            this.xrHandler.showHUDMessage(play.name + ": " + play.description, 4000);
+            this.xrHandler.showHUDMessage(play.name + ": " + play.description, 3000);
         }
 
         // 3. Execute
