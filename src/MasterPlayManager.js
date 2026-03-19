@@ -10,29 +10,45 @@ export class MasterPlayManager {
         
         this.plays = [
             {
-                name: "Natural a 3 Bandas (Largo-Corto-Largo)",
+                name: "Natural (Alrededor de la mesa)",
+                description: "Impacto fino en la roja para recorrer Larga-Corta-Larga.",
                 positions: [
-                    { x: 0.4, y: 0.83075, z: 1.0 },   // White
-                    { x: 0.5, y: 0.83075, z: -0.5 },  // Red (Target 1)
-                    { x: -0.4, y: 0.83075, z: 0.5 }   // Yellow (Target 2)
-                ],
-                shot: {
-                    power: 0.85,
-                    direction: new THREE.Vector3(-0.1, 0, -1).normalize(),
-                    hitOffset: new THREE.Vector3(0.015, 0, 0) // Slight side spin
-                }
-            },
-            {
-                name: "Bricole (Cojín Primero)",
-                positions: [
-                    { x: -0.3, y: 0.83075, z: 0.8 },
-                    { x: 0.3, y: 0.83075, z: -0.8 },
-                    { x: 0.0, y: 0.83075, z: -1.2 }
+                    { x: 0.5, y: 0.83075, z: 1.2 },   // Blanca
+                    { x: 0.65, y: 0.83075, z: 0.4 },  // Roja (Objetivo 1 - Impacto lateral)
+                    { x: -0.5, y: 0.83075, z: 1.0 }   // Amarilla (Objetivo 2)
                 ],
                 shot: {
                     power: 0.75,
-                    direction: new THREE.Vector3(-0.9, 0, -0.4).normalize(),
-                    hitOffset: new THREE.Vector3(-0.01, 0.01, 0)
+                    direction: new THREE.Vector3(0.08, 0, -1).normalize(),
+                    hitOffset: new THREE.Vector3(0.012, 0, 0) // Efecto a la derecha
+                }
+            },
+            {
+                name: "Renver (Banda Larga Primero)",
+                description: "Efecto contrario para volver tras tocar la banda larga.",
+                positions: [
+                    { x: -0.3, y: 0.83075, z: 0.8 },
+                    { x: 0.55, y: 0.83075, z: -0.8 },
+                    { x: 0.4, y: 0.83075, z: 1.1 }
+                ],
+                shot: {
+                    power: 0.7,
+                    direction: new THREE.Vector3(0.95, 0, -0.3).normalize(),
+                    hitOffset: new THREE.Vector3(-0.015, 0, 0) // Fuerte efecto izquierda
+                }
+            },
+            {
+                name: "Cabañuela (Corta-Larga-Corta)",
+                description: "Jugada de precisión usando el rincón.",
+                positions: [
+                    { x: 0.0, y: 0.83075, z: 1.0 },
+                    { x: 0.3, y: 0.83075, z: 1.35 },
+                    { x: -0.4, y: 0.83075, z: -1.0 }
+                ],
+                shot: {
+                    power: 0.65,
+                    direction: new THREE.Vector3(0.4, 0, 0.9).normalize(),
+                    hitOffset: new THREE.Vector3(0.01, 0, 0)
                 }
             }
         ];
