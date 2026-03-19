@@ -7,6 +7,7 @@ import { Ball } from './Objects/Ball.js';
 import { Cue } from './Objects/Cue.js';
 import { XRHandler } from './XRHandler.js';
 import { GameLogic } from './GameLogic.js';
+import { MasterPlayManager } from './MasterPlayManager.js';
 import * as CANNON from 'cannon-es';
 
 export class SceneSetup {
@@ -90,14 +91,17 @@ export class SceneSetup {
         // Cue
         this.cue = new Cue(this.scene);
 
-        // Game Logic
-        this.gameLogic = new GameLogic(this.scene, this.physics, this.balls);
+        // Master Play Manager
+        this.masterPlayManager = new MasterPlayManager(this.scene, this.balls, this.gameLogic, null);
 
         // Env Map generation
         this.setupEnvironment();
 
         // XR Handler
-        this.xrHandler = new XRHandler(this.renderer, this.scene, this.xrRig, this.camera, this.cue, this.balls, this.gameLogic, this.soundManager, this.table);
+        this.xrHandler = new XRHandler(this.renderer, this.scene, this.xrRig, this.camera, this.cue, this.balls, this.gameLogic, this.soundManager, this.table, this.masterPlayManager);
+        
+        // Link manager back to handler for undo/state logic
+        this.masterPlayManager.xrHandler = this.xrHandler;
     }
 
     setupEnvironment() {

@@ -3,7 +3,7 @@ import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerM
 import * as CANNON from 'cannon-es';
 
 export class XRHandler {
-    constructor(renderer, scene, xrRig, camera, cue, balls, gameLogic, soundManager, table) {
+    constructor(renderer, scene, xrRig, camera, cue, balls, gameLogic, soundManager, table, masterPlayManager) {
         this.renderer = renderer;
         this.scene = scene;
         this.xrRig = xrRig;
@@ -13,6 +13,7 @@ export class XRHandler {
         this.gameLogic = gameLogic;
         this.soundManager = soundManager;
         this.table = table;
+        this.masterPlayManager = masterPlayManager;
         this.controller1 = null;
         this.controller2 = null;
         this.controllerGrip1 = null;
@@ -183,6 +184,14 @@ export class XRHandler {
         ctx.fillText(' | DISPARAR (TACO)', 180, y);
         y += gap;
 
+        // Trigger L
+        ctx.fillStyle = '#1e3a5f';
+        ctx.fillRect(30, y-25, 140, 32);
+        ctx.fillStyle = 'white';
+        ctx.fillText('TRIGGER L', 40, y);
+        ctx.fillText(' | JUGADA MAESTRA', 180, y);
+        y += gap;
+
         // B - Yellow
         ctx.beginPath();
         ctx.arc(45, y-10, 15, 0, Math.PI*2);
@@ -266,6 +275,12 @@ export class XRHandler {
         if (session) {
             for (let i = 0; i < session.inputSources.length; i++) {
                 if (this.renderer.xr.getController(i) === event.target) {
+                    if (session.inputSources[i].handedness === 'left') {
+                        if (this.masterPlayManager) {
+                            this.masterPlayManager.showNextPlay();
+                        }
+                        return;
+                    }
                     if (session.inputSources[i].handedness !== 'right') return;
                     break;
                 }
