@@ -18,8 +18,8 @@ export class MasterPlayManager {
                     { x: 0.4, y: 0.83075, z: -0.4 }     // Amarilla (Esperando)
                 ],
                 shot: {
-                    power: 0.88, // Aumentado para compensar rozamiento 0.15
-                    direction: new THREE.Vector3(-0.71, 0, -1.3).normalize(), 
+                    power: 0.9, // Potente para 3 bandas
+                    direction: new THREE.Vector3(-0.6, 0, -1).normalize(), 
                     hitOffset: new THREE.Vector3(0, 0, 0)
                 }
             },
@@ -114,9 +114,9 @@ export class MasterPlayManager {
         const baseDir = play.shot.direction;
         const baseAngle = Math.atan2(baseDir.x, baseDir.z);
         
-        // Search in a range of +/- 10 degrees
-        const range = 0.18; // approx 10 deg
-        const steps = 40;
+        // Búsqueda profunda en un rango de +/- 30 grados
+        const range = 1.05; // aprox 60 deg total (+/- 30)
+        const steps = 120; // Resolución fina
         
         let found = false;
         for (let i = 0; i < steps; i++) {
@@ -126,7 +126,8 @@ export class MasterPlayManager {
             if (this.testShot(play, angle)) {
                 bestAngle = angle;
                 found = true;
-                console.log(`MAESTRO: ¡Ángulo rectificado! Offset: ${(offset * 180 / Math.PI).toFixed(2)}º`);
+                const offsetDeg = (offset * 180 / Math.PI).toFixed(1);
+                console.log(`MAESTRO: ¡Trayectoria encontrada! Corrección: ${offsetDeg}º`);
                 break;
             }
         }
@@ -194,21 +195,40 @@ export class MasterPlayManager {
         // Apply impulse at world center (no spin for stability in test)
         balls[0].applyImpulse(impulse, balls[0].position);
 
-        let hitRed = false;
-        let hitYellow = false;
-        let cushionHits = 0;
+        let hitFirst = false;
+        let hitSecond = false;
+        let cushionCount = 0;
 
         balls[0].addEventListener('collide', (e) => {
             const other = e.body;
-            if (other === balls[1]) hitRed = true;
-            if (other === balls[2]) hitYellow = true;
-            if (other.material === cushionMat) cushionHits++;
+            // Identificar si es banda
+            if (other.material === cushionMat) {
+                cushionCount++;
+            }
+            // Identificar bolas
+            if (other === balls[1]) {
+                hitFirst = true;
+            }
+            if (other === balls[2]) {
+                // ÉXITO: Si ya hemos dado a la primera y llevamos 3 bandas
+                // O si llevamos 3 bandas ANTES de dar a la segunda (independientemente de la primera)
+                if (hitFirst && cushionCount >= 3) hitSecond = true;
+                // Nota: En billar 3 bandas, si das a 3 bandas ANTES de la primera bola también vale (Bricole)
+                if (!hitFirst && cushionCount >= 3) hitRed = true; // En este caso invertimos
+            }
         });
 
-        // Sim up to 8 seconds (480 steps) due to lower damping
-        for (let i = 0; i < 480; i++) {
+        // Simulación extendida (10 segundos para trayectorias largas)
+        for (let i = 0; i < 600; i++) {
             world.step(1/60);
-            if (hitRed && hitYellow && cushionHits >= 3) return true;
+            
+            // Condición de victoria real de 3 bandas:
+            // Caso A: Blanca -> Roja -> 3 Bandas -> Amarilla
+            // Caso B: Blanca -> 3 Bandas -> Roja -> Amarilla
+            // Simplificado: Haber tocado 3 bandas y AMBAS bolas, siendo la SEGUNDA bola tocada DESPUÉS de las 3 bandas.
+            
+            // Usamos flags internos del loop de colisión
+            if (hitFirst && hitSecond && cushionCount >= 3) return true;
         }
 
         return false;
