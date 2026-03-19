@@ -10,37 +10,38 @@ export class MasterPlayManager {
         
         this.plays = [
             {
-                name: "Bricole: 3 Bandas por el Rincón",
-                description: "La blanca toca 3 bandas ANTES de impactar las otras bolas.",
+                name: "Sistema de Diamantes: 50-30-20",
+                description: "Un clásico de 3 bandas. Salida desde el centro (50), ataque al segundo diamante (30) para llegar al rincón opuesto (20).",
                 positions: [
-                    { x: 0.355, y: 0.83075, z: 1.065 },   // Blanca (Diamante 2 abajo)
-                    { x: -0.4, y: 0.83075, z: 0.9 },     // Roja (Esperando llegada)
-                    { x: -0.6, y: 0.83075, z: 1.2 }       // Amarilla (Esperando llegada)
+                    { x: 0.0, y: 0.83075, z: 1.2 },    // Blanca (Cerca del centro corto abajo)
+                    { x: -0.4, y: 0.83075, z: -0.8 },  // Roja (Esperando en rincón destino)
+                    { x: -0.6, y: 0.83075, z: -1.0 }   // Amarilla (Esperando en rincón destino)
                 ],
                 shot: {
-                    power: 0.82,
-                    direction: new THREE.Vector3(-1, 0, -1.2).normalize(), // Hacia diamante 2 arriba izqda
-                    hitOffset: new THREE.Vector3(0.012, 0, 0) // Efecto derecha para abrir el ángulo
+                    power: 0.9, 
+                    direction: new THREE.Vector3(-0.71, 0, -1.555).normalize(), 
+                    hitOffset: new THREE.Vector3(0.012, 0, 0) 
                 }
             },
             {
-                name: "Natural: Larga-Corta-Larga",
-                description: "Impacto fino en la bola roja para recorrer toda la mesa.",
+                name: "Bricole por 3 Bandas",
+                description: "Tiro directo a banda para resolver una carambola ajustada.",
                 positions: [
-                    { x: 0.2, y: 0.83075, z: 1.0 },
-                    { x: 0.5, y: 0.83075, z: -0.2 },
-                    { x: -0.5, y: 0.83075, z: 0.8 }
+                    { x: 0.355, y: 0.83075, z: 0.8 },
+                    { x: -0.5, y: 0.83075, z: 1.1 },
+                    { x: -0.3, y: 0.83075, z: 1.3 }
                 ],
                 shot: {
-                    power: 0.75,
-                    direction: new THREE.Vector3(0.4, 0, -1).normalize(),
-                    hitOffset: new THREE.Vector3(0.015, 0, 0)
+                    power: 0.85,
+                    direction: new THREE.Vector3(-1, 0, -1.5).normalize(),
+                    hitOffset: new THREE.Vector3(0.01, 0, 0)
                 }
             }
         ];
         
         this.currentPlayIndex = 0;
         this.isSimulating = false;
+        this.logInterval = null;
         
         this.createTrajectoryLine();
     }
@@ -82,7 +83,7 @@ export class MasterPlayManager {
         });
         
         this.isSimulating = true;
-        console.log(`Proponiendo jugada: ${play.name}`);
+        console.log(`PROPO_JUGADA: ${play.name}`);
         
         // Show description on HUD
         if (this.xrHandler) {
@@ -92,10 +93,30 @@ export class MasterPlayManager {
         // Schedule the master shot
         setTimeout(() => {
             this.executeShot(play);
-            this.isSimulating = false;
-        }, 3000); // 3 seconds to read description
+            this.startLogging(); // Empieza a loguear la posición
+            
+            setTimeout(() => {
+                this.isSimulating = false;
+                this.stopLogging();
+            }, 6000); // 6s de simulación
+        }, 3000); 
 
         return play.name;
+    }
+
+    startLogging() {
+        if (this.logInterval) clearInterval(this.logInterval);
+        const whiteBall = this.balls[0];
+        this.logInterval = setInterval(() => {
+            console.log(`DEBUG_POS_BLANCA: X:${whiteBall.body.position.x.toFixed(3)}, Z:${whiteBall.body.position.z.toFixed(3)}`);
+        }, 200);
+    }
+
+    stopLogging() {
+        if (this.logInterval) {
+            clearInterval(this.logInterval);
+            this.logInterval = null;
+        }
     }
 
     executeShot(play) {
@@ -103,13 +124,12 @@ export class MasterPlayManager {
         const { power, direction, hitOffset } = play.shot;
         
         // Match XRHandler's non-linear power curve
-        const maxForce = 0.12;
-        const forceMagnitude = Math.max(0.005, Math.pow(power, 2) * maxForce);
+        const maxForce = 0.15; // Ligeramente aumentado para asegurar el recorrido
+        const forceMagnitude = Math.pow(power, 2) * maxForce;
         const force = direction.clone().multiplyScalar(forceMagnitude);
         const impulse = new CANNON.Vec3(force.x, force.y, force.z);
         
         // Calculate hit point for side spin (English)
-        // hitOffset is relative to ball center in world coords
         const hitPoint = whiteBall.mesh.position.clone().add(hitOffset);
         const worldPoint = new CANNON.Vec3(hitPoint.x, hitPoint.y, hitPoint.z);
 
