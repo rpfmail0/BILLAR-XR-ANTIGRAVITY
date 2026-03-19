@@ -41,7 +41,7 @@ export class Table {
 
         // Cushions (Visuals only for now, physics will be separate bodies)
         const cushionWidth = 0.1;
-        const cushionHeight = 0.05;
+        const cushionHeight = 0.08; // Increased from 0.05 to prevent jumping
         const cushionMaterial = new THREE.MeshStandardMaterial({ color: 0x004400 });
 
         this.cushionMeshes = [];
@@ -49,24 +49,24 @@ export class Table {
         // Long cushions
         const longCushionGeo = new THREE.BoxGeometry(cushionWidth, cushionHeight, this.length + cushionWidth * 2);
         const leftCushion = new THREE.Mesh(longCushionGeo, cushionMaterial);
-        leftCushion.position.set(-this.width / 2 - cushionWidth / 2, this.height + 0.025, 0);
+        leftCushion.position.set(-this.width / 2 - cushionWidth / 2, this.height + cushionHeight / 2, 0);
         this.scene.add(leftCushion);
         this.cushionMeshes.push(leftCushion);
 
         const rightCushion = new THREE.Mesh(longCushionGeo, cushionMaterial);
-        rightCushion.position.set(this.width / 2 + cushionWidth / 2, this.height + 0.025, 0);
+        rightCushion.position.set(this.width / 2 + cushionWidth / 2, this.height + cushionHeight / 2, 0);
         this.scene.add(rightCushion);
         this.cushionMeshes.push(rightCushion);
 
         // Short cushions
         const shortCushionGeo = new THREE.BoxGeometry(this.width, cushionHeight, cushionWidth);
         const topCushion = new THREE.Mesh(shortCushionGeo, cushionMaterial);
-        topCushion.position.set(0, this.height + 0.025, -this.length / 2 - cushionWidth / 2);
+        topCushion.position.set(0, this.height + cushionHeight / 2, -this.length / 2 - cushionWidth / 2);
         this.scene.add(topCushion);
         this.cushionMeshes.push(topCushion);
 
         const bottomCushion = new THREE.Mesh(shortCushionGeo, cushionMaterial);
-        bottomCushion.position.set(0, this.height + 0.025, this.length / 2 + cushionWidth / 2);
+        bottomCushion.position.set(0, this.height + cushionHeight / 2, this.length / 2 + cushionWidth / 2);
         this.scene.add(bottomCushion);
         this.cushionMeshes.push(bottomCushion);
     }
@@ -84,7 +84,7 @@ export class Table {
 
         // Cushions
         const cushionThickness = 0.1;
-        const cushionHeight = 0.05;
+        const cushionHeight = 0.08;
 
         // Helper to add cushion body
         const addCushion = (width, length, x, z) => {
@@ -95,7 +95,7 @@ export class Table {
             });
             body.userData = { type: 'cushion' };
             body.addShape(shape);
-            body.position.set(x, this.height + 0.025, z);
+            body.position.set(x, this.height + cushionHeight / 2, z);
             this.physicsWorld.world.addBody(body);
         };
 
