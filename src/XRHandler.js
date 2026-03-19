@@ -26,7 +26,7 @@ export class XRHandler {
         this.isCharging = false;
         this.chargePower = 0;
         this.chargeDirection = 1;
-        this.chargeSpeed = 1.0; // 1 second to reach full power
+        this.chargeSpeed = 0.8; // Reduced from 1.0 to allow more precision in delicate shots
 
         // Locomotion state
         this.snapTurnReady = true;
@@ -714,9 +714,12 @@ export class XRHandler {
             this.savePreShotState();
 
             // Apply impulse
-            // Applied force further reduced by factor of 5 based on user request
-            const maxForce = 0.04; 
-            const forceMagnitude = Math.max(0.005, power * maxForce);
+            // Applied force further increased at the high end but quadratic for delicate low end
+            const maxForce = 0.12; // Increased from 0.04 to allow very powerful shots
+            // Using a quadratic curve: power^2 * maxForce. 
+            // This means at 50% bar, power is only 25% of max (0.03), 
+            // allowing for very fine control at the lower end.
+            const forceMagnitude = Math.max(0.005, Math.pow(power, 2) * maxForce);
             const force = cueForward.multiplyScalar(forceMagnitude);
             const impulse = new CANNON.Vec3(force.x, force.y, force.z);
             
