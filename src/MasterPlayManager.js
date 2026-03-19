@@ -18,9 +18,9 @@ export class MasterPlayManager {
                     { x: 0.4, y: 0.83075, z: -0.4 }     // Amarilla (Esperando)
                 ],
                 shot: {
-                    power: 0.85,
+                    power: 0.65, // Reducido para nuevo damping 0.08
                     direction: new THREE.Vector3(-0.71, 0, -1.3).normalize(), 
-                    hitOffset: new THREE.Vector3(0, 0, 0) // Sin efecto para máxima estabilidad física
+                    hitOffset: new THREE.Vector3(0, 0, 0)
                 }
             },
             {
@@ -32,7 +32,7 @@ export class MasterPlayManager {
                     { x: -0.5, y: 0.83075, z: 0.8 }
                 ],
                 shot: {
-                    power: 0.8,
+                    power: 0.6, // Reducido
                     direction: new THREE.Vector3(0.2, 0, -1).normalize(),
                     hitOffset: new THREE.Vector3(0.01, 0, 0)
                 }
@@ -188,7 +188,7 @@ export class MasterPlayManager {
         addCushion(tw, cushionThickness, 0, tl / 2 + cushionThickness / 2);  // B
 
         // Execute shot
-        const impulseMag = Math.pow(play.shot.power, 2) * 0.15;
+        const impulseMag = Math.pow(play.shot.power, 2) * 0.10; // Reducido a 0.10
         const impulse = new CANNON.Vec3(Math.sin(angle) * impulseMag, 0, Math.cos(angle) * impulseMag);
         
         // Apply impulse at world center (no spin for stability in test)
@@ -218,13 +218,24 @@ export class MasterPlayManager {
         const whiteBall = this.balls[0];
         const { power, direction, hitOffset } = shot;
         
-        const maxForce = 0.15;
+        const maxForce = 0.10; // Reducido
         const forceMagnitude = Math.pow(power, 2) * maxForce;
-        const force = direction.clone().multiplyScalar(forceMagnitude);
-        const impulse = new CANNON.Vec3(force.x, force.y, force.z);
         
-        const hitPoint = whiteBall.mesh.position.clone().add(hitOffset);
-        const worldPoint = new CANNON.Vec3(hitPoint.x, hitPoint.y, hitPoint.z);
+        // Ensure strictly horizontal direction
+        const dir = direction.clone();
+        dir.y = 0;
+        dir.normalize();
+
+        const force = dir.multiplyScalar(forceMagnitude);
+        const impulse = new CANNON.Vec3(force.x, 0, force.z); // Force Y to 0
+        
+        // Use current body position for hit point to avoid vertical offsets
+        const worldPos = whiteBall.body.position;
+        const worldPoint = new CANNON.Vec3(
+            worldPos.x + hitOffset.x, 
+            worldPos.y, // Strictly at center height
+            worldPos.z + hitOffset.z
+        );
 
         if (this.gameLogic) this.gameLogic.startShot();
         
