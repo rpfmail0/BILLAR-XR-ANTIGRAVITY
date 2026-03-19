@@ -143,9 +143,10 @@ export class MasterPlayManager {
     }
 
     testShot(play, angle) {
-        // Setup mini-world with same parameters as PhysicsWorld.js
+        // Setup mini-world with EXACT parameters from PhysicsWorld.js, Table.js and Ball.js
         const world = new CANNON.World();
         world.gravity.set(0, -9.82, 0);
+        world.solver.iterations = 10;
 
         const ballMat = new CANNON.Material();
         const cushionMat = new CANNON.Material();
@@ -155,50 +156,59 @@ export class MasterPlayManager {
         world.addContactMaterial(new CANNON.ContactMaterial(ballMat, tableMat, { friction: 0.225, restitution: 0.7 }));
         world.addContactMaterial(new CANNON.ContactMaterial(ballMat, ballMat, { friction: 0.1, restitution: 0.98 }));
 
-        // Add balls
+        // Add balls with correct mass and DAMPING
         const balls = play.positions.map((pos, i) => {
             const b = new CANNON.Body({ 
-                mass: 0.17, 
+                mass: 0.21, // Match Ball.js
                 shape: new CANNON.Sphere(0.03075),
-                material: ballMat
+                material: ballMat,
+                linearDamping: 0.3, // CRITICAL: match Ball.js
+                angularDamping: 0.4
             });
             b.position.set(pos.x, pos.y, pos.z);
             world.addBody(b);
             return b;
         });
 
-        // Add invisible cushions as planes
-        const addPlane = (pos, norm) => {
+        // Add cushions as BOXES (Match Table.js exactly)
+        const cushionThickness = 0.1;
+        const cushionHeight = 0.08;
+        const addCushion = (w, l, x, z) => {
             const b = new CANNON.Body({ mass: 0, material: cushionMat });
-            b.addShape(new CANNON.Plane());
-            b.position.copy(pos);
-            b.quaternion.setFromVectors(new CANNON.Vec3(0, 0, 1), norm);
+            b.addShape(new CANNON.Box(new CANNON.Vec3(w / 2, cushionHeight / 2, l / 2)));
+            b.position.set(x, 0.8 + cushionHeight / 2, z);
             world.addBody(b);
         };
-        addPlane(new CANNON.Vec3(-0.71, 0, 0), new CANNON.Vec3(1, 0, 0)); // L
-        addPlane(new CANNON.Vec3(0.71, 0, 0), new CANNON.Vec3(-1, 0, 0)); // R
-        addPlane(new CANNON.Vec3(0, 0, -1.42), new CANNON.Vec3(0, 0, 1)); // T
-        addPlane(new CANNON.Vec3(0, 0, 1.42), new CANNON.Vec3(0, 0, -1)); // B
+        
+        const tw = 1.42; // Table width
+        const tl = 2.84; // Table length
+        addCushion(cushionThickness, tl, -tw / 2 - cushionThickness / 2, 0); // L
+        addCushion(cushionThickness, tl, tw / 2 + cushionThickness / 2, 0);  // R
+        addCushion(tw, cushionThickness, 0, -tl / 2 - cushionThickness / 2); // T
+        addCushion(tw, cushionThickness, 0, tl / 2 + cushionThickness / 2);  // B
 
         // Execute shot
         const impulseMag = Math.pow(play.shot.power, 2) * 0.15;
         const impulse = new CANNON.Vec3(Math.sin(angle) * impulseMag, 0, Math.cos(angle) * impulseMag);
+        
+        // Apply impulse at world center (no spin for stability in test)
         balls[0].applyImpulse(impulse, balls[0].position);
 
         let hitRed = false;
         let hitYellow = false;
-        let cushions = 0;
+        let cushionHits = 0;
 
         balls[0].addEventListener('collide', (e) => {
-            if (e.body === balls[1]) hitRed = true;
-            if (e.body === balls[2]) hitYellow = true;
-            if (e.body.material === cushionMat) cushions++;
+            const other = e.body;
+            if (other === balls[1]) hitRed = true;
+            if (other === balls[2]) hitYellow = true;
+            if (other.material === cushionMat) cushionHits++;
         });
 
-        // Sim 4 seconds
-        for (let i = 0; i < 240; i++) {
+        // Sim 5 seconds (300 steps)
+        for (let i = 0; i < 300; i++) {
             world.step(1/60);
-            if (hitRed && hitYellow && cushions >= 3) return true;
+            if (hitRed && hitYellow && cushionHits >= 3) return true;
         }
 
         return false;
