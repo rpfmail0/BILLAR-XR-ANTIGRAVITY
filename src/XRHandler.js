@@ -144,34 +144,45 @@ export class XRHandler {
     }
 
     updateHUDContent(streak) {
-        if (streak === this.lastHUDStreak) return;
-        this.lastHUDStreak = streak;
+        // Remove the guard to allow message updates without streak changes
+        if (streak !== undefined) this.lastHUDStreak = streak;
+        const currentStreak = this.lastHUDStreak;
 
         const ctx = this.hudContext;
         ctx.clearRect(0, 0, 512, 256);
 
         // Background
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        ctx.roundRect(0, 0, 512, 256, 20);
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
+        ctx.roundRect(0, 0, 512, 256, 15);
         ctx.fill();
 
-        ctx.fillStyle = 'white';
-        ctx.font = 'bold 36px monospace';
-        
-        // Streak / Carambolas
-        ctx.fillText(`CARAMBOLAS: `, 30, 60);
-        ctx.fillStyle = '#4CAF50';
-        ctx.fillText(`${streak}`, 290, 60);
+        // Title or Active Message
+        if (this.hudMessage) {
+            // High-visibility announcement box
+            ctx.fillStyle = '#ffcc00';
+            ctx.fillRect(10, 10, 492, 70);
+            ctx.fillStyle = 'black';
+            ctx.font = 'bold 22px Arial';
+            ctx.textAlign = 'center';
+            // Wrap text if needed or just show first line
+            ctx.fillText(this.hudMessage, 256, 50);
+            ctx.textAlign = 'left';
+            ctx.fillStyle = 'white';
+        } else {
+            ctx.fillStyle = '#00ffff';
+            ctx.font = 'bold 32px monospace';
+            ctx.fillText(`CARAMBOLAS: ${currentStreak}`, 30, 60);
+        }
 
         // Separator
-        ctx.strokeStyle = '#666';
-        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#444';
+        ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(30, 85);
         ctx.lineTo(482, 85);
         ctx.stroke();
 
-        ctx.font = '24px monospace';
+        ctx.font = '20px monospace';
         ctx.fillStyle = 'white';
 
         // Controls

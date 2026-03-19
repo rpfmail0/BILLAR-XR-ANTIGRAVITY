@@ -10,45 +10,31 @@ export class MasterPlayManager {
         
         this.plays = [
             {
-                name: "Natural: Tres Bandas LKL",
-                description: "Golpea la roja por la derecha. La blanca hará Banda Larga -> Corta -> Larga.",
+                name: "Bricole: 3 Bandas por el Rincón",
+                description: "La blanca toca 3 bandas ANTES de impactar las otras bolas.",
                 positions: [
-                    { x: 0.1, y: 0.83075, z: 0.8 },   // Blanca
-                    { x: 0.5, y: 0.83075, z: -0.2 },  // Roja (Objetivo 1)
-                    { x: -0.5, y: 0.83075, z: 1.0 }   // Amarilla (Objetivo 2)
+                    { x: 0.355, y: 0.83075, z: 1.065 },   // Blanca (Diamante 2 abajo)
+                    { x: -0.4, y: 0.83075, z: 0.9 },     // Roja (Esperando llegada)
+                    { x: -0.6, y: 0.83075, z: 1.2 }       // Amarilla (Esperando llegada)
                 ],
                 shot: {
-                    power: 0.72,
-                    direction: new THREE.Vector3(0.42, 0, -1).normalize(),
-                    hitOffset: new THREE.Vector3(0.015, 0, 0) // Efecto derecha
+                    power: 0.82,
+                    direction: new THREE.Vector3(-1, 0, -1.2).normalize(), // Hacia diamante 2 arriba izqda
+                    hitOffset: new THREE.Vector3(0.012, 0, 0) // Efecto derecha para abrir el ángulo
                 }
             },
             {
-                name: "Bricole: Cojín Primero",
-                description: "Toca primero la banda larga para alcanzar la roja por detrás.",
+                name: "Natural: Larga-Corta-Larga",
+                description: "Impacto fino en la bola roja para recorrer toda la mesa.",
                 positions: [
-                    { x: -0.3, y: 0.83075, z: 0.8 },
-                    { x: 0.55, y: 0.83075, z: -0.8 },
-                    { x: 0.4, y: 0.83075, z: 1.1 }
+                    { x: 0.2, y: 0.83075, z: 1.0 },
+                    { x: 0.5, y: 0.83075, z: -0.2 },
+                    { x: -0.5, y: 0.83075, z: 0.8 }
                 ],
                 shot: {
                     power: 0.75,
-                    direction: new THREE.Vector3(0.98, 0, -0.2).normalize(),
-                    hitOffset: new THREE.Vector3(-0.01, 0, 0)
-                }
-            },
-            {
-                name: "Cabañuela del Rincón",
-                description: "Usa el rincón superior para volver por la banda corta.",
-                positions: [
-                    { x: -0.2, y: 0.83075, z: 1.0 },
-                    { x: 0.1, y: 0.83075, z: 1.35 },
-                    { x: -0.5, y: 0.83075, z: -0.8 }
-                ],
-                shot: {
-                    power: 0.68,
-                    direction: new THREE.Vector3(0.3, 0, 0.95).normalize(),
-                    hitOffset: new THREE.Vector3(0.01, 0, 0)
+                    direction: new THREE.Vector3(0.4, 0, -1).normalize(),
+                    hitOffset: new THREE.Vector3(0.015, 0, 0)
                 }
             }
         ];
