@@ -10,44 +10,44 @@ export class MasterPlayManager {
         
         this.plays = [
             {
-                name: "Natural (Alrededor de la mesa)",
-                description: "Impacto fino en la roja para recorrer Larga-Corta-Larga.",
+                name: "Natural: Tres Bandas LKL",
+                description: "Golpea la roja por la derecha. La blanca hará Banda Larga -> Corta -> Larga.",
                 positions: [
-                    { x: 0.5, y: 0.83075, z: 1.2 },   // Blanca
-                    { x: 0.65, y: 0.83075, z: 0.4 },  // Roja (Objetivo 1 - Impacto lateral)
+                    { x: 0.1, y: 0.83075, z: 0.8 },   // Blanca
+                    { x: 0.5, y: 0.83075, z: -0.2 },  // Roja (Objetivo 1)
                     { x: -0.5, y: 0.83075, z: 1.0 }   // Amarilla (Objetivo 2)
                 ],
                 shot: {
-                    power: 0.75,
-                    direction: new THREE.Vector3(0.08, 0, -1).normalize(),
-                    hitOffset: new THREE.Vector3(0.012, 0, 0) // Efecto a la derecha
+                    power: 0.72,
+                    direction: new THREE.Vector3(0.42, 0, -1).normalize(),
+                    hitOffset: new THREE.Vector3(0.015, 0, 0) // Efecto derecha
                 }
             },
             {
-                name: "Renver (Banda Larga Primero)",
-                description: "Efecto contrario para volver tras tocar la banda larga.",
+                name: "Bricole: Cojín Primero",
+                description: "Toca primero la banda larga para alcanzar la roja por detrás.",
                 positions: [
                     { x: -0.3, y: 0.83075, z: 0.8 },
                     { x: 0.55, y: 0.83075, z: -0.8 },
                     { x: 0.4, y: 0.83075, z: 1.1 }
                 ],
                 shot: {
-                    power: 0.7,
-                    direction: new THREE.Vector3(0.95, 0, -0.3).normalize(),
-                    hitOffset: new THREE.Vector3(-0.015, 0, 0) // Fuerte efecto izquierda
+                    power: 0.75,
+                    direction: new THREE.Vector3(0.98, 0, -0.2).normalize(),
+                    hitOffset: new THREE.Vector3(-0.01, 0, 0)
                 }
             },
             {
-                name: "Cabañuela (Corta-Larga-Corta)",
-                description: "Jugada de precisión usando el rincón.",
+                name: "Cabañuela del Rincón",
+                description: "Usa el rincón superior para volver por la banda corta.",
                 positions: [
-                    { x: 0.0, y: 0.83075, z: 1.0 },
-                    { x: 0.3, y: 0.83075, z: 1.35 },
-                    { x: -0.4, y: 0.83075, z: -1.0 }
+                    { x: -0.2, y: 0.83075, z: 1.0 },
+                    { x: 0.1, y: 0.83075, z: 1.35 },
+                    { x: -0.5, y: 0.83075, z: -0.8 }
                 ],
                 shot: {
-                    power: 0.65,
-                    direction: new THREE.Vector3(0.4, 0, 0.9).normalize(),
+                    power: 0.68,
+                    direction: new THREE.Vector3(0.3, 0, 0.95).normalize(),
                     hitOffset: new THREE.Vector3(0.01, 0, 0)
                 }
             }
@@ -98,11 +98,16 @@ export class MasterPlayManager {
         this.isSimulating = true;
         console.log(`Proponiendo jugada: ${play.name}`);
         
+        // Show description on HUD
+        if (this.xrHandler) {
+            this.xrHandler.showHUDMessage(play.name + ": " + play.description, 4000);
+        }
+
         // Schedule the master shot
         setTimeout(() => {
             this.executeShot(play);
             this.isSimulating = false;
-        }, 1500); 
+        }, 3000); // 3 seconds to read description
 
         return play.name;
     }

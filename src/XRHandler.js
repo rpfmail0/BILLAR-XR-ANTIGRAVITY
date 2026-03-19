@@ -14,6 +14,8 @@ export class XRHandler {
         this.soundManager = soundManager;
         this.table = table;
         this.masterPlayManager = masterPlayManager;
+        this.hudMessage = "";
+        this.hudMessageTimeout = null;
         this.controller1 = null;
         this.controller2 = null;
         this.controllerGrip1 = null;
@@ -749,5 +751,16 @@ export class XRHandler {
                 this.gameLogic.startShot();
             }
         }
+    }
+
+    showHUDMessage(msg, duration = 3000) {
+        this.hudMessage = msg;
+        this.updateHUDContent();
+        
+        if (this.hudMessageTimeout) clearTimeout(this.hudMessageTimeout);
+        this.hudMessageTimeout = setTimeout(() => {
+            this.hudMessage = "";
+            this.updateHUDContent();
+        }, duration);
     }
 }

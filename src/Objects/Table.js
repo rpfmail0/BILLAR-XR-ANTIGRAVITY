@@ -69,6 +69,36 @@ export class Table {
         bottomCushion.position.set(0, this.height + cushionHeight / 2, this.length / 2 + cushionWidth / 2);
         this.scene.add(bottomCushion);
         this.cushionMeshes.push(bottomCushion);
+
+        this.createDiamonds(cushionHeight);
+    }
+
+    createDiamonds(cushionHeight) {
+        const diamondGeo = new THREE.SphereGeometry(0.008, 8, 8);
+        const diamondMat = new THREE.MeshStandardMaterial({ color: 0xdddddd, roughness: 0.2 });
+        
+        // Long rails (7 diamonds each)
+        for (let side = -1; side <= 1; side += 2) {
+            for (let i = 1; i <= 7; i++) {
+                const diamond = new THREE.Mesh(diamondGeo, diamondMat);
+                // 1/8 segments of 2.84m
+                const z = -this.length / 2 + (i * this.length / 8);
+                const x = side * (this.width / 2 + 0.05); // Centered on cushion top
+                diamond.position.set(x, this.height + cushionHeight, z);
+                this.scene.add(diamond);
+            }
+        }
+
+        // Short rails (3 diamonds each)
+        for (let side = -1; side <= 1; side += 2) {
+            for (let i = 1; i <= 3; i++) {
+                const diamond = new THREE.Mesh(diamondGeo, diamondMat);
+                const x = -this.width / 2 + (i * this.width / 4);
+                const z = side * (this.length / 2 + 0.05);
+                diamond.position.set(x, this.height + cushionHeight, z);
+                this.scene.add(diamond);
+            }
+        }
     }
 
     createPhysics() {
