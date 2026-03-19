@@ -10,30 +10,30 @@ export class MasterPlayManager {
         
         this.plays = [
             {
-                name: "Sistema de Diamantes: 50-30-20",
-                description: "Un clásico de 3 bandas. Salida desde el centro (50), ataque al segundo diamante (30) para llegar al rincón opuesto (20).",
+                name: "Maestría: Bricole de 3 Bandas",
+                description: "Tiro espectacular de banda. La blanca tocará: Banda Izquierda -> Superior -> Derecha antes de hacer la carambola.",
                 positions: [
-                    { x: 0.0, y: 0.83075, z: 1.2 },    // Blanca (Cerca del centro corto abajo)
-                    { x: -0.4, y: 0.83075, z: -0.8 },  // Roja (Esperando en rincón destino)
-                    { x: -0.6, y: 0.83075, z: -1.0 }   // Amarilla (Esperando en rincón destino)
-                ],
-                shot: {
-                    power: 0.9, 
-                    direction: new THREE.Vector3(-0.71, 0, -1.555).normalize(), 
-                    hitOffset: new THREE.Vector3(0.012, 0, 0) 
-                }
-            },
-            {
-                name: "Bricole por 3 Bandas",
-                description: "Tiro directo a banda para resolver una carambola ajustada.",
-                positions: [
-                    { x: 0.355, y: 0.83075, z: 0.8 },
-                    { x: -0.5, y: 0.83075, z: 1.1 },
-                    { x: -0.3, y: 0.83075, z: 1.3 }
+                    { x: 0.0, y: 0.83075, z: 1.3 },     // Blanca
+                    { x: 0.5, y: 0.83075, z: -0.2 },    // Roja (Esperando)
+                    { x: 0.4, y: 0.83075, z: -0.4 }     // Amarilla (Esperando)
                 ],
                 shot: {
                     power: 0.85,
-                    direction: new THREE.Vector3(-1, 0, -1.5).normalize(),
+                    direction: new THREE.Vector3(-0.71, 0, -1.3).normalize(), 
+                    hitOffset: new THREE.Vector3(0, 0, 0) // Sin efecto para máxima estabilidad física
+                }
+            },
+            {
+                name: "Natural: Tres Bandas LKL",
+                description: "Recorrido clásico Alrededor de la Mesa (Larga-Corta-Larga).",
+                positions: [
+                    { x: 0.355, y: 0.83075, z: 1.0 },
+                    { x: 0.55, y: 0.83075, z: -0.2 },
+                    { x: -0.5, y: 0.83075, z: 0.8 }
+                ],
+                shot: {
+                    power: 0.8,
+                    direction: new THREE.Vector3(0.2, 0, -1).normalize(),
                     hitOffset: new THREE.Vector3(0.01, 0, 0)
                 }
             }
