@@ -14,17 +14,28 @@ export class Table {
     }
 
     createVisuals() {
+        // Texture Loading
+        const loader = new THREE.TextureLoader();
+        const woodTexture = loader.load('textures/wood_rail.png');
+        woodTexture.wrapS = woodTexture.wrapT = THREE.RepeatWrapping;
+        woodTexture.repeat.set(2, 1);
+
         // Table Bed (Green felt)
         const bedGeometry = new THREE.BoxGeometry(this.width, 0.05, this.length);
-        const bedMaterial = new THREE.MeshStandardMaterial({ color: 0x006400, roughness: 0.8 });
+        const bedMaterial = new THREE.MeshStandardMaterial({ color: 0x074407, roughness: 0.9 });
         this.bed = new THREE.Mesh(bedGeometry, bedMaterial);
         this.bed.position.y = this.height;
         this.bed.receiveShadow = true;
         this.scene.add(this.bed);
 
-        // Legs (Simple implementation)
-        const legGeometry = new THREE.BoxGeometry(0.1, this.height, 0.1);
-        const legMaterial = new THREE.MeshStandardMaterial({ color: 0x331100 });
+        // Legs (Durable wood)
+        const legGeometry = new THREE.BoxGeometry(0.12, this.height, 0.12);
+        const legMaterial = new THREE.MeshPhysicalMaterial({ 
+            map: woodTexture, 
+            roughness: 0.2,
+            metalness: 0.1,
+            clearcoat: 0.5
+        });
 
         const positions = [
             [-this.width / 2 + 0.1, this.height / 2, -this.length / 2 + 0.1],
@@ -39,52 +50,78 @@ export class Table {
             this.scene.add(leg);
         });
 
-        // Cushions (Visuals only for now, physics will be separate bodies)
-        const cushionWidth = 0.1;
-        const cushionHeight = 0.08; // Increased from 0.05 to prevent jumping
-        const cushionMaterial = new THREE.MeshStandardMaterial({ color: 0x004400 });
+        // --- CUSHION SYSTEM ---
+        const cushionWidth = 0.12; 
+        const cushionHeight = 0.08;
+        const railHeight = 0.03; // Top wooden part
+        
+        // Felt Material (Inner cushions)
+        const feltMaterial = new THREE.MeshStandardMaterial({ color: 0x0a550a, roughness: 0.8 });
+        
+        // Wood Material (Outer rails - VERY SHINY)
+        const woodRailMaterial = new THREE.MeshPhysicalMaterial({ 
+            map: woodTexture,
+            roughness: 0.1,
+            metalness: 0.05,
+            clearcoat: 1.0,
+            clearcoatRoughness: 0.05,
+            reflectivity: 0.8
+        });
 
         this.cushionMeshes = [];
 
-        // Long cushions
-        const longCushionGeo = new THREE.BoxGeometry(cushionWidth, cushionHeight, this.length + cushionWidth * 2);
-        const leftCushion = new THREE.Mesh(longCushionGeo, cushionMaterial);
-        leftCushion.position.set(-this.width / 2 - cushionWidth / 2, this.height + cushionHeight / 2, 0);
-        this.scene.add(leftCushion);
-        this.cushionMeshes.push(leftCushion);
+        const addBanda = (w, l, x, z, rotation = 0) => {
+            const group = new THREE.Group();
+            
+            // 1. Felt Cushion (Angled look simulation)
+            const feltGeo = new THREE.BoxGeometry(w * 0.4, cushionHeight, l);
+            const felt = new THREE.Mesh(feltGeo, feltMaterial);
+            // Offset felt towards the inside of the table
+            felt.position.x = -w * 0.3; 
+            group.add(felt);
 
-        const rightCushion = new THREE.Mesh(longCushionGeo, cushionMaterial);
-        rightCushion.position.set(this.width / 2 + cushionWidth / 2, this.height + cushionHeight / 2, 0);
-        this.scene.add(rightCushion);
-        this.cushionMeshes.push(rightCushion);
+            // 2. Wood Rail (Top & Outer part)
+            const railGeo = new THREE.BoxGeometry(w * 0.6, cushionHeight + 0.002, l);
+            const rail = new THREE.Mesh(railGeo, woodRailMaterial);
+            rail.position.x = w * 0.2; // Offset wood towards outside
+            group.add(rail);
 
-        // Short cushions
-        const shortCushionGeo = new THREE.BoxGeometry(this.width, cushionHeight, cushionWidth);
-        const topCushion = new THREE.Mesh(shortCushionGeo, cushionMaterial);
-        topCushion.position.set(0, this.height + cushionHeight / 2, -this.length / 2 - cushionWidth / 2);
-        this.scene.add(topCushion);
-        this.cushionMeshes.push(topCushion);
+            group.position.set(x, this.height + cushionHeight / 2, z);
+            group.rotation.y = rotation;
+            this.scene.add(group);
+            return group;
+        };
 
-        const bottomCushion = new THREE.Mesh(shortCushionGeo, cushionMaterial);
-        bottomCushion.position.set(0, this.height + cushionHeight / 2, this.length / 2 + cushionWidth / 2);
-        this.scene.add(bottomCushion);
-        this.cushionMeshes.push(bottomCushion);
+        // Long bands
+        addBanda(cushionWidth, this.length + cushionWidth * 2, -this.width / 2 - cushionWidth / 2, 0);
+        addBanda(cushionWidth, this.length + cushionWidth * 2, this.width / 2 + cushionWidth / 2, 0, Math.PI);
+
+        // Short bands
+        addBanda(cushionWidth, this.width, 0, -this.length / 2 - cushionWidth / 2, -Math.PI / 2);
+        addBanda(cushionWidth, this.width, 0, this.length / 2 + cushionWidth / 2, Math.PI / 2);
 
         this.createDiamonds(cushionHeight);
     }
 
     createDiamonds(cushionHeight) {
-        const diamondGeo = new THREE.SphereGeometry(0.008, 8, 8);
-        const diamondMat = new THREE.MeshStandardMaterial({ color: 0xdddddd, roughness: 0.2 });
+        // More realistic "Inlaid Pearl" diamonds
+        const diamondGeo = new THREE.CylinderGeometry(0.008, 0.008, 0.005, 16);
+        const diamondMat = new THREE.MeshPhysicalMaterial({ 
+            color: 0xffffff, 
+            roughness: 0.0, 
+            metalness: 0.8,
+            emissive: 0x222222 
+        });
         
+        const diamondY = this.height + cushionHeight + 0.001;
+
         // Long rails (7 diamonds each)
         for (let side = -1; side <= 1; side += 2) {
             for (let i = 1; i <= 7; i++) {
                 const diamond = new THREE.Mesh(diamondGeo, diamondMat);
-                // 1/8 segments of 2.84m
                 const z = -this.length / 2 + (i * this.length / 8);
-                const x = side * (this.width / 2 + 0.05); // Centered on cushion top
-                diamond.position.set(x, this.height + cushionHeight, z);
+                const x = side * (this.width / 2 + 0.09); // Positioned on the wood part
+                diamond.position.set(x, diamondY, z);
                 this.scene.add(diamond);
             }
         }
@@ -94,8 +131,8 @@ export class Table {
             for (let i = 1; i <= 3; i++) {
                 const diamond = new THREE.Mesh(diamondGeo, diamondMat);
                 const x = -this.width / 2 + (i * this.width / 4);
-                const z = side * (this.length / 2 + 0.05);
-                diamond.position.set(x, this.height + cushionHeight, z);
+                const z = side * (this.length / 2 + 0.09);
+                diamond.position.set(x, diamondY, z);
                 this.scene.add(diamond);
             }
         }
@@ -105,19 +142,18 @@ export class Table {
         // Table Bed Body
         const bedShape = new CANNON.Box(new CANNON.Vec3(this.width / 2, 0.025, this.length / 2));
         this.bedBody = new CANNON.Body({
-            mass: 0, // Static
+            mass: 0,
             material: this.physicsWorld.defaultMaterial
         });
         this.bedBody.addShape(bedShape);
         this.bedBody.position.set(0, this.height, 0);
         this.physicsWorld.world.addBody(this.bedBody);
 
-        // Cushions
+        // Physics Cushions (Slightly inside for accuracy)
         const cushionThickness = 0.1;
         const cushionHeight = 0.08;
 
-        // Helper to add cushion body
-        const addCushion = (width, length, x, z) => {
+        const addCushionBody = (width, length, x, z) => {
             const shape = new CANNON.Box(new CANNON.Vec3(width / 2, cushionHeight / 2, length / 2));
             const body = new CANNON.Body({
                 mass: 0,
@@ -130,12 +166,12 @@ export class Table {
         };
 
         // Left
-        addCushion(cushionThickness, this.length, -this.width / 2 - cushionThickness / 2, 0);
+        addCushionBody(cushionThickness, this.length, -this.width / 2 - cushionThickness / 2, 0);
         // Right
-        addCushion(cushionThickness, this.length, this.width / 2 + cushionThickness / 2, 0);
+        addCushionBody(cushionThickness, this.length, this.width / 2 + cushionThickness / 2, 0);
         // Top
-        addCushion(this.width, cushionThickness, 0, -this.length / 2 - cushionThickness / 2);
+        addCushionBody(this.width, cushionThickness, 0, -this.length / 2 - cushionThickness / 2);
         // Bottom
-        addCushion(this.width, cushionThickness, 0, this.length / 2 + cushionThickness / 2);
+        addCushionBody(this.width, cushionThickness, 0, this.length / 2 + cushionThickness / 2);
     }
 }
