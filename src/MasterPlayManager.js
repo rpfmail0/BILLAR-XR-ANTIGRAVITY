@@ -244,17 +244,33 @@ export class MasterPlayManager {
     }
 
     createTrajectoryLine() {
-        const material = new THREE.LineDashedMaterial({
+        const material = new THREE.LineBasicMaterial({
             color: 0x00ffff,
-            dashSize: 0.05,
-            gapSize: 0.03,
             transparent: true,
-            opacity: 0.6
+            opacity: 0.8,
+            linewidth: 3 // Note: linewidth 1 on most browsers for LineBasicMaterial
         });
         const geometry = new THREE.BufferGeometry();
         this.trajectoryLine = new THREE.Line(geometry, material);
         this.trajectoryLine.visible = false;
+        this.trajectoryLine.renderOrder = 2000; // Above table
         this.scene.add(this.trajectoryLine);
+    }
+
+    updateTrajectoryLine(direction) {
+        const whiteBall = this.balls[0];
+        if (!whiteBall) return;
+        
+        const start = whiteBall.mesh.position.clone();
+        // Place slightly above table for visibility
+        start.y = 0.835; 
+        
+        const end = start.clone().add(direction.clone().multiplyScalar(1.2)); // 1.2m line
+        
+        const geometry = new THREE.BufferGeometry().setFromPoints([start, end]);
+        this.trajectoryLine.geometry.dispose();
+        this.trajectoryLine.geometry = geometry;
+        this.trajectoryLine.visible = true;
     }
 
     showNextPlay() {
@@ -285,15 +301,26 @@ export class MasterPlayManager {
         if (this.xrHandler) {
             const strategyInfo = `${play.name}\nESTRATEGIA: ${play.strategy}\nAPUNTAR: ${play.aim}\nEFECTO: ${play.effect}\nFUERZA: ${play.power}`.trim();
             this.xrHandler.showHUDMessage(strategyInfo, 5000);
+            
+            // BUSCAR ÁNGULO INMEDIATAMENTE PARA MOSTRAR LÍNEA
+            const optimizedShot = this.findOptimizedShot(play);
+            this.lastOptimizedShot = optimizedShot;
+            
+            // VISTA DESDE ARRIBA
+            this.xrHandler.switchToTopDownView();
+            this.updateTrajectoryLine(optimizedShot.direction);
         }
 
         // ESPERAR A QUE EL USUARIO LEA Y LUEGO CALCULAR/EJECUTAR
         this.shotTimeout = setTimeout(() => {
-            this.isSimulating = true;
-            console.log(`MAESTRO: Buscando ángulo perfecto para "${play.name}"...`);
-            const optimizedShot = this.findOptimizedShot(play);
+            // RESTAURAR VISTA Y OCULTAR LÍNEA
+            if (this.xrHandler) {
+                this.xrHandler.restoreView();
+            }
+            this.trajectoryLine.visible = false;
             
-            this.executeShot(optimizedShot);
+            this.isSimulating = true;
+            this.executeShot(this.lastOptimizedShot);
             this.startLogging();
             this.monitorShotAndReleaseLock();
         }, 5000); 

@@ -51,6 +51,11 @@ export class XRHandler {
         this.lastPassthroughTime = 0;
         this.originalBackground = this.scene.background;
 
+        // View states for Maestro Strategy
+        this.isTopDown = false;
+        this.originalRigPos = new THREE.Vector3();
+        this.originalRigQuat = new THREE.Quaternion();
+
         this.init();
     }
 
@@ -833,5 +838,26 @@ export class XRHandler {
         }
         lines.push(currentLine);
         return lines;
+    }
+
+    switchToTopDownView() {
+        if (this.isTopDown) return;
+        this.isTopDown = true;
+        this.originalRigPos.copy(this.xrRig.position);
+        this.originalRigQuat.copy(this.xrRig.quaternion);
+
+        // Position rig above the table looking down (Aerial View)
+        this.xrRig.position.set(0, 3.2, 0); // 3.2m above floor
+        // Use setRotationFromEuler for clear top-down
+        this.xrRig.rotation.set(-Math.PI / 2, 0, 0);
+        
+        if (this.soundManager) this.soundManager.playSound('click');
+    }
+
+    restoreView() {
+        if (!this.isTopDown) return;
+        this.isTopDown = false;
+        this.xrRig.position.copy(this.originalRigPos);
+        this.xrRig.quaternion.copy(this.originalRigQuat);
     }
 }
