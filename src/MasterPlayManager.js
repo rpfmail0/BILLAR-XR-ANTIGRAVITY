@@ -313,10 +313,7 @@ export class MasterPlayManager {
 
         // ESPERAR A QUE EL USUARIO LEA Y LUEGO CALCULAR/EJECUTAR
         this.shotTimeout = setTimeout(() => {
-            // RESTAURAR VISTA Y OCULTAR LÍNEA
-            if (this.xrHandler) {
-                this.xrHandler.restoreView();
-            }
+            // Ocultar la línea de ayuda justo antes del impacto
             this.trajectoryLine.visible = false;
             
             this.isSimulating = true;
@@ -349,6 +346,12 @@ export class MasterPlayManager {
                 clearInterval(this.monitorInterval);
                 this.isSimulating = false;
                 this.stopLogging();
+                
+                // RESTAURAR VISTA AL FINALIZAR LA JUGADA (MODO MAESTRO)
+                if (this.xrHandler) {
+                    this.xrHandler.restoreView();
+                }
+                
                 console.log("MAESTRO: Movimiento cesado. Listo para nueva jugada.");
             }
         }, 200);
@@ -359,6 +362,12 @@ export class MasterPlayManager {
                 clearInterval(this.monitorInterval);
                 this.isSimulating = false;
                 this.stopLogging();
+                
+                // RESTAURAR VISTA EN CASO DE TIMEOUT
+                if (this.xrHandler) {
+                    this.xrHandler.restoreView();
+                }
+                
                 console.log("MAESTRO: Seguridad activada. Bloqueo liberado por tiempo.");
             }
         }, 10000);
