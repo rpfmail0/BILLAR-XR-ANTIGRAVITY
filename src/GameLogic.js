@@ -12,13 +12,14 @@ export class GameLogic {
         this.cushionContacts = 0;
         this.ballsHit = new Set();
         this.pointScoredThisShot = false;
+        this.shotStartTime = 0;
+        this.quietFrames = 0;
 
         this.initCollisionListeners();
         this.createScoreDisplay();
     }
 
     createScoreDisplay() {
-        // We will keep the 2D scoreboard for spectator/debug but VR HUD is primary
         const div = document.createElement('div');
         div.id = 'score-board';
         div.style.position = 'absolute';
@@ -29,6 +30,7 @@ export class GameLogic {
         div.style.fontFamily = 'monospace';
         div.style.padding = '10px';
         div.style.background = 'rgba(0,0,0,0.5)';
+        div.style.display = 'none'; // Hide by default in favor of VR HUD
         div.innerText = 'Score: 0 | Streak: 0';
         document.body.appendChild(div);
         this.scoreElement = div;
@@ -49,13 +51,15 @@ export class GameLogic {
         this.cushionContacts = 0;
         this.ballsHit.clear();
         this.pointScoredThisShot = false;
-        console.log("Shot started");
+        this.shotStartTime = performance.now();
+        this.quietFrames = 0;
+        console.log("3-BANDAS: Tiro iniciado.");
     }
 
     cancelShot() {
         this.shotActive = false;
-        this.pointScoredThisShot = true; // Pretend we scored so update() doesn't reset streak
-        console.log("Shot cancelled (Undo)");
+        this.pointScoredThisShot = true; // Evitar reseteo de streak
+        console.log("3-BANDAS: Tiro cancelado (Undo). Streak preservado.");
     }
 
     initCollisionListeners() {
@@ -66,66 +70,75 @@ export class GameLogic {
 
             const contactBody = e.body;
 
-            // Check if cushion
+            // Detección de Banda
             if (contactBody.material && contactBody.material.name === 'cushion') {
                 this.cushionContacts++;
-                console.log("Cushion hit! Count:", this.cushionContacts);
+                console.log("BANDA!", this.cushionContacts);
             }
 
-            // Check if other balls
-            // Yellow is index 1, Red is index 2
+            // Detección de Bolas (Amarilla = 1, Roja = 2)
             if (contactBody === this.balls[1].body) {
-                if (!this.ballsHit.has(1)) {
-                    this.ballsHit.add(1);
-                    console.log("Hit Yellow Ball");
-                    this.checkScore();
-                }
+                this.onBallHit(1);
             } else if (contactBody === this.balls[2].body) {
-                if (!this.ballsHit.has(2)) {
-                    this.ballsHit.add(2);
-                    console.log("Hit Red Ball");
-                    this.checkScore();
-                }
+                this.onBallHit(2);
             }
         });
     }
 
-    checkScore() {
-        if (this.ballsHit.size === 2) {
-            console.log("POINT SCORED!");
-            this.updateScore(1);
+    onBallHit(ballId) {
+        if (!this.ballsHit.has(ballId)) {
+            this.ballsHit.add(ballId);
+            const ballName = ballId === 1 ? "AMARILLA" : "ROJA";
+            console.log(`BOLA ${ballName} tocada. Bandas acumuladas: ${this.cushionContacts}`);
+            
+            // VALIDACIÓN REGLAMENTARIA: 
+            // 3 bandas ANTES de completar el contacto con la segunda bola.
+            if (this.ballsHit.size === 2) {
+                if (this.cushionContacts >= 3) {
+                    console.log("¡CARAMBOLA VÁLIDA! (3+ bandas)");
+                    this.updateScore(1);
+                } else {
+                    console.log("¡CARAMBOLA INVÁLIDA! (Pocas bandas:", this.cushionContacts, ")");
+                }
+            }
         }
     }
 
     update() {
-        // Check if balls stopped to reset shotActive?
-        // For now, we can just leave it active until next shot?
-        // But we need to know when to allow shooting again or reset state.
+        if (!this.shotActive) return;
 
-        // Simple check: if total velocity is low
+        // Medir velocidad total del sistema
         let totalSpeed = 0;
         this.balls.forEach(ball => {
             totalSpeed += ball.body.velocity.length();
         });
 
-        if (this.shotActive && totalSpeed < 0.05) {
-            // Balls stopped
-            // this.shotActive = false; 
-            // We don't auto-reset shotActive false immediately because we might want to wait.
-            // But for this logic, we can say shot is done.
+        const now = performance.now();
+        const duration = (now - this.shotStartTime) / 1000;
+
+        // Umbral de calma: 20 frames seguidos de quietud absoluta
+        if (totalSpeed < 0.008) {
+            this.quietFrames++;
+        } else {
+            this.quietFrames = 0;
         }
 
-        // If speed is high, ensure shotActive is true? 
-        // No, startShot is called by XRHandler.
-
-        if (totalSpeed < 0.01 && this.shotActive) {
-            this.shotActive = false;
-            // If no point was scored this shot, reset streak
-            if (!this.pointScoredThisShot) {
+        // Finalizar tiro si las bolas se detienen
+        if (this.quietFrames > 20) {
+            // Protección contra "roces accidentales" o fallos instantáneos (menos de 1 segundo de movimiento)
+            const isAccidental = duration < 1.0 && totalSpeed < 0.005;
+            
+            if (!this.pointScoredThisShot && !isAccidental) {
                 this.streak = 0;
-                this.updateScore(0); // Update display
+                this.updateScore(0);
+                console.log("3-BANDAS: Fallo. Streak reseteado.");
+            } else if (isAccidental) {
+                console.log("3-BANDAS: Movimiento mínimo ignorado (Protección contra fallos accidentales).");
             }
-            console.log("Balls stopped. Shot ended.");
+            
+            this.shotActive = false;
+            this.quietFrames = 0;
+            console.log("3-BANDAS: Bolas detenidas. Fin del turno.");
         }
     }
 }

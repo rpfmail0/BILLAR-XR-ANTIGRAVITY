@@ -62,6 +62,11 @@ export class XRHandler {
         this.calibrationStartTime = 0; // Will be set when session starts
         this.calibrationDelay = 2.0;   // Wait 2 seconds for stable tracking
 
+        // HUD State Tracking
+        this.lastStreak = -1;
+        this.lastCushionContacts = -1;
+        this.lastShotActive = false;
+
         this.init();
     }
 
@@ -205,6 +210,13 @@ export class XRHandler {
         ctx.fillStyle = '#00ffff';
         ctx.fillText(`CARAMBOLAS: ${currentStreak}`, 20, y);
         y += 40;
+
+        // Live Cushion Counter during shot
+        if (this.gameLogic && this.gameLogic.shotActive) {
+            ctx.font = 'bold 24px Arial';
+            ctx.fillStyle = this.gameLogic.cushionContacts >= 3 ? '#00ff00' : '#ffcc00';
+            ctx.fillText(`BANDAS: ${this.gameLogic.cushionContacts}`, 300, y - 40);
+        }
 
         // Title - Smaller font
         ctx.font = 'bold 22px Arial';
@@ -688,10 +700,22 @@ export class XRHandler {
             ball.mesh.position.copy(pos);
         }
 
-        // Update VR HUD with streak
+        // Update VR HUD ONLY when relevant state changes to avoid per-frame texture updates
         if (this.gameLogic && this.hudMesh) {
-            const streak = typeof this.gameLogic.streak === 'number' ? this.gameLogic.streak : 0;
-            this.updateHUDContent(streak);
+            const currentStreak = this.gameLogic.streak;
+            const currentCushion = this.gameLogic.cushionContacts;
+            const currentShotActive = this.gameLogic.shotActive;
+
+            if (currentStreak !== this.lastStreak || 
+                currentCushion !== this.lastCushionContacts || 
+                currentShotActive !== this.lastShotActive) {
+                
+                this.updateHUDContent();
+                
+                this.lastStreak = currentStreak;
+                this.lastCushionContacts = currentCushion;
+                this.lastShotActive = currentShotActive;
+            }
         }
     }
 
