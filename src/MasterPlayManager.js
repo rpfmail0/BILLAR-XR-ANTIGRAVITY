@@ -274,9 +274,6 @@ export class MasterPlayManager {
             this.xrHandler.currentMasterBalls = play.positions;
             this.xrHandler.updateHUDContent();
             
-            const whitePos = play.positions[0];
-            this.xrHandler.alignWithShot(whitePos, play.shot.direction);
-            
             this.updateTrajectoryLine(play.shot.direction);
         }
 

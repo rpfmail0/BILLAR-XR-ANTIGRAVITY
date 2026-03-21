@@ -166,7 +166,7 @@ export class XRHandler {
         });
         // 0.5m wide x 0.75m high
         this.annMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.75), annMaterial);
-        this.annMesh.position.set(0, 0.1, -0.6); // CENTER-UP
+        this.annMesh.position.set(0, -0.05, -0.7); // LOWERED AND SLIGHTLY FURTHER
         this.annMesh.renderOrder = 1002;
         this.annMesh.visible = false; // Hidden by default
         this.camera.add(this.annMesh);
@@ -909,11 +909,12 @@ export class XRHandler {
         ctx.lineWidth = 3;
         ctx.strokeRect(5, 50, 502, 300);
         ctx.textAlign = 'center';
+        ctx.fillStyle = 'white'; // EXPLICIT WHITE TEXT
         
         const fontTitle = 'bold 24px Arial';
         const fontDesc = '18px Arial';
         const x = 256;
-        let y = 85;
+        let y = 110; // Lowered from 85 to be better centered in the 50-350 box
 
         // Split by newlines first to honor manual breaks, then wrap each segment
         const segments = message.split('\n');
