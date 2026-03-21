@@ -127,15 +127,16 @@ export class XRHandler {
         // 1. Permanent Score/Controls HUD (Top-Left)
         this.hudCanvas = document.createElement('canvas');
         this.hudCanvas.width = 512;
-        this.hudCanvas.height = 256;
+        this.hudCanvas.height = 410; // Increased from 256 to fit all control lines
         this.hudContext = this.hudCanvas.getContext('2d');
         this.hudTexture = new THREE.CanvasTexture(this.hudCanvas);
         
         const hudMaterial = new THREE.MeshBasicMaterial({ 
             map: this.hudTexture, transparent: true, opacity: 0.9, depthTest: false 
         });
-        this.hudMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 0.15), hudMaterial);
-        this.hudMesh.position.set(-0.25, 0.15, -0.6); // BACK TO TOP-LEFT
+        // Adjusted geometry to match new aspect ratio (410/512 * 0.3 = 0.24)
+        this.hudMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 0.24), hudMaterial);
+        this.hudMesh.position.set(-0.25, 0.15, -0.6); 
         this.hudMesh.renderOrder = 1001;
         this.camera.add(this.hudMesh);
 
@@ -164,11 +165,11 @@ export class XRHandler {
         const currentStreak = this.lastHUDStreak;
 
         const ctx = this.hudContext;
-        ctx.clearRect(0, 0, 512, 256);
+        ctx.clearRect(0, 0, 512, 410);
 
         // Background
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        ctx.roundRect(0, 0, 512, 256, 15);
+        ctx.roundRect(0, 0, 512, 410, 15);
         ctx.fill();
 
         ctx.fillStyle = '#00ffff';
@@ -180,7 +181,7 @@ export class XRHandler {
         ctx.strokeStyle = '#444';
         ctx.lineWidth = 1;
         ctx.beginPath();
-        ctx.moveTo(30, 140); // Shifted down
+        ctx.moveTo(30, 140); 
         ctx.lineTo(482, 140);
         ctx.stroke();
 
@@ -188,8 +189,8 @@ export class XRHandler {
         ctx.fillStyle = 'white';
 
         // Controls
-        let y = 175; // Shifted down
-        const gap = 30;
+        let y = 175; 
+        const gap = 32; // Slightly increased for readability
 
         // Trigger R
         ctx.fillStyle = '#888';
@@ -199,12 +200,12 @@ export class XRHandler {
         ctx.fillText(' | DISPARAR (TACO)', 180, y);
         y += gap;
 
-        // Trigger L
-        ctx.fillStyle = '#1e3a5f';
+        // Trigger L - Swap: Now Undo
+        ctx.fillStyle = '#5f1e1e'; // Reddish for UNDO
         ctx.fillRect(30, y-25, 140, 32);
         ctx.fillStyle = 'white';
         ctx.fillText('TRIGGER L', 40, y);
-        ctx.fillText(' | JUGADA MAESTRA', 180, y);
+        ctx.fillText(' | ⟲ DESHACER TIRO', 180, y);
         y += gap;
 
         // B - Yellow
@@ -233,7 +234,7 @@ export class XRHandler {
         ctx.stroke();
         ctx.fillStyle = 'white';
         ctx.fillText('A', 38, y-1);
-
+ 
         ctx.beginPath();
         ctx.arc(100, y-10, 10, 0, Math.PI*2);
         ctx.fillStyle = 'red';
@@ -241,16 +242,16 @@ export class XRHandler {
         ctx.fillText('APUNTAR ROJA', 130, y);
         y += gap;
 
-        // X - Undo
+        // X - Swap: Now Master Play
         ctx.beginPath();
         ctx.arc(45, y-10, 15, 0, Math.PI*2);
-        ctx.fillStyle = '#333';
+        ctx.fillStyle = '#1e3a5f'; // Blueish for Master Mode
         ctx.fill();
         ctx.strokeStyle = '#555';
         ctx.stroke();
         ctx.fillStyle = 'white';
         ctx.fillText('X', 38, y-1);
-        ctx.fillText(' ⟲ DESHACER TIRO', 85, y);
+        ctx.fillText(' 🎱 JUGADA MAESTRA', 85, y);
         y += gap;
 
         // Y - Passthrough
@@ -301,8 +302,14 @@ export class XRHandler {
         }
 
         if (handedness === 'left') {
-            if (this.masterPlayManager) {
-                this.masterPlayManager.showNextPlay();
+            // SWAP: Trigger L now does UNDO
+            const now = performance.now() / 1000;
+            if (this.preShotState && (now - this.lastUndoTime > this.undoCooldown)) {
+                this.restorePreShotState();
+                this.lastUndoTime = now;
+                if (event.target.gamepad && event.target.gamepad.hapticActuators) {
+                    event.target.gamepad.hapticActuators[0].pulse(0.5, 100);
+                }
             }
             return;
         }
@@ -455,13 +462,11 @@ export class XRHandler {
                         // Move sideways (strafe)
                         this.xrRig.position.add(right.multiplyScalar(moveX * speed));
 
-                        // Undo Shortcut (Button X = index 4 on Quest left controller)
-                        const now = performance.now() / 1000;
-                        if (this.preShotState && (now - this.lastUndoTime > this.undoCooldown)) {
-                            // index 4 is X button, index 3 is thumbstick click
-                            if (source.gamepad.buttons[4]?.pressed) {
-                                this.restorePreShotState();
-                                this.lastUndoTime = now;
+                        // Master Play Shortcut (Button X = index 4 on Quest left controller)
+                        if (this.masterPlayManager && source.gamepad.buttons[4]?.pressed) {
+                            // Check if already simulating to prevent double trigger
+                            if (!this.masterPlayManager.isSimulating) {
+                                this.masterPlayManager.showNextPlay();
                                 if (source.gamepad.hapticActuators) {
                                     source.gamepad.hapticActuators[0].pulse(0.5, 100);
                                 }
