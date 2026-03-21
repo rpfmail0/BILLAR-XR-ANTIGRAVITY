@@ -66,6 +66,8 @@ export class XRHandler {
         this.lastStreak = -1;
         this.lastCushionContacts = -1;
         this.lastShotActive = false;
+        this.currentMasterPath = null;
+        this.currentMasterBalls = null; // To draw ball positions on schematic
 
         this.init();
     }
@@ -218,6 +220,11 @@ export class XRHandler {
             ctx.fillText(`BANDAS: ${this.gameLogic.cushionContacts}`, 300, y - 40);
         }
 
+        // Table Schematic if in Master Mode
+        if (this.currentMasterPath) {
+            this.drawTableSchematic(ctx, 300, 160, 180, 230);
+        }
+
         // Title - Smaller font
         ctx.font = 'bold 22px Arial';
         ctx.fillStyle = 'white';
@@ -254,6 +261,72 @@ export class XRHandler {
         this.drawButtonLegend(ctx, 'GRIP', '#666666', 'COGER BOLAS / TACO', y);
 
         this.hudTexture.needsUpdate = true;
+    }
+
+    drawTableSchematic(ctx, x, y, width, height) {
+        // Table Bed
+        ctx.strokeStyle = '#004400';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(x, y, width, height);
+        ctx.fillStyle = 'rgba(0, 50, 0, 0.3)';
+        ctx.fillRect(x, y, width, height);
+
+        const tw = 1.42;
+        const tl = 2.84;
+        const scaleX = width / tw;
+        const scaleZ = height / tl;
+        const offX = x + width / 2;
+        const offZ = y + height / 2;
+
+        // Draw Path
+        ctx.beginPath();
+        ctx.setLineDash([5, 5]);
+        ctx.strokeStyle = '#00ffff';
+        ctx.lineWidth = 2;
+        this.currentMasterPath.forEach((p, i) => {
+            const px = offX + p.x * scaleX;
+            const pz = offZ + p.z * scaleZ;
+            if (i === 0) ctx.moveTo(px, pz);
+            else ctx.lineTo(px, pz);
+        });
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Draw Balls
+        if (this.currentMasterBalls) {
+            const colors = ['white', '#F4B400', '#DB4437'];
+            this.currentMasterBalls.forEach((b, i) => {
+                ctx.fillStyle = colors[i];
+                ctx.beginPath();
+                ctx.arc(offX + b.x * scaleX, offZ + b.z * scaleZ, 6, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = 'black';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            });
+        }
+    }
+
+    alignWithShot(whitePos, direction) {
+        if (!this.xrRig) return;
+        
+        // Position 1.1 meters behind the white ball in the opposite direction of the shot
+        const viewDir = direction.clone().normalize();
+        const offset = viewDir.clone().multiplyScalar(-1.1);
+        
+        // Move RIG to floor level (keeping calibrated height offset)
+        // Note: the rig's Y remains where it was (calibrated), we only move X and Z
+        this.xrRig.position.x = whitePos.x + offset.x;
+        this.xrRig.position.z = whitePos.z + offset.z;
+        
+        // Rotate RIG to look at white ball + shot direction
+        // We look at the white ball as a reference
+        const target = new THREE.Vector3(whitePos.x, this.xrRig.position.y, whitePos.z);
+        this.xrRig.lookAt(target);
+        
+        // Since lookAt often puts the BACK of the object facing the target in some setups
+        // check and correct if necessary. Standard Three.js lookAt points -Z.
+        // If the table appears behind, we might need a 180 flip.
     }
 
     togglePassthrough() {

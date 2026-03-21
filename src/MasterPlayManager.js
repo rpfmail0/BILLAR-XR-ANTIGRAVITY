@@ -297,17 +297,24 @@ export class MasterPlayManager {
             ball.mesh.position.set(pos.x, pos.y, pos.z);
         });
 
-        // MOSTRAR ESTRATEGIA DETALLADA
+        // MOSTRAR ESTRATEGIA DETALLADA Y ESQUEMA
         if (this.xrHandler) {
             const strategyInfo = `${play.name}\nESTRATEGIA: ${play.strategy}\nAPUNTAR: ${play.aim}\nEFECTO: ${play.effect}\nFUERZA: ${play.power}`.trim();
             this.xrHandler.showHUDMessage(strategyInfo, 5000);
             
-            // BUSCAR ÁNGULO INMEDIATAMENTE PARA MOSTRAR LÍNEA
+            // BUSCAR ÁNGULO Y TRAYECTORIA
             const optimizedShot = this.findOptimizedShot(play);
             this.lastOptimizedShot = optimizedShot;
             
-            // VISTA DESDE ARRIBA
-            this.xrHandler.switchToTopDownView();
+            // ACTUALIZAR ESQUEMA EN HUD
+            this.xrHandler.currentMasterPath = optimizedShot.path;
+            this.xrHandler.currentMasterBalls = play.positions;
+            this.xrHandler.updateHUDContent();
+            
+            // ALINEAR JUGADOR DETRÁS DE LA BOLA BLANCA (Perspectiva normal)
+            const whitePos = play.positions[0];
+            this.xrHandler.alignWithShot(whitePos, optimizedShot.direction);
+            
             this.updateTrajectoryLine(optimizedShot.direction);
         }
 
@@ -349,6 +356,9 @@ export class MasterPlayManager {
                 
                 // RESTAURAR VISTA AL FINALIZAR LA JUGADA (MODO MAESTRO)
                 if (this.xrHandler) {
+                    this.xrHandler.currentMasterPath = null;
+                    this.xrHandler.currentMasterBalls = null;
+                    this.xrHandler.updateHUDContent();
                     this.xrHandler.restoreView();
                 }
                 
@@ -365,6 +375,9 @@ export class MasterPlayManager {
                 
                 // RESTAURAR VISTA EN CASO DE TIMEOUT
                 if (this.xrHandler) {
+                    this.xrHandler.currentMasterPath = null;
+                    this.xrHandler.currentMasterBalls = null;
+                    this.xrHandler.updateHUDContent();
                     this.xrHandler.restoreView();
                 }
                 
@@ -387,12 +400,15 @@ export class MasterPlayManager {
 
         if (this.xrHandler) this.xrHandler.showHUDMessage("Maestro calculando trayectoria perfecta...", 1000);
 
+        let foundPath = [];
         for (let i = 0; i < steps; i++) {
             const offset = (i / steps - 0.5) * totalRange;
             const angle = baseAngle + offset;
-            if (this.testShot(play, angle)) {
+            const result = this.testShot(play, angle);
+            if (result.success) {
                 bestAngle = angle;
                 found = true;
+                foundPath = result.path;
                 const offsetDeg = (offset * 180 / Math.PI).toFixed(1);
                 console.log(`MAESTRO: ¡Trayectoria encontrada! Corrección: ${offsetDeg}º`);
                 break; // Usamos el primero que funcione para velocidad
@@ -402,7 +418,8 @@ export class MasterPlayManager {
         if (found) {
             return {
                 ...play.shot,
-                direction: new THREE.Vector3(Math.sin(bestAngle), 0, Math.cos(bestAngle))
+                direction: new THREE.Vector3(Math.sin(bestAngle), 0, Math.cos(bestAngle)),
+                path: foundPath
             };
         }
         
@@ -487,12 +504,10 @@ export class MasterPlayManager {
 
         balls[0].applyImpulse(impulse, worldPoint);
 
-        let hitFirst = false;
-        let hitSecond = false;
-        let cushionCount = 0;
-
+        const path = [{ x: balls[0].position.x, z: balls[0].position.z }];
         balls[0].addEventListener('collide', (e) => {
             const other = e.body;
+            path.push({ x: balls[0].position.x, z: balls[0].position.z });
             // Identificar si es banda
             if (other.material === cushionMat) {
                 cushionCount++;
@@ -502,28 +517,21 @@ export class MasterPlayManager {
                 hitFirst = true;
             }
             if (other === balls[2]) {
-                // ÉXITO: Si ya hemos dado a la primera y llevamos 3 bandas
-                // O si llevamos 3 bandas ANTES de dar a la segunda (independientemente de la primera)
                 if (hitFirst && cushionCount >= 3) hitSecond = true;
-                // Nota: En billar 3 bandas, si das a 3 bandas ANTES de la primera bola también vale (Bricole)
-                if (!hitFirst && cushionCount >= 3) hitFirst = true; // Fix typo: hitRed -> hitFirst
+                if (!hitFirst && cushionCount >= 3) hitFirst = true; 
             }
         });
 
         // Simulación completa (10 segundos)
         for (let i = 0; i < 600; i++) {
             world.step(1/60);
-            
-            // Condición de victoria real de 3 bandas:
-            // Caso A: Blanca -> Roja -> 3 Bandas -> Amarilla
-            // Caso B: Blanca -> 3 Bandas -> Roja -> Amarilla
-            // Simplificado: Haber tocado 3 bandas y AMBAS bolas, siendo la SEGUNDA bola tocada DESPUÉS de las 3 bandas.
-            
-            // Usamos flags internos del loop de colisión
-            if (hitFirst && hitSecond && cushionCount >= 3) return true;
+            if (hitFirst && hitSecond && cushionCount >= 3) {
+                path.push({ x: balls[0].position.x, z: balls[0].position.z });
+                return { success: true, path: path };
+            }
         }
 
-        return false;
+        return { success: false };
     }
 
     executeShot(shot) {
