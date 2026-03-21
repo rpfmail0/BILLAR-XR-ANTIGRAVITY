@@ -267,13 +267,14 @@ export class MasterPlayManager {
         });
 
         if (this.xrHandler) {
+            // EXTREMELY IMPORTANT: Set data BEFORE calling showHUDMessage
+            this.xrHandler.currentMasterPath = play.path;
+            this.xrHandler.currentMasterBalls = play.positions;
+            
             const strategyInfo = `${play.name}\nESTRATEGIA: ${play.strategy}\nAPUNTAR: ${play.aim}\nEFECTO: ${play.effect}\nFUERZA: ${play.power}`.trim();
             this.xrHandler.showHUDMessage(strategyInfo, 8000);
             
-            this.xrHandler.currentMasterPath = play.path;
-            this.xrHandler.currentMasterBalls = play.positions;
             this.xrHandler.updateHUDContent();
-            
             this.updateTrajectoryLine(play.shot.direction);
         }
 

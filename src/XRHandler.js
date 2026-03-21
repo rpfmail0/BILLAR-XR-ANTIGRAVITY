@@ -295,6 +295,7 @@ export class XRHandler {
             ctx.strokeStyle = '#00ffff'; // Cyan trajectory
             ctx.lineWidth = 3;
             this.currentMasterPath.forEach((p, i) => {
+                // Ensure we use x and z correctly (Z in Game = Y in 2D Plan)
                 const px = offX + p.x * scaleX;
                 const pz = offZ + p.z * scaleZ;
                 if (i === 0) ctx.moveTo(px, pz);
@@ -306,7 +307,7 @@ export class XRHandler {
 
         // 4. Draw Balls as High-Contrast circles
         if (this.currentMasterBalls) {
-            const ballColors = ['#ffffff', '#ffeb3b', '#f44336']; // Bright White, Yellow, Red
+            const ballColors = ['#ffffff', '#ffeb3b', '#f44336']; // White (Cue), Yellow, Red
             this.currentMasterBalls.forEach((b, i) => {
                 const bx = offX + b.x * scaleX;
                 const bz = offZ + b.z * scaleZ;
@@ -314,26 +315,33 @@ export class XRHandler {
                 // Shadow
                 ctx.fillStyle = 'rgba(0,0,0,0.4)';
                 ctx.beginPath();
-                ctx.arc(bx + 2, bz + 2, 8, 0, Math.PI * 2);
+                ctx.arc(bx + 2, bz + 2, 9, 0, Math.PI * 2);
                 ctx.fill();
 
-                // Ball
+                // Ball Center
                 ctx.fillStyle = ballColors[i];
                 ctx.beginPath();
-                ctx.arc(bx, bz, 8, 0, Math.PI * 2);
+                ctx.arc(bx, bz, 9, 0, Math.PI * 2);
                 ctx.fill();
                 
-                // Gloss effect
-                ctx.fillStyle = 'rgba(255,255,255,0.8)';
+                // Highlight
+                ctx.fillStyle = 'white';
                 ctx.beginPath();
                 ctx.arc(bx - 3, bz - 3, 3, 0, Math.PI * 2);
                 ctx.fill();
 
-                ctx.strokeStyle = 'black';
-                ctx.lineWidth = 1.5;
+                ctx.strokeStyle = '#000000';
+                ctx.lineWidth = 2;
                 ctx.stroke();
             });
         }
+
+        // 5. Orientation Labels
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 16px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('FONDO (N)', offX, y - 25);
+        ctx.fillText('TU LADO (S)', offX, y + height + 35);
     }
 
     alignWithShot(whitePos, direction) {
@@ -968,10 +976,11 @@ export class XRHandler {
 
         // DRAW SCHEMATIC BELOW TEXT if in Master Play
         if (this.currentMasterPath) {
-            // Larger schematic: 250x500 for better visibility. Centered.
-            const sWidth = 240;
-            const sHeight = 480;
-            this.drawTableSchematic(ctx, (512 - sWidth) / 2, 380, sWidth, sHeight);
+            // Smaller schematic: 180x360 to fit within the 768px height canvas easily.
+            const sWidth = 180;
+            const sHeight = 360;
+            // Vertical placement: 380 (after text) + labels margin
+            this.drawTableSchematic(ctx, (512 - sWidth) / 2, 400, sWidth, sHeight);
         }
 
         this.annTexture.needsUpdate = true;
