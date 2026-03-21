@@ -59,6 +59,8 @@ export class XRHandler {
 
         // AR Height Calibration
         this.heightCalibrated = false;
+        this.calibrationStartTime = 0; // Will be set when session starts
+        this.calibrationDelay = 2.0;   // Wait 2 seconds for stable tracking
 
         this.init();
     }
@@ -223,8 +225,8 @@ export class XRHandler {
         this.drawButtonLegend(ctx, 'X', '#F4B400', 'JUGADA MAESTRA', y);
         y += 40;
 
-        // Y Button - (Empty or info)
-        this.drawButtonLegend(ctx, 'Y', '#0F9D58', 'MODO AR ACTIVO', y);
+        // Y Button - Calibrate Height
+        this.drawButtonLegend(ctx, 'Y', '#0F9D58', 'RE-CALIBRAR ALTURA', y);
         y += 40;
 
         // Trigger L - Undo
@@ -242,8 +244,10 @@ export class XRHandler {
     }
 
     togglePassthrough() {
-        // Redundant in AR mode, but we can use it to toggle some UI
-        this.updateAnnouncementHUD("MODO REALIDAD MIXTA (AR)\nLa mesa está en tu habitación");
+        // Manual Recalibration of Height
+        this.heightCalibrated = false; 
+        this.calibrationStartTime = performance.now() / 1000 - (this.calibrationDelay - 0.1); 
+        this.updateAnnouncementHUD("RECIBRANDO ALTURA...\nMantén la cabeza en posición");
     }
 
     onSelectStart(event) {
@@ -374,14 +378,24 @@ export class XRHandler {
             this.updateHUDContent();
         }
 
-        // Height Calibration for AR (once per session)
-        if (session && !this.heightCalibrated && this.camera.position.y > 0.1) {
-            // Objective: Camera World Y = 1.3m (0.8m table + 0.5m offset)
-            // Camera World Y = Rig Y + Camera Local Y
-            // 1.3 = Rig Y + Camera Local Y  =>  Rig Y = 1.3 - Camera Local Y
-            this.xrRig.position.y = 1.3 - this.camera.position.y;
-            this.heightCalibrated = true;
-            console.log("AR Height Calibrated. Rig Y:", this.xrRig.position.y);
+        // Height Calibration for AR (once per session, after delay)
+        if (session) {
+            if (this.calibrationStartTime === 0) {
+                this.calibrationStartTime = now;
+            }
+            
+            if (!this.heightCalibrated && (now - this.calibrationStartTime > this.calibrationDelay)) {
+                if (this.camera.position.y > 0.1) {
+                    // Target: camera.worldY = tableSurfaceY + 0.5
+                    // camera.worldY = rigY + camera.localY
+                    // 1.3 = rigY + camera.localY => rigY = 1.3 - camera.localY
+                    const targetRigY = 1.3 - this.camera.position.y;
+                    this.xrRig.position.y = targetRigY;
+                    this.heightCalibrated = true;
+                    this.updateAnnouncementHUD("ALTURA CALIBRADA\n50cm bajo tus ojos");
+                    console.log("AR Height Calibrated. Camera Local Y:", this.camera.position.y, "Rig Y:", targetRigY);
+                }
+            }
         }
 
         // Always force transparency in AR mode
