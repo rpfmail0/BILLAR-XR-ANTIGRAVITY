@@ -62,9 +62,11 @@ export class Table {
 
         const addCushionGeometry = (w, h, l, x, z, isLong) => {
             // 1. WOOD RAIL (Exterior)
+            // Long rails already have l + totalCushionWidth * 2. 
+            // Short rails need w + totalCushionWidth * 2 to close the corners.
             const railGeo = isLong ? 
                 new THREE.BoxGeometry(woodRailWidth, h, l + totalCushionWidth * 2) : 
-                new THREE.BoxGeometry(w, h, woodRailWidth);
+                new THREE.BoxGeometry(w + totalCushionWidth * 2, h, woodRailWidth);
             const rail = new THREE.Mesh(railGeo, woodMaterial);
             
             // Adjust position for long/short rails
