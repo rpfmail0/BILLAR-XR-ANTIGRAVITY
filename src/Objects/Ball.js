@@ -61,7 +61,7 @@ export class Ball {
             if (!this.physicsWorld.soundManager) return;
             try {
                 const impactVelocity = Math.abs(event.contact.getImpactVelocityAlongNormal());
-                if (impactVelocity < 0.1) return;
+                if (!Number.isFinite(impactVelocity) || impactVelocity < 0.1) return;
                 
                 const other = event.body;
                 if (!other || !other.userData) return;

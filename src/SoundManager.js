@@ -41,6 +41,13 @@ export class SoundManager {
 
     playSound(freq, type, duration, volume, lowpass) {
         if (!this.ctx) return;
+        
+        // Safety check for non-finite values to avoid AudioParam errors
+        if (!Number.isFinite(freq) || !Number.isFinite(duration) || !Number.isFinite(volume)) {
+            console.warn("SoundManager: Ignored invalid audio parameters", {freq, duration, volume});
+            return;
+        }
+
         if (this.ctx.state === 'suspended') this.ctx.resume();
         
         const osc = this.ctx.createOscillator();
@@ -50,8 +57,9 @@ export class SoundManager {
         osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
         osc.frequency.exponentialRampToValueAtTime(Math.max(1, freq * 0.1), this.ctx.currentTime + duration);
         
-        gain.gain.setValueAtTime(volume, this.ctx.currentTime);
-        // Exponential decay for much sharper percussive click
+        // Exponential ramps cannot start or end at 0. Ensure volume is non-zero.
+        const startVolume = Math.max(0.001, volume);
+        gain.gain.setValueAtTime(startVolume, this.ctx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
         
         let targetNode = gain;

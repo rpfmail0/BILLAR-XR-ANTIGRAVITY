@@ -312,7 +312,9 @@ export class XRHandler {
         this.isCharging = false;
         this.powerBarGroup.visible = false;
         
-        this.shootBall(this.chargePower);
+        // Safety check for shooting power
+        const finalPower = Number.isFinite(this.chargePower) ? this.chargePower : 0;
+        this.shootBall(finalPower);
         this.chargePower = 0;
         
         if (event.target.gamepad && event.target.gamepad.hapticActuators) {
