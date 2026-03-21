@@ -369,6 +369,7 @@ export class XRHandler {
     }
 
     update(dt) {
+        const now = performance.now() / 1000;
         // Find left and right controllers
         const session = this.renderer.xr.getSession();
         
@@ -419,7 +420,6 @@ export class XRHandler {
 
                 if (!source.gamepad) continue;
                 
-                const now = performance.now() / 1000;
                 const axes = source.gamepad.axes;
                 const whiteBall = this.balls ? this.balls[0] : null;
                 const whiteBallPos = whiteBall ? whiteBall.mesh.position.clone() : new THREE.Vector3(0, 0, 0);
@@ -515,7 +515,6 @@ export class XRHandler {
                         }
 
                         // Strategic Teleport (A button = index 4, B button = index 5)
-                        const now = performance.now() / 1000;
                         if (now - this.lastTeleportTime > this.teleportCooldown) {
                             const buttonA = source.gamepad.buttons[4]?.pressed;
                             const buttonB = source.gamepad.buttons[5]?.pressed;
