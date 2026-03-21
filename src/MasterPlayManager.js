@@ -87,7 +87,7 @@ export class MasterPlayManager {
                 power: "90%",
                 positions: [{ x: 0.0, y: 0.83075, z: 0.0 }, { x: 0.0, y: 0.83075, z: -0.8 }, { x: -0.5, y: 0.83075, z: 0.5 }],
                 shot: { power: 0.9, direction: new THREE.Vector3(0.02, 0, -1).normalize(), hitOffset: new THREE.Vector3(0, -0.015, 0) },
-                path: [{x:0,z:0}, {x:0,z:-0.8}, {x:0,z:-1.42}, {x:-0.5,z:0.5}]
+                path: [{x:0,z:0}, {x:0,z:-0.8}, {x:0,z:-1.42}, {x:0.71,z:0}, {x:0,z:1.42}, {x:-0.5,z:0.5}]
             },
             {
                 name: "9. Doble el Raíl",
@@ -97,7 +97,7 @@ export class MasterPlayManager {
                 power: "75%",
                 positions: [{ x: 0.6, y: 0.83075, z: 1.0 }, { x: 0.55, y: 0.83075, z: 0.5 }, { x: 0.6, y: 0.83075, z: -1.0 }],
                 shot: { power: 0.75, direction: new THREE.Vector3(0.1, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.012, 0, 0) },
-                path: [{x:0.6,z:1.0}, {x:0.71,z:0.5}, {x:0.71,z:-0.5}, {x:0.6,z:-1.0}]
+                path: [{x:0.6,z:1.0}, {x:0.71,z:0.5}, {x:0.71,z:-0.5}, {x:0,z:-1.42}, {x:-0.71,z:-0.5}, {x:0.6,z:-1.0}]
             },
             {
                 name: "10. La Omega 5 Bandas",
@@ -147,7 +147,7 @@ export class MasterPlayManager {
                 power: "85%",
                 positions: [{ x: -0.5, y: 0.83075, z: 0.0 }, { x: -0.55, y: 0.83075, z: 0.8 }, { x: 0.3, y: 0.83075, z: 0.0 }],
                 shot: { power: 0.85, direction: new THREE.Vector3(0.04, 0, 1).normalize(), hitOffset: new THREE.Vector3(0.012, 0, 0) },
-                path: [{x:-0.5,z:0}, {x:-0.55,z:0.8}, {x:-0.5,z:1.42}, {x:0.3,z:0}]
+                path: [{x:-0.5,z:0}, {x:-0.55,z:0.8}, {x:-0.5,z:1.42}, {x:0.71,z:0.5}, {x:0,z:-1.42}, {x:0.3,z:0}]
             },
             {
                 name: "15. La Serpiente (5 Bandas)",

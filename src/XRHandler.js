@@ -288,21 +288,47 @@ export class XRHandler {
         const offX = x + width / 2;
         const offZ = y + height / 2;
 
-        // 3. Draw Trajectory Path
+        // 3. Draw Trajectory Path with Impact Markers
         if (this.currentMasterPath) {
+            let cushionHits = 0;
+            const impactPoints = [];
+
             ctx.beginPath();
             ctx.setLineDash([8, 4]);
             ctx.strokeStyle = '#00ffff'; // Cyan trajectory
             ctx.lineWidth = 3;
+            
             this.currentMasterPath.forEach((p, i) => {
-                // Ensure we use x and z correctly (Z in Game = Y in 2D Plan)
                 const px = offX + p.x * scaleX;
                 const pz = offZ + p.z * scaleZ;
+                
                 if (i === 0) ctx.moveTo(px, pz);
-                else ctx.lineTo(px, pz);
+                else {
+                    ctx.lineTo(px, pz);
+                    // Detect if this point is a cushion hit (approximate)
+                    const isAtEdge = Math.abs(Math.abs(p.x) - 0.71) < 0.05 || Math.abs(Math.abs(p.z) - 1.42) < 0.05;
+                    // If it's a vertex between segments and it's at the edge, it's a hit.
+                    // Except the last point if it's hitting a ball.
+                    if (isAtEdge && i < this.currentMasterPath.length - 1) {
+                        impactPoints.push({x: px, y: pz});
+                        cushionHits++;
+                    }
+                }
             });
             ctx.stroke();
             ctx.setLineDash([]);
+
+            // Draw Impact Markers (Glow)
+            impactPoints.forEach((pt, idx) => {
+                ctx.fillStyle = 'rgba(0, 255, 255, 0.6)';
+                ctx.beginPath();
+                ctx.arc(pt.x, pt.y, 10, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 12px Arial';
+                ctx.fillText(idx + 1, pt.x, pt.y + 4);
+            });
         }
 
         // 4. Draw Balls as High-Contrast circles
