@@ -41,14 +41,15 @@ export class SceneSetup {
         this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setPixelRatio(window.devicePixelRatio);
+        this.renderer.setClearColor(0x000000, 0); // Start with transparent clear pass
         this.renderer.xr.enabled = true;
         this.renderer.shadowMap.enabled = true;
         document.body.appendChild(this.renderer.domElement);
 
         // VR Button
         const vrButton = VRButton.createButton(this.renderer, { 
-            requiredFeatures: ['local-floor'],
-            optionalFeatures: ['bounded-floor', 'passthrough'] 
+            requiredFeatures: ['local-floor', 'passthrough'], // Forced passthrough as required
+            optionalFeatures: ['bounded-floor'] 
         });
         document.body.appendChild(vrButton);
         
