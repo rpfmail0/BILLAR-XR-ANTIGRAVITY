@@ -140,9 +140,10 @@ export class XRHandler {
         const hudMaterial = new THREE.MeshBasicMaterial({ 
             map: this.hudTexture, transparent: true, opacity: 0.9, depthTest: false 
         });
-        // Adjusted geometry to match new aspect ratio (410/512 * 0.3 = 0.24)
-        this.hudMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 0.24), hudMaterial); // Position in top-left of field of view (adjusted to be more visible/right)
-        this.hudMesh.position.set(-0.25, 0.18, -0.6); 
+        // Reduced geometry for a more compact HUD (approx 25% smaller)
+        this.hudMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.24, 0.2), hudMaterial); 
+        // Positioned in a middle ground to avoid periphery and central clutter
+        this.hudMesh.position.set(-0.28, 0.2, -0.6); 
         this.hudMesh.renderOrder = 1001;
         this.camera.add(this.hudMesh);
 
@@ -176,10 +177,10 @@ export class XRHandler {
         ctx.fillStyle = color;
         ctx.fill();
         ctx.fillStyle = 'white';
-        ctx.font = 'bold 20px Arial';
-        ctx.fillText(label, label === 'GRIP' ? 22 : (label.length > 1 ? 28 : 38), y-5);
-        ctx.font = '24px Arial';
-        ctx.fillText(` ${text}`, 85, y);
+        ctx.font = 'bold 16px Arial';
+        ctx.fillText(label, label === 'GRIP' ? 22 : (label.length > 1 ? 28 : 38), y-10);
+        ctx.font = '18px Arial';
+        ctx.fillText(` ${text}`, 75, y-5);
     }
 
     updateHUDContent() {
@@ -198,20 +199,20 @@ export class XRHandler {
         ctx.fillStyle = 'white';
         ctx.textAlign = 'left';
         
-        // Carambola Stats
+        // Carambola Stats - Smaller font
         const currentStreak = this.gameLogic ? this.gameLogic.streak : 0;
-        ctx.font = 'bold 36px Arial';
+        ctx.font = 'bold 28px Arial';
         ctx.fillStyle = '#00ffff';
         ctx.fillText(`CARAMBOLAS: ${currentStreak}`, 20, y);
-        y += 50;
-
-        // Title
-        ctx.font = 'bold 28px Arial';
-        ctx.fillStyle = 'white';
-        ctx.fillText('BILLAR AR', 20, y);
         y += 40;
 
-        ctx.font = '24px Arial';
+        // Title - Smaller font
+        ctx.font = 'bold 22px Arial';
+        ctx.fillStyle = 'white';
+        ctx.fillText('BILLAR AR', 20, y);
+        y += 35;
+
+        ctx.font = '18px Arial';
         
         // A Button - Aim Yellow
         this.drawButtonLegend(ctx, 'A', '#F4B400', 'APUNTAR AMARILLA', y);
