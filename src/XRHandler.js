@@ -547,10 +547,12 @@ export class XRHandler {
                                     direction.normalize();
 
                                     // Move rig 1 meter behind white ball along that line
-                                    const newRigPos = whitePos.clone().sub(direction.clone().multiplyScalar(1.0));
-                                    newRigPos.y = 0; // Fix rig to floor
-                                    
-                                    this.xrRig.position.copy(newRigPos);
+                                    const teleportPos = whitePos.clone().sub(direction.clone().multiplyScalar(1.0));
+                                    teleportPos.y = 0; // Fix rig to floor
+                                    // Final position: Preserve current calibrated Y height
+                                    this.xrRig.position.x = teleportPos.x;
+                                    this.xrRig.position.z = teleportPos.z;
+                                    // this.xrRig.position.y stays exactly where it was calibrated
                                     
                                     // Point the rig so the camera looks at the white/target line
                                     this.xrRig.lookAt(targetPos.x, 0, targetPos.z);

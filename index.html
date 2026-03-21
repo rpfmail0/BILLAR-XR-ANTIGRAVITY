@@ -8,16 +8,6 @@
   </head>
   <body>
     <div id="app"></div>
-    <div id="error-overlay" style="position:fixed;top:0;left:0;width:100%;background:rgba(255,0,0,0.8);color:white;z-index:9999;display:none;padding:20px;font-family:monospace;pointer-events:none;"></div>
-    <script>
-      window.onerror = function(msg, url, lineNo, columnNo, error) {
-        var overlay = document.getElementById('error-overlay');
-        overlay.style.display = 'block';
-        overlay.innerText = 'ERROR: ' + msg + '\nAt: ' + lineNo + ':' + columnNo;
-        console.error(msg, url, lineNo, columnNo, error);
-        return false;
-      };
-    </script>
     <script type="module" src="/main.js"></script>
   </body>
 </html>
