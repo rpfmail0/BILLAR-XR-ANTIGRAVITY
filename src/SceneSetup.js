@@ -16,53 +16,43 @@ export class SceneSetup {
     }
 
     init() {
-        // Sound Manager
-        this.soundManager = new SoundManager();
-
-        // Physics
-        this.physics = new PhysicsWorld(this.soundManager);
-        this.clock = new THREE.Clock();
-
-        // Scene
+        // 1. Essential VR/Renderer Setup (Must be first)
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color(0x222222);
 
-        // Camera
-        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
-        this.camera.position.set(0, 1.6, 0); // Height mostly handled by WebXR, local pos by xrRig
-
-        // XR Rig (Player grouping for locomotion and initial spawning)
-        this.xrRig = new THREE.Group();
-        this.xrRig.position.set(0, 0, 2.5); // Start slightly away from the table
-        this.scene.add(this.xrRig);
-        this.xrRig.add(this.camera);
-
-        // Renderer
         this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setPixelRatio(window.devicePixelRatio);
-        this.renderer.setClearColor(0x000000, 0); // Start with transparent clear pass
+        this.renderer.setClearColor(0x000000, 0); 
         this.renderer.xr.enabled = true;
         this.renderer.shadowMap.enabled = true;
         document.body.appendChild(this.renderer.domElement);
 
-        // VR Button
         const vrButton = VRButton.createButton(this.renderer, { 
             requiredFeatures: ['local-floor'],
             optionalFeatures: ['bounded-floor', 'passthrough'] 
         });
         document.body.appendChild(vrButton);
-        
-        // Initialize audio context on the actual DOM button click (required by browsers)
+
+        // 2. Sound and Input initialization
+        this.soundManager = new SoundManager();
         vrButton.addEventListener('click', () => {
-            if (this.soundManager) {
-                this.soundManager.init();
-                // Play a tiny silent sound to force the context to unlock
-                this.soundManager.playSound(1, 'sine', 0.01, 0.001, false);
-            }
+            if (this.soundManager) this.soundManager.init();
         });
 
-        // Lights
+        // 3. World and Physics
+        this.physics = new PhysicsWorld(this.soundManager);
+        this.clock = new THREE.Clock();
+
+        // 4. Camera and Player Rig
+        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
+        this.camera.position.set(0, 1.6, 0); 
+        this.xrRig = new THREE.Group();
+        this.xrRig.position.set(0, 0, 2.5); 
+        this.scene.add(this.xrRig);
+        this.xrRig.add(this.camera);
+
+        // 5. Lights
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
         this.scene.add(ambientLight);
 
@@ -74,37 +64,22 @@ export class SceneSetup {
         // Resize handler
         window.addEventListener('resize', this.onWindowResize.bind(this));
 
-        // Game Objects
+        // 6. Game Objects
         this.table = new Table(this.scene, this.physics);
 
-        // Balls
-        // Table surface y is 0.8. Ball radius is 0.03075.
         const ballY = 0.8 + 0.03075;
-
         this.balls = [];
-        // White
-        this.balls.push(new Ball(this.scene, this.physics, 0xffffff, new CANNON.Vec3(0, ballY, 0.5)));
-        // Yellow
-        this.balls.push(new Ball(this.scene, this.physics, 0xffff00, new CANNON.Vec3(0, ballY, -0.5)));
-        // Red
+        this.balls.push(new Ball(this.scene, this.physics, 0xffffff, new CANNON.Vec3(0, ballY, 0.75)));
+        this.balls.push(new Ball(this.scene, this.physics, 0xffff00, new CANNON.Vec3(0, ballY, -0.75)));
         this.balls.push(new Ball(this.scene, this.physics, 0xff0000, new CANNON.Vec3(0.3, ballY, 0)));
 
-        // Cue
         this.cue = new Cue(this.scene);
-
-        // Game Logic
         this.gameLogic = new GameLogic(this.scene, this.physics, this.balls);
-
-        // Master Play Manager
         this.masterPlayManager = new MasterPlayManager(this.scene, this.balls, this.gameLogic, null);
 
-        // Env Map generation
+        // 7. Env/XR Handling
         this.setupEnvironment();
-
-        // XR Handler
         this.xrHandler = new XRHandler(this.renderer, this.scene, this.xrRig, this.camera, this.cue, this.balls, this.gameLogic, this.soundManager, this.table, this.masterPlayManager);
-        
-        // Link manager back to handler
         this.masterPlayManager.xrHandler = this.xrHandler;
     }
 

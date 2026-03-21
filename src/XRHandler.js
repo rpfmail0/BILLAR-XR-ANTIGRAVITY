@@ -273,20 +273,19 @@ export class XRHandler {
         this.passthroughEnabled = !this.passthroughEnabled;
         
         if (this.passthroughEnabled) {
-            this.originalBackground = this.scene.background || this.originalBackground;
-            this.originalEnvironment = this.scene.environment || this.originalEnvironment;
+            // Save current state only if it's not already null (to avoid double-nulling losing the original)
+            if (this.scene.background) this.originalBackground = this.scene.background;
+            if (this.scene.environment) this.originalEnvironment = this.scene.environment;
 
             this.scene.background = null;
             this.scene.environment = null;
             
-            // Explicitly set clear color and alpha
             this.renderer.setClearColor(0x000000, 0);
             this.renderer.setClearAlpha(0);
             this.renderer.autoClear = true;
             
             if (this.renderer.xr.setFoveation) this.renderer.xr.setFoveation(0);
-            
-            this.updateAnnouncementHUD("PASSTHROUGH: ON\nMira a tu alrededor");
+            this.updateAnnouncementHUD("PASSTHROUGH: ON\nRequiere HTTPS");
         } else {
             this.scene.background = this.originalBackground;
             this.scene.environment = this.originalEnvironment;
@@ -296,7 +295,6 @@ export class XRHandler {
             this.renderer.setClearAlpha(1);
             
             if (this.renderer.xr.setFoveation) this.renderer.xr.setFoveation(1);
-            
             this.updateAnnouncementHUD("PASSTHROUGH: OFF\nEntorno Virtual");
         }
     }
@@ -425,8 +423,10 @@ export class XRHandler {
         
         // Force passthrough transparency if enabled (Quest can be stubborn)
         if (this.passthroughEnabled) {
+            this.renderer.setClearColor(0x000000, 0);
             this.renderer.setClearAlpha(0);
             if (this.scene.background !== null) this.scene.background = null;
+            if (this.scene.environment !== null) this.scene.environment = null;
         }
 
         let rightCtrl = null;
