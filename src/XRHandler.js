@@ -57,6 +57,9 @@ export class XRHandler {
         this.originalRigPos = new THREE.Vector3();
         this.originalRigQuat = new THREE.Quaternion();
 
+        // AR Height Calibration
+        this.heightCalibrated = false;
+
         this.init();
     }
 
@@ -193,10 +196,18 @@ export class XRHandler {
         ctx.fillStyle = 'white';
         ctx.textAlign = 'left';
         
+        // Carambola Stats
+        const currentStreak = this.gameLogic ? this.gameLogic.streak : 0;
+        ctx.font = 'bold 36px Arial';
+        ctx.fillStyle = '#00ffff';
+        ctx.fillText(`CARAMBOLAS: ${currentStreak}`, 20, y);
+        y += 50;
+
         // Title
-        ctx.font = 'bold 32px Arial';
+        ctx.font = 'bold 28px Arial';
+        ctx.fillStyle = 'white';
         ctx.fillText('CONTROLES BILLAR XR (AR)', 20, y);
-        y += 45;
+        y += 40;
 
         ctx.font = '24px Arial';
         
@@ -357,6 +368,22 @@ export class XRHandler {
         // Find left and right controllers
         const session = this.renderer.xr.getSession();
         
+        // Redraw HUD if streak changed
+        if (this.gameLogic && this.gameLogic.streak !== this.lastHUDStreak) {
+            this.lastHUDStreak = this.gameLogic.streak;
+            this.updateHUDContent();
+        }
+
+        // Height Calibration for AR (once per session)
+        if (session && !this.heightCalibrated && this.camera.position.y > 0.1) {
+            // Objective: Camera World Y = 1.3m (0.8m table + 0.5m offset)
+            // Camera World Y = Rig Y + Camera Local Y
+            // 1.3 = Rig Y + Camera Local Y  =>  Rig Y = 1.3 - Camera Local Y
+            this.xrRig.position.y = 1.3 - this.camera.position.y;
+            this.heightCalibrated = true;
+            console.log("AR Height Calibrated. Rig Y:", this.xrRig.position.y);
+        }
+
         // Always force transparency in AR mode
         this.renderer.setClearColor(0x000000, 0);
         this.renderer.setClearAlpha(0);
