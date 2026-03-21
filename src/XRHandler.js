@@ -154,18 +154,19 @@ export class XRHandler {
         this.hudMesh.renderOrder = 1001;
         this.camera.add(this.hudMesh);
 
-        // 2. Temporary Announcement HUD (Center)
+        // 2. Temporary Announcement HUD (Center) - Larger for schematic
         this.annCanvas = document.createElement('canvas');
         this.annCanvas.width = 512;
-        this.annCanvas.height = 256;
+        this.annCanvas.height = 768; // Increased height
         this.annContext = this.annCanvas.getContext('2d');
         this.annTexture = new THREE.CanvasTexture(this.annCanvas);
         
         const annMaterial = new THREE.MeshBasicMaterial({ 
             map: this.annTexture, transparent: true, opacity: 1.0, depthTest: false 
         });
-        this.annMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.25), annMaterial);
-        this.annMesh.position.set(0, 0.05, -0.5); // CENTER
+        // 0.5m wide x 0.75m high
+        this.annMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.75), annMaterial);
+        this.annMesh.position.set(0, 0.1, -0.6); // CENTER-UP
         this.annMesh.renderOrder = 1002;
         this.annMesh.visible = false; // Hidden by default
         this.camera.add(this.annMesh);
@@ -218,11 +219,6 @@ export class XRHandler {
             ctx.font = 'bold 24px Arial';
             ctx.fillStyle = this.gameLogic.cushionContacts >= 3 ? '#00ff00' : '#ffcc00';
             ctx.fillText(`BANDAS: ${this.gameLogic.cushionContacts}`, 300, y - 40);
-        }
-
-        // Table Schematic if in Master Mode
-        if (this.currentMasterPath) {
-            this.drawTableSchematic(ctx, 300, 160, 180, 230);
         }
 
         // Title - Smaller font
@@ -901,14 +897,17 @@ export class XRHandler {
 
     updateAnnouncementHUD(message) {
         const ctx = this.annContext;
-        ctx.clearRect(0, 0, 512, 256);
+        // Total height 768
+        ctx.clearRect(0, 0, 512, 768);
 
-        // Background box for message - centered in the HUD plane
-        ctx.fillStyle = '#ffcc00';
-        ctx.roundRect(5, 50, 502, 150, 10);
+        // Background box for message
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.8)'; // Darker for center
+        ctx.roundRect(5, 50, 502, 300, 20); // Box for text
         ctx.fill();
         
-        ctx.fillStyle = 'black';
+        ctx.strokeStyle = '#ffcc00';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(5, 50, 502, 300);
         ctx.textAlign = 'center';
         
         const fontTitle = 'bold 24px Arial';
@@ -932,6 +931,12 @@ export class XRHandler {
             ctx.fillText(line, x, y);
             y += (index === 0 && segments.length > 1) ? 32 : 24;
         });
+
+        // DRAW SCHEMATIC BELOW TEXT if in Master Play
+        if (this.currentMasterPath) {
+            // Draw schematic further down on the 768px height canvas
+            this.drawTableSchematic(ctx, 106, 360, 300, 380);
+        }
 
         this.annTexture.needsUpdate = true;
         this.annMesh.visible = true;
