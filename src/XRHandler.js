@@ -211,12 +211,12 @@ export class XRHandler {
 
         ctx.font = '24px Arial';
         
-        // A Button - Teleport
-        this.drawButtonLegend(ctx, 'A', '#4285F4', 'TELEPORT (Moverse)', y);
+        // A Button - Aim Yellow
+        this.drawButtonLegend(ctx, 'A', '#4285F4', 'APUNTAR AMARILLA', y);
         y += 40;
 
-        // B Button - Shoot (Master auto)
-        this.drawButtonLegend(ctx, 'B', '#DB4437', 'AUTO-TIRO (Maestro)', y);
+        // B Button - Aim Red
+        this.drawButtonLegend(ctx, 'B', '#DB4437', 'APUNTAR ROJA', y);
         y += 40;
 
         // X Button - Master Play
@@ -509,7 +509,7 @@ export class XRHandler {
                             if (buttonA || buttonB) {
                                 // balls[0] = White, balls[1] = Yellow, balls[2] = Red
                                 const whiteBall = this.balls[0];
-                                const targetBall = buttonA ? this.balls[2] : this.balls[1];
+                                const targetBall = buttonA ? this.balls[1] : this.balls[2];
 
                                 if (whiteBall && targetBall) {
                                     const whitePos = whiteBall.mesh.position.clone();
