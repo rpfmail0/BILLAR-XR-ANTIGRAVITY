@@ -208,17 +208,17 @@ export class XRHandler {
         // Title
         ctx.font = 'bold 28px Arial';
         ctx.fillStyle = 'white';
-        ctx.fillText('CONTROLES BILLAR XR (AR)', 20, y);
+        ctx.fillText('BILLAR AR', 20, y);
         y += 40;
 
         ctx.font = '24px Arial';
         
-        // A Button - Aim Red
-        this.drawButtonLegend(ctx, 'A', '#DB4437', 'APUNTAR ROJA', y);
+        // A Button - Aim Yellow
+        this.drawButtonLegend(ctx, 'A', '#F4B400', 'APUNTAR AMARILLA', y);
         y += 40;
 
-        // B Button - Aim Yellow
-        this.drawButtonLegend(ctx, 'B', '#F4B400', 'APUNTAR AMARILLA', y);
+        // B Button - Aim Red
+        this.drawButtonLegend(ctx, 'B', '#DB4437', 'APUNTAR ROJA', y);
         y += 40;
 
         // X Button - Master Play
@@ -535,7 +535,7 @@ export class XRHandler {
                             if (buttonA || buttonB) {
                                 // balls[0] = White, balls[1] = Yellow, balls[2] = Red
                                 const whiteBall = this.balls[0];
-                                const targetBall = buttonA ? this.balls[2] : this.balls[1];
+                                const targetBall = buttonA ? this.balls[1] : this.balls[2];
 
                                 if (whiteBall && targetBall) {
                                     const whitePos = whiteBall.mesh.position.clone();
