@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
+import { ARButton } from 'three/examples/jsm/webxr/ARButton.js';
 import { PhysicsWorld } from './PhysicsWorld.js';
 import { SoundManager } from './SoundManager.js';
 import { Table } from './Objects/Table.js';
@@ -28,15 +28,16 @@ export class SceneSetup {
         this.renderer.shadowMap.enabled = true;
         document.body.appendChild(this.renderer.domElement);
 
-        const vrButton = VRButton.createButton(this.renderer, { 
+        // AR Button (Forced AR mode for Passthrough/Real Room)
+        const arButton = ARButton.createButton(this.renderer, { 
             requiredFeatures: ['local-floor'],
-            optionalFeatures: ['bounded-floor', 'passthrough'] 
+            optionalFeatures: ['hand-tracking'] 
         });
-        document.body.appendChild(vrButton);
+        document.body.appendChild(arButton);
 
-        // 2. Sound and Input initialization
+        // Sound Manager
         this.soundManager = new SoundManager();
-        vrButton.addEventListener('click', () => {
+        arButton.addEventListener('click', () => {
             if (this.soundManager) this.soundManager.init();
         });
 

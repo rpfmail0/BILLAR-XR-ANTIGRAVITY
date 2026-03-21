@@ -158,145 +158,81 @@ export class XRHandler {
         this.camera.add(this.annMesh);
 
         this.lastHUDStreak = -1;
-        this.updateHUDContent(0);
+        this.updateHUDContent();
     }
 
-    updateHUDContent(streak) {
-        if (streak !== undefined) this.lastHUDStreak = streak;
-        const currentStreak = this.lastHUDStreak;
+    drawButtonLegend(ctx, label, color, text, y) {
+        ctx.beginPath();
+        if (label === 'LT' || label === 'RT' || label === 'GRIP') {
+            ctx.roundRect(20, y-25, label === 'GRIP' ? 55 : 45, 25, 5);
+        } else {
+            ctx.arc(45, y-10, 15, 0, Math.PI*2);
+        }
+        ctx.fillStyle = color;
+        ctx.fill();
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 20px Arial';
+        ctx.fillText(label, label === 'GRIP' ? 22 : (label.length > 1 ? 28 : 38), y-5);
+        ctx.font = '24px Arial';
+        ctx.fillText(` ${text}`, 85, y);
+    }
 
+    updateHUDContent() {
+        if (!this.hudCanvas) return;
         const ctx = this.hudContext;
+        const yOffset = 40;
+        let y = yOffset;
+
+        // Clear with transparent background for AR
         ctx.clearRect(0, 0, 512, 410);
-
-        // Background
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        ctx.roundRect(0, 0, 512, 410, 15);
-        ctx.fill();
-
-        ctx.fillStyle = '#00ffff';
-        ctx.font = 'bold 36px monospace';
-        ctx.textAlign = 'left';
-        ctx.fillText(`CARAMBOLAS: ${currentStreak}`, 30, 60);
-
-        // Separator
-        ctx.strokeStyle = '#444';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(30, 140); 
-        ctx.lineTo(482, 140);
-        ctx.stroke();
-
-        ctx.font = '18px monospace';
-        ctx.fillStyle = 'white';
-
-        // Controls
-        let y = 175; 
-        const gap = 32; // Slightly increased for readability
-
-        // Trigger R
-        ctx.fillStyle = '#888';
-        ctx.fillRect(30, y-25, 140, 32);
-        ctx.fillStyle = 'white';
-        ctx.fillText('TRIGGER R', 40, y);
-        ctx.fillText(' | DISPARAR (TACO)', 180, y);
-        y += gap;
-
-        // Trigger L - Swap: Now Undo
-        ctx.fillStyle = '#5f1e1e'; // Reddish for UNDO
-        ctx.fillRect(30, y-25, 140, 32);
-        ctx.fillStyle = 'white';
-        ctx.fillText('TRIGGER L', 40, y);
-        ctx.fillText(' | ⟲ DESHACER TIRO', 180, y);
-        y += gap;
-
-        // B - Yellow
-        ctx.beginPath();
-        ctx.arc(45, y-10, 15, 0, Math.PI*2);
-        ctx.fillStyle = '#333';
-        ctx.fill();
-        ctx.strokeStyle = '#555';
-        ctx.stroke();
-        ctx.fillStyle = 'white';
-        ctx.fillText('B', 38, y-1);
         
-        ctx.beginPath();
-        ctx.arc(100, y-10, 10, 0, Math.PI*2);
-        ctx.fillStyle = 'yellow';
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.6)'; // Semi-transparent black for readability in AR
+        ctx.roundRect(0, 0, 512, 410, 20);
         ctx.fill();
-        ctx.fillText('APUNTAR AMARILLA', 130, y);
-        y += gap;
 
-        // A - Red
-        ctx.beginPath();
-        ctx.arc(45, y-10, 15, 0, Math.PI*2);
-        ctx.fillStyle = '#333';
-        ctx.fill();
-        ctx.strokeStyle = '#555';
-        ctx.stroke();
         ctx.fillStyle = 'white';
-        ctx.fillText('A', 38, y-1);
- 
-        ctx.beginPath();
-        ctx.arc(100, y-10, 10, 0, Math.PI*2);
-        ctx.fillStyle = 'red';
-        ctx.fill();
-        ctx.fillText('APUNTAR ROJA', 130, y);
-        y += gap;
+        ctx.textAlign = 'left';
+        
+        // Title
+        ctx.font = 'bold 32px Arial';
+        ctx.fillText('CONTROLES BILLAR XR (AR)', 20, y);
+        y += 45;
 
-        // X - Swap: Now Master Play
-        ctx.beginPath();
-        ctx.arc(45, y-10, 15, 0, Math.PI*2);
-        ctx.fillStyle = '#1e3a5f'; // Blueish for Master Mode
-        ctx.fill();
-        ctx.strokeStyle = '#555';
-        ctx.stroke();
-        ctx.fillStyle = 'white';
-        ctx.fillText('X', 38, y-1);
-        ctx.fillText(' 🎱 JUGADA MAESTRA', 85, y);
-        y += gap;
+        ctx.font = '24px Arial';
+        
+        // A Button - Teleport
+        this.drawButtonLegend(ctx, 'A', '#4285F4', 'TELEPORT (Moverse)', y);
+        y += 40;
 
-        // Y - Passthrough
-        ctx.beginPath();
-        ctx.arc(45, y-10, 15, 0, Math.PI*2);
-        ctx.fillStyle = '#333';
-        ctx.fill();
-        ctx.strokeStyle = '#555';
-        ctx.stroke();
-        ctx.fillStyle = 'white';
-        ctx.fillText('Y', 38, y-1);
-        ctx.fillText(' 👁 TOGGLE PASSTHROUGH', 85, y);
+        // B Button - Shoot (Master auto)
+        this.drawButtonLegend(ctx, 'B', '#DB4437', 'AUTO-TIRO (Maestro)', y);
+        y += 40;
+
+        // X Button - Master Play
+        this.drawButtonLegend(ctx, 'X', '#F4B400', 'JUGADA MAESTRA', y);
+        y += 40;
+
+        // Y Button - (Empty or info)
+        this.drawButtonLegend(ctx, 'Y', '#0F9D58', 'MODO AR ACTIVO', y);
+        y += 40;
+
+        // Trigger L - Undo
+        this.drawButtonLegend(ctx, 'LT', '#CC0000', 'UNDO (Deshacer)', y);
+        y += 40;
+
+        // Trigger R - Charge/Shoot
+        this.drawButtonLegend(ctx, 'RT', '#009900', 'CARGAR / TIRAR', y);
+        y += 40;
+
+        // Grip - Pick balls
+        this.drawButtonLegend(ctx, 'GRIP', '#666666', 'COGER BOLAS / TACO', y);
 
         this.hudTexture.needsUpdate = true;
     }
 
     togglePassthrough() {
-        this.passthroughEnabled = !this.passthroughEnabled;
-        
-        if (this.passthroughEnabled) {
-            // Save current state only if it's not already null (to avoid double-nulling losing the original)
-            if (this.scene.background) this.originalBackground = this.scene.background;
-            if (this.scene.environment) this.originalEnvironment = this.scene.environment;
-
-            this.scene.background = null;
-            this.scene.environment = null;
-            
-            this.renderer.setClearColor(0x000000, 0);
-            this.renderer.setClearAlpha(0);
-            this.renderer.autoClear = true;
-            
-            if (this.renderer.xr.setFoveation) this.renderer.xr.setFoveation(0);
-            this.updateAnnouncementHUD("PASSTHROUGH: ON\nRequiere HTTPS");
-        } else {
-            this.scene.background = this.originalBackground;
-            this.scene.environment = this.originalEnvironment;
-            
-            const bgColor = this.originalBackground instanceof THREE.Color ? this.originalBackground : new THREE.Color(0x222222);
-            this.renderer.setClearColor(bgColor, 1);
-            this.renderer.setClearAlpha(1);
-            
-            if (this.renderer.xr.setFoveation) this.renderer.xr.setFoveation(1);
-            this.updateAnnouncementHUD("PASSTHROUGH: OFF\nEntorno Virtual");
-        }
+        // Redundant in AR mode, but we can use it to toggle some UI
+        this.updateAnnouncementHUD("MODO REALIDAD MIXTA (AR)\nLa mesa está en tu habitación");
     }
 
     onSelectStart(event) {
@@ -421,13 +357,11 @@ export class XRHandler {
         // Find left and right controllers
         const session = this.renderer.xr.getSession();
         
-        // Force passthrough transparency if enabled (Quest can be stubborn)
-        if (this.passthroughEnabled) {
-            this.renderer.setClearColor(0x000000, 0);
-            this.renderer.setClearAlpha(0);
-            if (this.scene.background !== null) this.scene.background = null;
-            if (this.scene.environment !== null) this.scene.environment = null;
-        }
+        // Always force transparency in AR mode
+        this.renderer.setClearColor(0x000000, 0);
+        this.renderer.setClearAlpha(0);
+        if (this.scene.background !== null) this.scene.background = null;
+        if (this.scene.environment !== null) this.scene.environment = null;
 
         let rightCtrl = null;
         let leftCtrl = null;
