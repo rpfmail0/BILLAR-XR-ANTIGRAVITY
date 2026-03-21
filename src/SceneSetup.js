@@ -30,8 +30,7 @@ export class SceneSetup {
 
         // AR Button (Forced AR mode for Passthrough/Real Room)
         const arButton = ARButton.createButton(this.renderer, { 
-            requiredFeatures: ['local-floor'],
-            optionalFeatures: ['hand-tracking'] 
+            optionalFeatures: ['local-floor', 'hand-tracking'] 
         });
         document.body.appendChild(arButton);
 
