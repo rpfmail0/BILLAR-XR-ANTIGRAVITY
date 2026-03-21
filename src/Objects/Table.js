@@ -81,9 +81,10 @@ export class Table {
             this.scene.add(rail);
 
             // 2. GREEN FACE (Interior)
+            // Need to extend short faces to meet the long faces in the corners
             const faceGeo = isLong ?
                 new THREE.BoxGeometry(greenFaceWidth, h, l) :
-                new THREE.BoxGeometry(w, h, greenFaceWidth);
+                new THREE.BoxGeometry(w + greenFaceWidth * 2, h, greenFaceWidth);
             const face = new THREE.Mesh(faceGeo, greenMaterial);
             
             let faceX = x;
