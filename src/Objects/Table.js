@@ -14,6 +14,12 @@ export class Table {
     }
 
     createVisuals() {
+        // Texture Loader
+        const textureLoader = new THREE.TextureLoader();
+        const woodTexture = textureLoader.load('textures/wood_mahogany.jpg');
+        woodTexture.wrapS = THREE.RepeatWrapping;
+        woodTexture.wrapT = THREE.RepeatWrapping;
+
         // Table Bed (Green felt)
         const bedGeometry = new THREE.BoxGeometry(this.width, 0.05, this.length);
         const bedMaterial = new THREE.MeshStandardMaterial({ color: 0x006400, roughness: 0.8 });
@@ -22,53 +28,81 @@ export class Table {
         this.bed.receiveShadow = true;
         this.scene.add(this.bed);
 
-        // Legs
+        // Legs - Mahogany Wood Texture
         const legGeometry = new THREE.BoxGeometry(0.1, this.height, 0.1);
-        const legMaterial = new THREE.MeshStandardMaterial({ color: 0x331100 });
+        const woodMaterial = new THREE.MeshStandardMaterial({ 
+            map: woodTexture,
+            color: 0x662211, // Multiply with mahogany tint
+            roughness: 0.12,  // High gloss
+            metalness: 0.1 
+        });
 
-        const positions = [
+        const legPositions = [
             [-this.width / 2 + 0.1, this.height / 2, -this.length / 2 + 0.1],
             [this.width / 2 - 0.1, this.height / 2, -this.length / 2 + 0.1],
             [-this.width / 2 + 0.1, this.height / 2, this.length / 2 - 0.1],
             [this.width / 2 - 0.1, this.height / 2, this.length / 2 - 0.1]
         ];
 
-        positions.forEach(pos => {
-            const leg = new THREE.Mesh(legGeometry, legMaterial);
+        legPositions.forEach(pos => {
+            const leg = new THREE.Mesh(legGeometry, woodMaterial);
             leg.position.set(...pos);
             this.scene.add(leg);
         });
 
-        // Cushions (One simple block per side)
-        const cushionWidth = 0.1;
+        // Cushions: Exterior (Wood) and Interior (Green Face)
+        const totalCushionWidth = 0.1;
+        const woodRailWidth = 0.075; // Thick wood frame
+        const greenFaceWidth = 0.025; // Thin green elastic part
         const cushionHeight = 0.065;
-        const cushionMaterial = new THREE.MeshStandardMaterial({ color: 0x004400 });
+        
+        const greenMaterial = new THREE.MeshStandardMaterial({ color: 0x004400, roughness: 0.7 });
 
         this.cushionMeshes = [];
 
-        // Long cushions
-        const longCushionGeo = new THREE.BoxGeometry(cushionWidth, cushionHeight, this.length + cushionWidth * 2);
-        const leftCushion = new THREE.Mesh(longCushionGeo, cushionMaterial);
-        leftCushion.position.set(-this.width / 2 - cushionWidth / 2, this.height + cushionHeight / 2, 0);
-        this.scene.add(leftCushion);
-        this.cushionMeshes.push(leftCushion);
+        const addCushionGeometry = (w, h, l, x, z, isLong) => {
+            // 1. WOOD RAIL (Exterior)
+            const railGeo = isLong ? 
+                new THREE.BoxGeometry(woodRailWidth, h, l + totalCushionWidth * 2) : 
+                new THREE.BoxGeometry(w, h, woodRailWidth);
+            const rail = new THREE.Mesh(railGeo, woodMaterial);
+            
+            // Adjust position for long/short rails
+            let railX = x;
+            let railZ = z;
+            if (isLong) {
+                railX = (x < 0) ? x - greenFaceWidth/2 : x + greenFaceWidth/2;
+            } else {
+                railZ = (z < 0) ? z - greenFaceWidth/2 : z + greenFaceWidth/2;
+            }
+            rail.position.set(railX, this.height + h / 2, railZ);
+            this.scene.add(rail);
 
-        const rightCushion = new THREE.Mesh(longCushionGeo, cushionMaterial);
-        rightCushion.position.set(this.width / 2 + cushionWidth / 2, this.height + cushionHeight / 2, 0);
-        this.scene.add(rightCushion);
-        this.cushionMeshes.push(rightCushion);
+            // 2. GREEN FACE (Interior)
+            const faceGeo = isLong ?
+                new THREE.BoxGeometry(greenFaceWidth, h, l) :
+                new THREE.BoxGeometry(w, h, greenFaceWidth);
+            const face = new THREE.Mesh(faceGeo, greenMaterial);
+            
+            let faceX = x;
+            let faceZ = z;
+            if (isLong) {
+                faceX = (x < 0) ? x + woodRailWidth/2 : x - woodRailWidth/2;
+            } else {
+                faceZ = (z < 0) ? z + woodRailWidth/2 : z - woodRailWidth/2;
+            }
+            face.position.set(faceX, this.height + h / 2, faceZ);
+            this.scene.add(face);
+            this.cushionMeshes.push(face);
+        };
 
-        // Short cushions
-        const shortCushionGeo = new THREE.BoxGeometry(this.width, cushionHeight, cushionWidth);
-        const topCushion = new THREE.Mesh(shortCushionGeo, cushionMaterial);
-        topCushion.position.set(0, this.height + cushionHeight / 2, -this.length / 2 - cushionWidth / 2);
-        this.scene.add(topCushion);
-        this.cushionMeshes.push(topCushion);
+        // Long rails
+        addCushionGeometry(totalCushionWidth, cushionHeight, this.length, -this.width / 2 - totalCushionWidth / 2, 0, true);
+        addCushionGeometry(totalCushionWidth, cushionHeight, this.length, this.width / 2 + totalCushionWidth / 2, 0, true);
 
-        const bottomCushion = new THREE.Mesh(shortCushionGeo, cushionMaterial);
-        bottomCushion.position.set(0, this.height + cushionHeight / 2, this.length / 2 + cushionWidth / 2);
-        this.scene.add(bottomCushion);
-        this.cushionMeshes.push(bottomCushion);
+        // Short rails
+        addCushionGeometry(this.width, cushionHeight, totalCushionWidth, 0, -this.length / 2 - totalCushionWidth / 2, false);
+        addCushionGeometry(this.width, cushionHeight, totalCushionWidth, 0, this.length / 2 + totalCushionWidth / 2, false);
 
         this.createDiamonds(cushionHeight);
     }
