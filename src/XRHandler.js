@@ -422,6 +422,7 @@ export class XRHandler {
 
                 if (!source.gamepad) continue;
                 
+                const now = performance.now() / 1000;
                 const axes = source.gamepad.axes;
                 const whiteBall = this.balls ? this.balls[0] : null;
                 const whiteBallPos = whiteBall ? whiteBall.mesh.position.clone() : new THREE.Vector3(0, 0, 0);
