@@ -1,4 +1,4 @@
-import './style.css';
+import './src/style.css';
 import { SceneSetup } from './src/SceneSetup.js';
 
 const app = new SceneSetup();
