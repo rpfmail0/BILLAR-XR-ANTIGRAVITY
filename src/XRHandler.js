@@ -390,16 +390,16 @@ export class XRHandler {
             // Trigger if delay passed OR if manual flag -1 is set
             if (!this.heightCalibrated && (this.calibrationStartTime === -1 || (now - this.calibrationStartTime > this.calibrationDelay))) {
                 // Remove the restrictive > 0.1 check to support all reference spaces
-                // Target: camera.worldY = 1.3m (relative to standard table surface at 0.8m)
-                // If the user is in 'viewer' space, camera.position.y might be 0.
-                const targetRigY = 1.3 - this.camera.position.y;
+                // Target: camera.worldY = 1.4m (relative to standard table surface at 0.8m)
+                // This gives a 60cm offset as requested.
+                const targetRigY = 1.4 - this.camera.position.y;
                 this.xrRig.position.y = targetRigY;
                 this.heightCalibrated = true;
                 
                 // Reset start time to standard now so we don't loop
                 if (this.calibrationStartTime === -1) this.calibrationStartTime = now;
                 
-                this.updateAnnouncementHUD("ALTURA CALIBRADA\n50cm bajo tus ojos");
+                this.updateAnnouncementHUD("ALTURA CALIBRADA\n60cm bajo tus ojos");
                 
                 // Clear message after 2 seconds
                 if (this.calibrateTimeout) clearTimeout(this.calibrateTimeout);
