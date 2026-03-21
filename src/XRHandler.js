@@ -141,8 +141,8 @@ export class XRHandler {
             map: this.hudTexture, transparent: true, opacity: 0.9, depthTest: false 
         });
         // Adjusted geometry to match new aspect ratio (410/512 * 0.3 = 0.24)
-        this.hudMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 0.24), hudMaterial);
-        this.hudMesh.position.set(-0.25, 0.15, -0.6); 
+        this.hudMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 0.24), hudMaterial); // Position in top-left of field of view (adjusted to be more visible/right)
+        this.hudMesh.position.set(-0.25, 0.18, -0.6); 
         this.hudMesh.renderOrder = 1001;
         this.camera.add(this.hudMesh);
 
