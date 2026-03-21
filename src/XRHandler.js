@@ -213,12 +213,12 @@ export class XRHandler {
 
         ctx.font = '24px Arial';
         
-        // A Button - Aim Yellow
-        this.drawButtonLegend(ctx, 'A', '#4285F4', 'APUNTAR AMARILLA', y);
+        // A Button - Aim Red
+        this.drawButtonLegend(ctx, 'A', '#DB4437', 'APUNTAR ROJA', y);
         y += 40;
 
-        // B Button - Aim Red
-        this.drawButtonLegend(ctx, 'B', '#DB4437', 'APUNTAR ROJA', y);
+        // B Button - Aim Yellow
+        this.drawButtonLegend(ctx, 'B', '#F4B400', 'APUNTAR AMARILLA', y);
         y += 40;
 
         // X Button - Master Play
@@ -535,7 +535,7 @@ export class XRHandler {
                             if (buttonA || buttonB) {
                                 // balls[0] = White, balls[1] = Yellow, balls[2] = Red
                                 const whiteBall = this.balls[0];
-                                const targetBall = buttonA ? this.balls[1] : this.balls[2];
+                                const targetBall = buttonA ? this.balls[2] : this.balls[1];
 
                                 if (whiteBall && targetBall) {
                                     const whitePos = whiteBall.mesh.position.clone();
@@ -555,7 +555,8 @@ export class XRHandler {
                                     // this.xrRig.position.y stays exactly where it was calibrated
                                     
                                     // Point the rig so the camera looks at the white/target line
-                                    this.xrRig.lookAt(targetPos.x, 0, targetPos.z);
+                                    // Use current rig height for the target to avoid pitch/tilt
+                                    this.xrRig.lookAt(targetPos.x, this.xrRig.position.y, targetPos.z);
                                     // The user reported being facing away, so we rotate 180 degrees
                                     this.xrRig.rotation.y += Math.PI;
                                     
