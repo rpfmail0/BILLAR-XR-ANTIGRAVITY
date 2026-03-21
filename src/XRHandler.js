@@ -50,6 +50,7 @@ export class XRHandler {
         this.passthroughEnabled = false;
         this.lastPassthroughTime = 0;
         this.originalBackground = this.scene.background;
+        this.originalEnvironment = this.scene.environment;
 
         // View states for Maestro Strategy
         this.isTopDown = false;
@@ -272,16 +273,25 @@ export class XRHandler {
         this.passthroughEnabled = !this.passthroughEnabled;
         
         if (this.passthroughEnabled) {
+            // Store current to be safe if they changed
+            this.originalBackground = this.scene.background || this.originalBackground;
+            this.originalEnvironment = this.scene.environment || this.originalEnvironment;
+
             this.scene.background = null;
+            this.scene.environment = null;
             this.renderer.setClearColor(0x000000, 0);
             this.renderer.setClearAlpha(0);
+            
             // Higher foveation can sometimes interfere with passthrough transparency
             if (this.renderer.xr.setFoveation) this.renderer.xr.setFoveation(0);
         } else {
             this.scene.background = this.originalBackground;
+            this.scene.environment = this.originalEnvironment;
+            
             const bgColor = this.originalBackground instanceof THREE.Color ? this.originalBackground : new THREE.Color(0x222222);
             this.renderer.setClearColor(bgColor, 1);
             this.renderer.setClearAlpha(1);
+            
             if (this.renderer.xr.setFoveation) this.renderer.xr.setFoveation(1);
         }
     }
