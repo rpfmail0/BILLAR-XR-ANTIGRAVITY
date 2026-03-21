@@ -142,8 +142,8 @@ export class XRHandler {
         });
         // Reduced geometry for a more compact HUD (approx 25% smaller)
         this.hudMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.24, 0.2), hudMaterial); 
-        // Positioned lower and more to the right (towards center) for optimal visibility
-        this.hudMesh.position.set(-0.15, -0.22, -0.6); 
+        // Positioned much lower and to the right quadrant as requested
+        this.hudMesh.position.set(0.2, -0.35, -0.6); 
         this.hudMesh.renderOrder = 1001;
         this.camera.add(this.hudMesh);
 
