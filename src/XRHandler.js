@@ -246,8 +246,8 @@ export class XRHandler {
     togglePassthrough() {
         // Manual Recalibration of Height
         this.heightCalibrated = false; 
-        this.calibrationStartTime = performance.now() / 1000 - (this.calibrationDelay - 0.1); 
-        this.updateAnnouncementHUD("RECIBRANDO ALTURA...\nMantén la cabeza en posición");
+        this.calibrationStartTime = -1; // Special flag for instant recalibration
+        this.updateAnnouncementHUD("RECIBRANDO ALTURA...\nMantén la cabeza estable");
     }
 
     onSelectStart(event) {
@@ -379,21 +379,29 @@ export class XRHandler {
             this.updateHUDContent();
         }
 
-        // Height Calibration for AR (once per session, after delay)
+        // Height Calibration for AR (once per session, after delay or on manual trigger)
         if (session) {
             if (this.calibrationStartTime === 0) {
                 this.calibrationStartTime = now;
             }
             
-            if (!this.heightCalibrated && (now - this.calibrationStartTime > this.calibrationDelay)) {
+            // Trigger if delay passed OR if manual flag -1 is set
+            if (!this.heightCalibrated && (this.calibrationStartTime === -1 || (now - this.calibrationStartTime > this.calibrationDelay))) {
                 if (this.camera.position.y > 0.1) {
-                    // Target: camera.worldY = tableSurfaceY + 0.5
-                    // camera.worldY = rigY + camera.localY
-                    // 1.3 = rigY + camera.localY => rigY = 1.3 - camera.localY
+                    // Target: camera.worldY = 1.3m
                     const targetRigY = 1.3 - this.camera.position.y;
                     this.xrRig.position.y = targetRigY;
                     this.heightCalibrated = true;
+                    // Reset start time to standard now so we don't loop
+                    if (this.calibrationStartTime === -1) this.calibrationStartTime = now;
+                    
                     this.updateAnnouncementHUD("ALTURA CALIBRADA\n50cm bajo tus ojos");
+                    
+                    // Clear message after 2 seconds
+                    setTimeout(() => {
+                        if (this.annMesh) this.annMesh.visible = false;
+                    }, 2000);
+                    
                     console.log("AR Height Calibrated. Camera Local Y:", this.camera.position.y, "Rig Y:", targetRigY);
                 }
             }
