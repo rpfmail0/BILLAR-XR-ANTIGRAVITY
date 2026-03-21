@@ -41,7 +41,7 @@ export class Table {
 
         // Cushions (One simple block per side)
         const cushionWidth = 0.1;
-        const cushionHeight = 0.08;
+        const cushionHeight = 0.065;
         const cushionMaterial = new THREE.MeshStandardMaterial({ color: 0x004400 });
 
         this.cushionMeshes = [];
@@ -111,7 +111,7 @@ export class Table {
         this.physicsWorld.world.addBody(this.bedBody);
 
         const cushionThickness = 0.1;
-        const cushionHeight = 0.08;
+        const cushionHeight = 0.065;
 
         const addCushion = (width, length, x, z) => {
             const shape = new CANNON.Box(new CANNON.Vec3(width / 2, cushionHeight / 2, length / 2));
