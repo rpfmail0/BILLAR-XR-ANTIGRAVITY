@@ -260,12 +260,26 @@ export class XRHandler {
     }
 
     drawTableSchematic(ctx, x, y, width, height) {
-        // Table Bed
-        ctx.strokeStyle = '#004400';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(x, y, width, height);
-        ctx.fillStyle = 'rgba(0, 50, 0, 0.3)';
+        // 1. Draw CUSHIONS (Wooden frame)
+        const padding = 15;
+        ctx.fillStyle = '#5d4037'; // Mahogany-like wood
+        ctx.fillRect(x - padding, y - padding, width + padding * 2, height + padding * 2);
+        
+        ctx.strokeStyle = '#3e2723';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(x - padding, y - padding, width + padding * 2, height + padding * 2);
+
+        // 2. Table Bed (Greencloth)
+        ctx.fillStyle = '#2e7d32'; // Classic billiard green
         ctx.fillRect(x, y, width, height);
+        
+        // Faint grid for orientation
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(x + width / 2, y); ctx.lineTo(x + width / 2, y + height); // Central vertical
+        ctx.moveTo(x, y + height / 2); ctx.lineTo(x + width, y + height / 2); // Central horizontal
+        ctx.stroke();
 
         const tw = 1.42;
         const tl = 2.84;
@@ -274,30 +288,49 @@ export class XRHandler {
         const offX = x + width / 2;
         const offZ = y + height / 2;
 
-        // Draw Path
-        ctx.beginPath();
-        ctx.setLineDash([5, 5]);
-        ctx.strokeStyle = '#00ffff';
-        ctx.lineWidth = 2;
-        this.currentMasterPath.forEach((p, i) => {
-            const px = offX + p.x * scaleX;
-            const pz = offZ + p.z * scaleZ;
-            if (i === 0) ctx.moveTo(px, pz);
-            else ctx.lineTo(px, pz);
-        });
-        ctx.stroke();
-        ctx.setLineDash([]);
+        // 3. Draw Trajectory Path
+        if (this.currentMasterPath) {
+            ctx.beginPath();
+            ctx.setLineDash([8, 4]);
+            ctx.strokeStyle = '#00ffff'; // Cyan trajectory
+            ctx.lineWidth = 3;
+            this.currentMasterPath.forEach((p, i) => {
+                const px = offX + p.x * scaleX;
+                const pz = offZ + p.z * scaleZ;
+                if (i === 0) ctx.moveTo(px, pz);
+                else ctx.lineTo(px, pz);
+            });
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
 
-        // Draw Balls
+        // 4. Draw Balls as High-Contrast circles
         if (this.currentMasterBalls) {
-            const colors = ['white', '#F4B400', '#DB4437'];
+            const ballColors = ['#ffffff', '#ffeb3b', '#f44336']; // Bright White, Yellow, Red
             this.currentMasterBalls.forEach((b, i) => {
-                ctx.fillStyle = colors[i];
+                const bx = offX + b.x * scaleX;
+                const bz = offZ + b.z * scaleZ;
+                
+                // Shadow
+                ctx.fillStyle = 'rgba(0,0,0,0.4)';
                 ctx.beginPath();
-                ctx.arc(offX + b.x * scaleX, offZ + b.z * scaleZ, 6, 0, Math.PI * 2);
+                ctx.arc(bx + 2, bz + 2, 8, 0, Math.PI * 2);
                 ctx.fill();
+
+                // Ball
+                ctx.fillStyle = ballColors[i];
+                ctx.beginPath();
+                ctx.arc(bx, bz, 8, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Gloss effect
+                ctx.fillStyle = 'rgba(255,255,255,0.8)';
+                ctx.beginPath();
+                ctx.arc(bx - 3, bz - 3, 3, 0, Math.PI * 2);
+                ctx.fill();
+
                 ctx.strokeStyle = 'black';
-                ctx.lineWidth = 1;
+                ctx.lineWidth = 1.5;
                 ctx.stroke();
             });
         }
@@ -935,9 +968,10 @@ export class XRHandler {
 
         // DRAW SCHEMATIC BELOW TEXT if in Master Play
         if (this.currentMasterPath) {
-            // Table is 1.42 x 2.84 (2:1 ratio). Drawing at 200x400 means 1m = 140.8px approx
-            // Centered: 512 / 2 = 256. Starting at 256 - 100 = 156.
-            this.drawTableSchematic(ctx, 156, 360, 200, 400);
+            // Larger schematic: 250x500 for better visibility. Centered.
+            const sWidth = 240;
+            const sHeight = 480;
+            this.drawTableSchematic(ctx, (512 - sWidth) / 2, 380, sWidth, sHeight);
         }
 
         this.annTexture.needsUpdate = true;
