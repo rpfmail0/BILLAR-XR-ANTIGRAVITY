@@ -935,8 +935,9 @@ export class XRHandler {
 
         // DRAW SCHEMATIC BELOW TEXT if in Master Play
         if (this.currentMasterPath) {
-            // Draw schematic further down on the 768px height canvas
-            this.drawTableSchematic(ctx, 106, 360, 300, 380);
+            // Table is 1.42 x 2.84 (2:1 ratio). Drawing at 200x400 means 1m = 140.8px approx
+            // Centered: 512 / 2 = 256. Starting at 256 - 100 = 156.
+            this.drawTableSchematic(ctx, 156, 360, 200, 400);
         }
 
         this.annTexture.needsUpdate = true;
