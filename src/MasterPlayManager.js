@@ -12,236 +12,207 @@ export class MasterPlayManager {
             {
                 name: "1. Bricole LKL",
                 strategy: "Tres Bandas Larga-Corta-Larga (Bricole)",
-                aim: "Apuntar a la banda IZQUIERDA, 1.3m desde el fondo.",
-                effect: "Efecto DERECHA (12mm)",
+                aim: "Banda izquierda a 1.3m.",
+                effect: "Efecto DERECHA",
                 power: "92%",
-                positions: [
-                    { x: 0.0, y: 0.83075, z: 1.3 }, { x: 0.5, y: 0.83075, z: -0.2 }, { x: 0.4, y: 0.83075, z: -0.4 }
-                ],
-                shot: { power: 0.92, direction: new THREE.Vector3(-0.55, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.012, 0, 0) }
+                positions: [{ x: 0.0, y: 0.83075, z: 1.3 }, { x: 0.5, y: 0.83075, z: -0.2 }, { x: 0.4, y: 0.83075, z: -0.4 }],
+                shot: { power: 0.92, direction: new THREE.Vector3(-0.55, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.012, 0, 0) },
+                path: [{x:0,z:1.3}, {x:-0.71,z:-0.2}, {x:0,z:-1.42}, {x:0.71,z:0}, {x:0.5,z:-0.2}, {x:0.4,z:-0.4}]
             },
             {
                 name: "2. Alrededor de la Mesa",
                 strategy: "Recorrido Natural LKL empezando por roja.",
-                aim: "Apuntar a la bola ROJA finamente por la derecha.",
-                effect: "Efecto DERECHA ligero (5mm)",
+                aim: "Bola roja fina por la derecha.",
+                effect: "Efecto DERECHA ligero",
                 power: "82%",
-                positions: [
-                    { x: 0.355, y: 0.83075, z: 1.0 }, { x: 0.55, y: 0.83075, z: -0.2 }, { x: -0.5, y: 0.83075, z: 0.8 }
-                ],
-                shot: { power: 0.82, direction: new THREE.Vector3(0.25, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.005, 0, 0) }
+                positions: [{ x: 0.355, y: 0.83075, z: 1.0 }, { x: 0.55, y: 0.83075, z: -0.2 }, { x: -0.5, y: 0.83075, z: 0.8 }],
+                shot: { power: 0.82, direction: new THREE.Vector3(0.25, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.005, 0, 0) },
+                path: [{x:0.355,z:1.0}, {x:0.55,z:-0.2}, {x:0.71,z:-1.0}, {x:0,z:-1.42}, {x:-0.71,z:0}, {x:-0.5,z:0.8}]
             },
             {
                 name: "3. Renverse Zig-Zag",
-                strategy: "Zig-Zag Corta-Larga-Corta en forma de 'N'.",
-                aim: "Apuntar a la banda inferior a 0.4m del rincón.",
-                effect: "Efecto IZQUIERDA fuerte (15mm)",
+                strategy: "Zig-Zag Corta-Larga-Corta en 'N'.",
+                aim: "Banda inferior a 0.4m del rincón.",
+                effect: "Efecto IZQUIERDA fuerte",
                 power: "88%",
-                positions: [
-                    { x: -0.4, y: 0.83075, z: 1.2 }, { x: 0.3, y: 0.83075, z: 1.0 }, { x: 0.5, y: 0.83075, z: -1.0 }
-                ],
-                shot: { power: 0.88, direction: new THREE.Vector3(0.75, 0, -1).normalize(), hitOffset: new THREE.Vector3(-0.015, 0, 0) }
+                positions: [{ x: -0.4, y: 0.83075, z: 1.2 }, { x: 0.3, y: 0.83075, z: 1.0 }, { x: 0.5, y: 0.83075, z: -1.0 }],
+                shot: { power: 0.88, direction: new THREE.Vector3(0.75, 0, -1).normalize(), hitOffset: new THREE.Vector3(-0.015, 0, 0) },
+                path: [{x:-0.4,z:1.2}, {x:0.71,z:0.5}, {x:-0.71,z:-0.5}, {x:0.3,z:1.0}, {x:0.5,z:-1.0}]
             },
             {
                 name: "4. Tick-Tack Doble Corta",
-                strategy: "Doble banda corta seguida en el cabezal.",
-                aim: "Apuntar a la banda superior a la izquierda.",
-                effect: "Efecto DERECHA (10mm)",
+                strategy: "Doble banda corta en el cabezal.",
+                aim: "Banda superior izquierda.",
+                effect: "Efecto DERECHA",
                 power: "72%",
-                positions: [
-                    { x: 0.0, y: 0.83075, z: -1.0 }, { x: -0.3, y: 0.83075, z: -1.3 }, { x: 0.3, y: 0.83075, z: -1.3 }
-                ],
-                shot: { power: 0.72, direction: new THREE.Vector3(-0.45, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.01, 0, 0) }
+                positions: [{ x: 0.0, y: 0.83075, z: -1.0 }, { x: -0.3, y: 0.83075, z: -1.3 }, { x: 0.3, y: 0.83075, z: -1.3 }],
+                shot: { power: 0.72, direction: new THREE.Vector3(-0.45, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.01, 0, 0) },
+                path: [{x:0,z:-1.0}, {x:-0.5,z:-1.42}, {x:0.5,z:-1.42}, {x:-0.3,z:-1.3}, {x:0.3,z:-1.3}]
             },
             {
                 name: "5. Cajón de 3 Bandas",
                 strategy: "Cajón LKL cerrado técnica de rincón.",
-                aim: "Apuntar bola ROJA directamente a la banda larga.",
-                effect: "Efecto DERECHA (8mm)",
+                aim: "Bola roja directamente a banda larga.",
+                effect: "Efecto DERECHA",
                 power: "78%",
-                positions: [
-                    { x: -0.5, y: 0.83075, z: 1.1 }, { x: -0.6, y: 0.83075, z: 0.2 }, { x: -0.4, y: 0.83075, z: 0.0 }
-                ],
-                shot: { power: 0.78, direction: new THREE.Vector3(0.12, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.008, 0, 0) }
+                positions: [{ x: -0.5, y: 0.83075, z: 1.1 }, { x: -0.6, y: 0.83075, z: 0.2 }, { x: -0.4, y: 0.83075, z: 0.0 }],
+                shot: { power: 0.78, direction: new THREE.Vector3(0.12, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.008, 0, 0) },
+                path: [{x:-0.5,z:1.1}, {x:-0.6,z:0.2}, {x:-0.71,z:-0.5}, {x:0,z:-1.42}, {x:-0.4,z:0}]
             },
             {
                 name: "6. Pase de Banda Reverso",
                 strategy: "Inversión de trayectoria tras banda larga.",
-                aim: "Apuntar banda derecha con efecto contrario.",
-                effect: "Efecto IZQUIERDA fuerte (12mm)",
+                aim: "Banda derecha con efecto contrario.",
+                effect: "Efecto IZQUIERDA",
                 power: "85%",
-                positions: [
-                    { x: 0.5, y: 0.83075, z: 0.5 }, { x: 0.55, y: 0.83075, z: -0.8 }, { x: -0.2, y: 0.83075, z: -0.5 }
-                ],
-                shot: { power: 0.85, direction: new THREE.Vector3(0.08, 0, -1).normalize(), hitOffset: new THREE.Vector3(-0.012, 0, 0) }
+                positions: [{ x: 0.5, y: 0.83075, z: 0.5 }, { x: 0.55, y: 0.83075, z: -0.8 }, { x: -0.2, y: 0.83075, z: -0.5 }],
+                shot: { power: 0.85, direction: new THREE.Vector3(0.08, 0, -1).normalize(), hitOffset: new THREE.Vector3(-0.012, 0, 0) },
+                path: [{x:0.5,z:0.5}, {x:0.71,z:-1.0}, {x:0,z:-1.42}, {x:-0.71,z:-1.0}, {x:-0.2,z:-0.5}]
             },
             {
                 name: "7. Cruce Diagonal",
-                strategy: "Tres diagonales consecutivas entre bandas largas.",
-                aim: "Apuntar bola ROJA al centro de la mesa.",
-                effect: "Efecto DERECHA suave (5mm)",
+                strategy: "Tres diagonales entre bandas largas.",
+                aim: "Bola roja al centro de la mesa.",
+                effect: "Efecto DERECHA suave",
                 power: "95%",
-                positions: [
-                    { x: -0.6, y: 0.83075, z: 1.3 }, { x: -0.4, y: 0.83075, z: 0.8 }, { x: 0.6, y: 0.83075, z: -1.2 }
-                ],
-                shot: { power: 0.95, direction: new THREE.Vector3(0.45, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.005, 0, 0) }
+                positions: [{ x: -0.6, y: 0.83075, z: 1.3 }, { x: -0.4, y: 0.83075, z: 0.8 }, { x: 0.6, y: 0.83075, z: -1.2 }],
+                shot: { power: 0.95, direction: new THREE.Vector3(0.45, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.005, 0, 0) },
+                path: [{x:-0.6,z:1.3}, {x:-0.4,z:0.8}, {x:0.71,z:0}, {x:-0.71,z:-1.0}, {x:0.6,z:-1.2}]
             },
             {
                 name: "8. Retro-Banda Corta",
                 strategy: "Uso de retroceso (Draw) hacia banda corta.",
-                aim: "Apuntar centro de bola ROJA abajo (Retro).",
-                effect: "Retroceso fuerte abajo (15mm)",
+                aim: "Centro bola roja abajo.",
+                effect: "Retroceso fuerte",
                 power: "90%",
-                positions: [
-                    { x: 0.0, y: 0.83075, z: 0.0 }, { x: 0.0, y: 0.83075, z: -0.8 }, { x: -0.5, y: 0.83075, z: 0.5 }
-                ],
-                shot: { power: 0.9, direction: new THREE.Vector3(0.02, 0, -1).normalize(), hitOffset: new THREE.Vector3(0, -0.015, 0) }
+                positions: [{ x: 0.0, y: 0.83075, z: 0.0 }, { x: 0.0, y: 0.83075, z: -0.8 }, { x: -0.5, y: 0.83075, z: 0.5 }],
+                shot: { power: 0.9, direction: new THREE.Vector3(0.02, 0, -1).normalize(), hitOffset: new THREE.Vector3(0, -0.015, 0) },
+                path: [{x:0,z:0}, {x:0,z:-0.8}, {x:0,z:-1.42}, {x:-0.5,z:0.5}]
             },
             {
                 name: "9. Doble el Raíl",
                 strategy: "Rebote en la misma banda larga dos veces.",
-                aim: "Apuntar paralelo a la banda larga derecha.",
-                effect: "Efecto DERECHA (12mm)",
+                aim: "Paralelo a banda larga derecha.",
+                effect: "Efecto DERECHA",
                 power: "75%",
-                positions: [
-                    { x: 0.6, y: 0.83075, z: 1.0 }, { x: 0.55, y: 0.83075, z: 0.5 }, { x: 0.6, y: 0.83075, z: -1.0 }
-                ],
-                shot: { power: 0.75, direction: new THREE.Vector3(0.1, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.012, 0, 0) }
+                positions: [{ x: 0.6, y: 0.83075, z: 1.0 }, { x: 0.55, y: 0.83075, z: 0.5 }, { x: 0.6, y: 0.83075, z: -1.0 }],
+                shot: { power: 0.75, direction: new THREE.Vector3(0.1, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.012, 0, 0) },
+                path: [{x:0.6,z:1.0}, {x:0.71,z:0.5}, {x:0.71,z:-0.5}, {x:0.6,z:-1.0}]
             },
             {
                 name: "10. La Omega 5 Bandas",
                 strategy: "Recorrido completo por todo el perímetro.",
-                aim: "Apuntar bola ROJA muy finamente al rincón.",
-                effect: "Efecto DERECHA máximo (15mm)",
+                aim: "Bola roja muy fina al rincón.",
+                effect: "Efecto DERECHA máximo",
                 power: "98%",
-                positions: [
-                    { x: 0.0, y: 0.83075, z: 1.3 }, { x: 0.6, y: 0.83075, z: 0.8 }, { x: -0.3, y: 0.83075, z: 1.2 }
-                ],
-                shot: { power: 0.98, direction: new THREE.Vector3(0.75, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.015, 0, 0) }
+                positions: [{ x: 0.0, y: 0.83075, z: 1.3 }, { x: 0.6, y: 0.83075, z: 0.8 }, { x: -0.3, y: 0.83075, z: 1.2 }],
+                shot: { power: 0.98, direction: new THREE.Vector3(0.75, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.015, 0, 0) },
+                path: [{x:0,z:1.3}, {x:0.71,z:1.0}, {x:0.71,z:-1.0}, {x:-0.71,z:-1.0}, {x:-0.71,z:1.0}, {x:-0.3,z:1.2}]
             },
             {
                 name: "11. Bricole Corta Inicial",
-                strategy: "Banda corta antes de las largas para ganar ángulo.",
-                aim: "Apuntar banda inferior (abajo a la dcha).",
-                effect: "Efecto IZQUIERDA fuerte (10mm)",
+                strategy: "Banda corta antes de las largas.",
+                aim: "Banda inferior abajo a la dcha.",
+                effect: "Efecto IZQUIERDA",
                 power: "88%",
-                positions: [
-                    { x: 0.2, y: 0.83075, z: 1.3 }, { x: -0.5, y: 0.83075, z: -0.5 }, { x: 0.0, y: 0.83075, z: -1.0 }
-                ],
-                shot: { power: 0.88, direction: new THREE.Vector3(-0.35, 0, 1).normalize(), hitOffset: new THREE.Vector3(-0.01, 0, 0) }
+                positions: [{ x: 0.2, y: 0.83075, z: 1.3 }, { x: -0.5, y: 0.83075, z: -0.5 }, { x: 0.0, y: 0.83075, z: -1.0 }],
+                shot: { power: 0.88, direction: new THREE.Vector3(-0.35, 0, 1).normalize(), hitOffset: new THREE.Vector3(-0.01, 0, 0) },
+                path: [{x:0.2,z:1.3}, {x:0,z:1.42}, {x:-0.71,z:0}, {x:-0.5,z:-0.5}, {x:0,z:-1.0}]
             },
             {
                 name: "12. Ángulo Fino Diamante",
-                strategy: "Tiro técnico de precisión en el sistema Diamond.",
-                aim: "Apuntar al borde exterior de la bola ROJA.",
-                effect: "Efecto DERECHA suave (5mm)",
+                strategy: "Tiro técnico en sistema Diamond.",
+                aim: "Borde exterior de bola roja.",
+                effect: "Efecto DERECHA suave",
                 power: "85%",
-                positions: [
-                    { x: -0.2, y: 0.83075, z: 1.2 }, { x: -0.6, y: 0.83075, z: 1.25 }, { x: 0.5, y: 0.83075, z: -0.8 }
-                ],
-                shot: { power: 0.85, direction: new THREE.Vector3(-1, 0, 0.05).normalize(), hitOffset: new THREE.Vector3(0.005, 0, 0) }
+                positions: [{ x: -0.2, y: 0.83075, z: 1.2 }, { x: -0.6, y: 0.83075, z: 1.25 }, { x: 0.5, y: 0.83075, z: -0.8 }],
+                shot: { power: 0.85, direction: new THREE.Vector3(-1, 0, 0.05).normalize(), hitOffset: new THREE.Vector3(0.005, 0, 0) },
+                path: [{x:-0.2,z:1.2}, {x:-0.6,z:1.25}, {x:-0.71,z:1.3}, {x:0.71,z:0}, {x:0.5,z:-0.8}]
             },
             {
                 name: "13. El Siete (Zig Zag)",
                 strategy: "Recorrido en forma de 7 para bolas separadas.",
-                aim: "Apuntar banda izquierda superior.",
-                effect: "Efecto IZQUIERDA máximo (15mm)",
+                aim: "Banda izquierda superior.",
+                effect: "Efecto IZQUIERDA máximo",
                 power: "88%",
-                positions: [
-                    { x: 0.5, y: 0.83075, z: 1.3 }, { x: 0.4, y: 0.83075, z: 0.8 }, { x: 0.6, y: 0.83075, z: -0.5 }
-                ],
-                shot: { power: 0.88, direction: new THREE.Vector3(-0.15, 0, -1).normalize(), hitOffset: new THREE.Vector3(-0.015, 0, 0) }
+                positions: [{ x: 0.5, y: 0.83075, z: 1.3 }, { x: 0.4, y: 0.83075, z: 0.8 }, { x: 0.6, y: 0.83075, z: -0.5 }],
+                shot: { power: 0.88, direction: new THREE.Vector3(-0.15, 0, -1).normalize(), hitOffset: new THREE.Vector3(-0.015, 0, 0) },
+                path: [{x:0.5,z:1.3}, {x:0,z:1.42}, {x:-0.71,z:1.0}, {x:0.4,z:0.8}, {x:0.6,z:-0.5}]
             },
             {
                 name: "14. Doble Inversión",
-                strategy: "Giro invertido tras choque inicial para cerrar ángulo.",
-                aim: "Apuntar banda inferior izquierda.",
-                effect: "Efecto DERECHA fuerte (12mm)",
+                strategy: "Giro invertido tras choque inicial.",
+                aim: "Banda inferior izquierda.",
+                effect: "Efecto DERECHA fuerte",
                 power: "85%",
-                positions: [
-                    { x: -0.5, y: 0.83075, z: 0.0 }, { x: -0.55, y: 0.83075, z: 0.8 }, { x: 0.3, y: 0.83075, z: 0.0 }
-                ],
-                shot: { power: 0.85, direction: new THREE.Vector3(0.04, 0, 1).normalize(), hitOffset: new THREE.Vector3(0.012, 0, 0) }
+                positions: [{ x: -0.5, y: 0.83075, z: 0.0 }, { x: -0.55, y: 0.83075, z: 0.8 }, { x: 0.3, y: 0.83075, z: 0.0 }],
+                shot: { power: 0.85, direction: new THREE.Vector3(0.04, 0, 1).normalize(), hitOffset: new THREE.Vector3(0.012, 0, 0) },
+                path: [{x:-0.5,z:0}, {x:-0.55,z:0.8}, {x:-0.5,z:1.42}, {x:0.3,z:0}]
             },
             {
                 name: "15. La Serpiente (5 Bandas)",
                 strategy: "Culebrilla por las bandas largas.",
-                aim: "Apuntar a la bola ROJA medio-llena.",
-                effect: "Efecto DERECHA máximo (15mm)",
+                aim: "Bola roja medio-llena.",
+                effect: "Efecto DERECHA máximo",
                 power: "100%",
-                positions: [
-                    { x: 0.6, y: 0.83075, z: 1.4 }, { x: 0.55, y: 0.83075, z: 0.7 }, { x: -0.1, y: 0.83075, z: 1.3 }
-                ],
-                shot: { power: 1.0, direction: new THREE.Vector3(-0.05, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.015, 0, 0) }
+                positions: [{ x: 0.6, y: 0.83075, z: 1.4 }, { x: 0.55, y: 0.83075, z: 0.7 }, { x: -0.1, y: 0.83075, z: 1.3 }],
+                shot: { power: 1.0, direction: new THREE.Vector3(-0.05, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.015, 0, 0) },
+                path: [{x:0.6,z:1.4}, {x:-0.71,z:0.5}, {x:0.71,z:-0.5}, {x:-0.1,z:1.3}]
             },
             {
                 name: "16. Cajón Reverso Cerrado",
-                strategy: "Cajón corto desde el fondo de la mesa.",
-                aim: "Apuntar banda superior derecha.",
-                effect: "Efecto IZQUIERDA fuerte (10mm)",
+                strategy: "Cajón corto desde el fondo de mesa.",
+                aim: "Banda superior derecha.",
+                effect: "Efecto IZQUIERDA fuerte",
                 power: "88%",
-                positions: [
-                    { x: 0.0, y: 0.83075, z: -1.0 }, { x: 0.5, y: 0.83075, z: -1.2 }, { x: -0.4, y: 0.83075, z: -0.5 }
-                ],
-                shot: { power: 0.88, direction: new THREE.Vector3(1, 0, -0.25).normalize(), hitOffset: new THREE.Vector3(-0.01, 0, 0) }
+                positions: [{ x: 0.0, y: 0.83075, z: -1.0 }, { x: 0.5, y: 0.83075, z: -1.2 }, { x: -0.4, y: 0.83075, z: -0.5 }],
+                shot: { power: 0.88, direction: new THREE.Vector3(1, 0, -0.25).normalize(), hitOffset: new THREE.Vector3(-0.01, 0, 0) },
+                path: [{x:0,z:-1.0}, {x:0.71,z:-1.2}, {x:0.5,z:-1.42}, {x:-0.4,z:-0.5}]
             },
             {
                 name: "17. Cruce Largo LKL",
-                strategy: "Cruce central de banda larga a banda larga.",
-                aim: "Apuntar bola ROJA suavemente al lateral.",
-                effect: "Efecto DERECHA suave (5mm)",
+                strategy: "Cruce central entre bandas largas.",
+                aim: "Bola roja suave al lateral.",
+                effect: "Efecto DERECHA suave",
                 power: "88%",
-                positions: [
-                    { x: -0.6, y: 0.83075, z: 0.0 }, { x: -0.55, y: 0.83075, z: -0.8 }, { x: 0.4, y: 0.83075, z: 1.2 }
-                ],
-                shot: { power: 0.88, direction: new THREE.Vector3(0.08, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.005, 0, 0) }
+                positions: [{ x: -0.6, y: 0.83075, z: 0.0 }, { x: -0.55, y: 0.83075, z: -0.8 }, { x: 0.4, y: 0.83075, z: 1.2 }],
+                shot: { power: 0.88, direction: new THREE.Vector3(0.08, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.005, 0, 0) },
+                path: [{x:-0.6,z:0}, {x:-0.71,z:-0.8}, {x:0.4,z:1.2}]
             },
             {
                 name: "18. Diamante 50 (Sistema)",
-                strategy: "Tiro clásico por diamantes para ganar el rincón.",
-                aim: "Apuntar al diamante 5 (banda larga derecha).",
-                effect: "Efecto DERECHA fuerte (12mm)",
+                strategy: "Tiro clásico técnica de rincón.",
+                aim: "Diamante 5 (banda larga dcha).",
+                effect: "Efecto DERECHA fuerte",
                 power: "95%",
-                positions: [
-                    { x: 0.0, y: 0.83075, z: 1.42 }, { x: 0.5, y: 0.83075, z: 0.0 }, { x: -0.6, y: 0.83075, z: 0.1 }
-                ],
-                shot: { power: 0.95, direction: new THREE.Vector3(0.65, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.012, 0, 0) }
+                positions: [{ x: 0.0, y: 0.83075, z: 1.42 }, { x: 0.5, y: 0.83075, z: 0.0 }, { x: -0.6, y: 0.83075, z: 0.1 }],
+                shot: { power: 0.95, direction: new THREE.Vector3(0.65, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.012, 0, 0) },
+                path: [{x:0,z:1.42}, {x:0.71,z:0}, {x:-0.71,z:-1.0}, {x:-0.6,z:0.1}]
             },
             {
                 name: "19. El Avión (Vuelo Largo)",
-                strategy: "Triple diagonal cruzada entre bandas extremas.",
-                aim: "Apuntar bola ROJA finamente arriba.",
-                effect: "Efecto DERECHA máximo (15mm)",
+                strategy: "Triple diagonal cruzada extrema.",
+                aim: "Bola roja fina arriba.",
+                effect: "Efecto DERECHA máximo",
                 power: "95%",
-                positions: [
-                    { x: -0.4, y: 0.83075, z: 1.2 }, { x: 0.4, y: 0.83075, z: 1.3 }, { x: -0.2, y: 0.83075, z: -1.3 }
-                ],
-                shot: { power: 0.95, direction: new THREE.Vector3(1, 0, 0.05).normalize(), hitOffset: new THREE.Vector3(0.015, 0, 0) }
+                positions: [{ x: -0.4, y: 0.83075, z: 1.2 }, { x: 0.4, y: 0.83075, z: 1.3 }, { x: -0.2, y: 0.83075, z: -1.3 }],
+                shot: { power: 0.95, direction: new THREE.Vector3(1, 0, 0.05).normalize(), hitOffset: new THREE.Vector3(0.015, 0, 0) },
+                path: [{x:-0.4,z:1.2}, {x:0.71,z:1.3}, {x:-0.71,z:-1.3}, {x:-0.2,z:-1.3}]
             },
             {
                 name: "20. Gran Maestro Pincelada",
-                strategy: "Toque ultra-fino para recorrer toda la mesa suavemente.",
-                aim: "Apuntar al borde de la bola AMARILLA.",
-                effect: "Efecto IZQUIERDA máximo (18mm)",
+                strategy: "Toque ultra-fino suave.",
+                aim: "Borde de bola amarilla.",
+                effect: "Efecto IZQUIERDA máximo",
                 power: "95%",
-                positions: [
-                    { x: 0.6, y: 0.83075, z: -1.2 }, { x: 0.65, y: 0.83075, z: 1.2 }, { x: -0.5, y: 0.83075, z: -1.0 }
-                ],
-                shot: { power: 0.95, direction: new THREE.Vector3(-0.02, 0, 1).normalize(), hitOffset: new THREE.Vector3(-0.018, 0, 0) }
+                positions: [{ x: 0.6, y: 0.83075, z: -1.2 }, { x: 0.65, y: 0.83075, z: 1.2 }, { x: -0.5, y: 0.83075, z: -1.0 }],
+                shot: { power: 0.95, direction: new THREE.Vector3(-0.02, 0, 1).normalize(), hitOffset: new THREE.Vector3(-0.018, 0, 0) },
+                path: [{x:0.6,z:-1.2}, {x:0.71,z:1.2}, {x:0.65,z:1.2}, {x:-0.5,z:-1.0}]
             }
         ];
         
         this.currentPlayIndex = 0;
         this.isSimulating = false;
-        this.logInterval = null;
-        
-        // Internal physics world for pre-simulation
-        this.tempWorld = new CANNON.World();
-        this.tempWorld.gravity.set(0, -9.82, 0);
-        this.tempWorld.solver.iterations = 10;
-        
-        this.cancelSearch = false;
-        
         this.createTrajectoryLine();
     }
 
@@ -250,12 +221,12 @@ export class MasterPlayManager {
             color: 0x00ffff,
             transparent: true,
             opacity: 0.8,
-            linewidth: 3 // Note: linewidth 1 on most browsers for LineBasicMaterial
+            linewidth: 3
         });
         const geometry = new THREE.BufferGeometry();
         this.trajectoryLine = new THREE.Line(geometry, material);
         this.trajectoryLine.visible = false;
-        this.trajectoryLine.renderOrder = 2000; // Above table
+        this.trajectoryLine.renderOrder = 2000;
         this.scene.add(this.trajectoryLine);
     }
 
@@ -264,10 +235,9 @@ export class MasterPlayManager {
         if (!whiteBall) return;
         
         const start = whiteBall.mesh.position.clone();
-        // Place slightly above table for visibility
         start.y = 0.835; 
         
-        const end = start.clone().add(direction.clone().multiplyScalar(1.2)); // 1.2m line
+        const end = start.clone().add(direction.clone().multiplyScalar(1.2));
         
         const geometry = new THREE.BufferGeometry().setFromPoints([start, end]);
         this.trajectoryLine.geometry.dispose();
@@ -276,21 +246,17 @@ export class MasterPlayManager {
     }
 
     showNextPlay() {
-        // CANCEL any pending or ongoing simulation
         if (this.monitorInterval) clearInterval(this.monitorInterval);
         if (this.shotTimeout) clearTimeout(this.shotTimeout);
         if (this.safetyTimeout) clearTimeout(this.safetyTimeout);
         
         this.isSimulating = false;
-        this.cancelSearch = true; // Detener cualquier búsqueda asíncrona en curso
         
         const play = this.plays[this.currentPlayIndex];
         this.currentPlayIndex = (this.currentPlayIndex + 1) % this.plays.length;
         
-        // Save state for undo
         this.xrHandler.savePreShotState();
         
-        // Reposition balls in main world
         this.balls.forEach((ball, i) => {
             const pos = play.positions[i];
             ball.body.position.set(pos.x, pos.y, pos.z);
@@ -300,57 +266,26 @@ export class MasterPlayManager {
             ball.mesh.position.set(pos.x, pos.y, pos.z);
         });
 
-        // MOSTRAR ESTRATEGIA DETALLADA Y ESQUEMA
         if (this.xrHandler) {
             const strategyInfo = `${play.name}\nESTRATEGIA: ${play.strategy}\nAPUNTAR: ${play.aim}\nEFECTO: ${play.effect}\nFUERZA: ${play.power}`.trim();
-            this.xrHandler.showHUDMessage(strategyInfo, 5000);
+            this.xrHandler.showHUDMessage(strategyInfo, 8000);
             
-            // BUSCAR ÁNGULO Y TRAYECTORIA
-            const optimizedShot = this.findOptimizedShot(play);
-            this.lastOptimizedShot = optimizedShot;
-            
-            // ACTUALIZAR ESQUEMA EN HUD
-            this.xrHandler.currentMasterPath = optimizedShot.path;
+            this.xrHandler.currentMasterPath = play.path;
             this.xrHandler.currentMasterBalls = play.positions;
             this.xrHandler.updateHUDContent();
             
-            // ALINEAR JUGADOR DETRÁS DE LA BOLA BLANCA (Perspectiva normal)
             const whitePos = play.positions[0];
-            this.xrHandler.alignWithShot(whitePos, optimizedShot.direction);
+            this.xrHandler.alignWithShot(whitePos, play.shot.direction);
             
-            this.updateTrajectoryLine(optimizedShot.direction);
+            this.updateTrajectoryLine(play.shot.direction);
         }
 
-        // ESPERAR A QUE EL USUARIO LEA Y LUEGO CALCULAR/EJECUTAR
-        this.shotTimeout = setTimeout(async () => {
-            // Ocultar la línea de ayuda justo antes del impacto
+        this.shotTimeout = setTimeout(() => {
             this.trajectoryLine.visible = false;
-            
             this.isSimulating = true;
-            this.cancelSearch = false;
-            const optimizedShot = await this.findOptimizedShot(play);
-            this.lastOptimizedShot = optimizedShot;
-            
-            if (this.cancelSearch) {
-                console.log("MAESTRO: Búsqueda cancelada.");
-                this.isSimulating = false;
-                return;
-            }
-
-            // ACTUALIZAR ESQUEMA EN HUD CON RESULTADO FINAL
-            if (this.xrHandler) {
-                this.xrHandler.currentMasterPath = optimizedShot.path;
-                this.xrHandler.currentMasterBalls = play.positions;
-                this.xrHandler.updateHUDContent();
-                
-                const whitePos = play.positions[0];
-                this.xrHandler.alignWithShot(whitePos, optimizedShot.direction);
-            }
-
-            this.executeShot(this.lastOptimizedShot);
-            this.startLogging();
+            this.executeShot(play.shot);
             this.monitorShotAndReleaseLock();
-        }, 5000); 
+        }, 8000); 
 
         return play.name;
     }
@@ -365,220 +300,45 @@ export class MasterPlayManager {
                 totalVelocity += b.body.velocity.length();
             });
 
-            // If balls are essentially still for a few checks
             if (totalVelocity < 0.01) {
                 quietFrames++;
             } else {
                 quietFrames = 0;
             }
 
-            if (quietFrames > 3) { // 0.6 seconds of stillness
+            if (quietFrames > 3) {
                 clearInterval(this.monitorInterval);
                 this.isSimulating = false;
-                this.stopLogging();
                 
-                // RESTAURAR VISTA AL FINALIZAR LA JUGADA (MODO MAESTRO)
                 if (this.xrHandler) {
                     this.xrHandler.currentMasterPath = null;
                     this.xrHandler.currentMasterBalls = null;
                     this.xrHandler.updateHUDContent();
                     this.xrHandler.restoreView();
                 }
-                
-                console.log("MAESTRO: Movimiento cesado. Listo para nueva jugada.");
             }
         }, 200);
 
-        // Safety timeout (10 seconds)
         this.safetyTimeout = setTimeout(() => {
             if (this.isSimulating) {
                 clearInterval(this.monitorInterval);
                 this.isSimulating = false;
-                this.stopLogging();
                 
-                // RESTAURAR VISTA EN CASO DE TIMEOUT
                 if (this.xrHandler) {
                     this.xrHandler.currentMasterPath = null;
                     this.xrHandler.currentMasterBalls = null;
                     this.xrHandler.updateHUDContent();
                     this.xrHandler.restoreView();
                 }
-                
-                console.log("MAESTRO: Seguridad activada. Bloqueo liberado por tiempo.");
             }
         }, 10000);
-    }
-
-    async findOptimizedShot(play) {
-        let bestAngle = 0;
-        const baseDir = play.shot.direction;
-        const baseAngle = Math.atan2(baseDir.x, baseDir.z);
-        
-        const totalRange = 1.05; // 60 deg total
-        const steps = 120;
-        let found = false;
-        let foundPath = [];
-
-        for (let i = 0; i < steps; i++) {
-            if (this.cancelSearch) break;
-
-            const offset = (i / steps - 0.5) * totalRange;
-            const angle = baseAngle + offset;
-            const result = this.testShot(play, angle);
-            
-            if (result.success) {
-                bestAngle = angle;
-                found = true;
-                foundPath = result.path;
-                break; 
-            }
-
-            // Liberar el hilo principal cada 8 intentos para mantener fluidez (aprox 60-120ms de bloqueo máx)
-            if (i % 8 === 0) {
-                if (this.xrHandler) {
-                    const progress = Math.round((i / steps) * 100);
-                    this.xrHandler.showHUDMessage(`Maestro calculando trayectoria... ${progress}%`, 500);
-                }
-                await new Promise(resolve => setTimeout(resolve, 0));
-            }
-        }
-
-        if (found) {
-            return {
-                ...play.shot,
-                direction: new THREE.Vector3(Math.sin(bestAngle), 0, Math.cos(bestAngle)),
-                path: foundPath
-            };
-        }
-        
-        console.warn("MAESTRO: No se encontró trayectoria perfecta, usando base.");
-        return { ...play.shot, direction: baseDir.clone(), path: null };
-    }
-
-    testShot(play, angle) {
-        // Setup mini-world with EXACT parameters from PhysicsWorld.js, Table.js and Ball.js
-        const world = new CANNON.World();
-        world.gravity.set(0, -9.82, 0);
-        world.solver.iterations = 20; // Match PhysicsWorld.js exactly
-
-        const ballMat = new CANNON.Material();
-        const cushionMat = new CANNON.Material();
-        const tableMat = new CANNON.Material();
-
-        world.addContactMaterial(new CANNON.ContactMaterial(ballMat, cushionMat, { friction: 0.01, restitution: 0.72 }));
-        world.addContactMaterial(new CANNON.ContactMaterial(ballMat, tableMat, { friction: 0.225, restitution: 0.7 }));
-        world.addContactMaterial(new CANNON.ContactMaterial(ballMat, ballMat, { friction: 0.1, restitution: 0.9 }));
-
-        // Add balls with correct mass and DAMPING (MATCH Ball.js)
-        const balls = play.positions.map((pos, i) => {
-            const b = new CANNON.Body({ 
-                mass: 0.21, 
-                shape: new CANNON.Sphere(0.03075),
-                material: ballMat,
-                linearDamping: 0.15, // Match new tournament damping
-                angularDamping: 0.2
-            });
-            b.position.set(pos.x, pos.y, pos.z);
-            world.addBody(b);
-            return b;
-        });
-
-        // Add cushions as BOXES (Match Table.js exactly)
-        const cushionThickness = 0.1;
-        const cushionHeight = 0.08;
-        const addCushion = (w, l, x, z) => {
-            const b = new CANNON.Body({ mass: 0, material: cushionMat });
-            b.addShape(new CANNON.Box(new CANNON.Vec3(w / 2, cushionHeight / 2, l / 2)));
-            b.position.set(x, 0.8 + cushionHeight / 2, z);
-            world.addBody(b);
-        };
-        
-        const tw = 1.42; // Table width
-        const tl = 2.84; // Table length
-        
-        // AGREGAR SUELO (IMPORTANTE: Faltaba en el test anterior)
-        const bedShape = new CANNON.Box(new CANNON.Vec3(tw / 2, 0.025, tl / 2));
-        const bedBody = new CANNON.Body({ mass: 0, material: tableMat });
-        bedBody.addShape(bedShape);
-        bedBody.position.set(0, 0.8, 0);
-        world.addBody(bedBody);
-
-        addCushion(cushionThickness, tl, -tw / 2 - cushionThickness / 2, 0); // L
-        addCushion(cushionThickness, tl, tw / 2 + cushionThickness / 2, 0);  // R
-        addCushion(tw, cushionThickness, 0, -tl / 2 - cushionThickness / 2); // T
-        addCushion(tw, cushionThickness, 0, tl / 2 + cushionThickness / 2);  // B
-
-        // Execute shot
-        const impulseMag = Math.pow(play.shot.power, 2) * 0.10; 
-        const dir = new THREE.Vector3(Math.sin(angle), 0, Math.cos(angle)).normalize();
-        const impulse = new CANNON.Vec3(dir.x * impulseMag, 0, dir.z * impulseMag);
-        
-        // APLICAR SPIN EN TEST
-        const worldPos = balls[0].position;
-        const hitOffset = play.shot.hitOffset;
-        
-        // Vector lateral (right) y vertical (up) relativo a la dirección del tiro
-        const right = new THREE.Vector3(0, 1, 0).cross(dir).normalize();
-        const up = new THREE.Vector3(0, 1, 0);
-        
-        const offsetWorld = right.clone().multiplyScalar(hitOffset.x)
-                             .add(up.clone().multiplyScalar(hitOffset.y));
-
-        const worldPoint = new CANNON.Vec3(
-            worldPos.x + offsetWorld.x, 
-            worldPos.y + offsetWorld.y,
-            worldPos.z + offsetWorld.z
-        );
-
-        balls[0].applyImpulse(impulse, worldPoint);
-
-        const path = [{ x: balls[0].position.x, z: balls[0].position.z }];
-        let lastPos = balls[0].position.clone();
-
-        balls[0].addEventListener('collide', (e) => {
-            const other = e.body;
-            
-            // Solo añadir al path si la bola blanca se ha movido significativamente (evitar redundancia)
-            const dist = balls[0].position.distanceTo(lastPos);
-            if (dist > 0.02) {
-                path.push({ x: balls[0].position.x, z: balls[0].position.z });
-                lastPos.copy(balls[0].position);
-            }
-
-            // Identificar si es banda
-            if (other.material === cushionMat) {
-                cushionCount++;
-            }
-            // Identificar bolas
-            if (other === balls[1]) {
-                hitFirst = true;
-            }
-            if (other === balls[2]) {
-                if (hitFirst && cushionCount >= 3) hitSecond = true;
-                if (!hitFirst && cushionCount >= 3) hitFirst = true; 
-            }
-        });
-
-        // Simulación completa (10 segundos)
-        for (let i = 0; i < 600; i++) {
-            world.step(1/60);
-            if (hitFirst && hitSecond && cushionCount >= 3) {
-                path.push({ x: balls[0].position.x, z: balls[0].position.z });
-                return { success: true, path: path };
-            }
-        }
-
-        return { success: false };
     }
 
     executeShot(shot) {
         const whiteBall = this.balls[0];
         const { power, direction, hitOffset } = shot;
+        const forceMagnitude = Math.pow(power, 2) * 0.10;
         
-        const maxForce = 0.10; // Reducido
-        const forceMagnitude = Math.pow(power, 2) * maxForce;
-        
-        // Ensure strictly horizontal direction
         const dir = direction.clone();
         dir.y = 0;
         dir.normalize();
@@ -586,9 +346,7 @@ export class MasterPlayManager {
         const force = dir.clone().multiplyScalar(forceMagnitude);
         const impulse = new CANNON.Vec3(force.x, 0, force.z); 
         
-        // APLICAR SPIN: El punto de impacto NO es el centro si hitOffset != 0
         const worldPos = whiteBall.body.position;
-        // hitOffset.x = lado, hitOffset.y = altura (retro/corrida)
         const right = new THREE.Vector3(0, 1, 0).cross(dir).normalize();
         const up = new THREE.Vector3(0, 1, 0);
         
@@ -602,7 +360,6 @@ export class MasterPlayManager {
         );
 
         if (this.gameLogic) this.gameLogic.startShot();
-        
         whiteBall.body.wakeUp();
         whiteBall.body.applyImpulse(impulse, worldPoint);
     }
