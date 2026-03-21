@@ -240,6 +240,8 @@ export class MasterPlayManager {
         this.tempWorld.gravity.set(0, -9.82, 0);
         this.tempWorld.solver.iterations = 10;
         
+        this.cancelSearch = false;
+        
         this.createTrajectoryLine();
     }
 
@@ -280,6 +282,7 @@ export class MasterPlayManager {
         if (this.safetyTimeout) clearTimeout(this.safetyTimeout);
         
         this.isSimulating = false;
+        this.cancelSearch = true; // Detener cualquier búsqueda asíncrona en curso
         
         const play = this.plays[this.currentPlayIndex];
         this.currentPlayIndex = (this.currentPlayIndex + 1) % this.plays.length;
@@ -319,11 +322,31 @@ export class MasterPlayManager {
         }
 
         // ESPERAR A QUE EL USUARIO LEA Y LUEGO CALCULAR/EJECUTAR
-        this.shotTimeout = setTimeout(() => {
+        this.shotTimeout = setTimeout(async () => {
             // Ocultar la línea de ayuda justo antes del impacto
             this.trajectoryLine.visible = false;
             
             this.isSimulating = true;
+            this.cancelSearch = false;
+            const optimizedShot = await this.findOptimizedShot(play);
+            this.lastOptimizedShot = optimizedShot;
+            
+            if (this.cancelSearch) {
+                console.log("MAESTRO: Búsqueda cancelada.");
+                this.isSimulating = false;
+                return;
+            }
+
+            // ACTUALIZAR ESQUEMA EN HUD CON RESULTADO FINAL
+            if (this.xrHandler) {
+                this.xrHandler.currentMasterPath = optimizedShot.path;
+                this.xrHandler.currentMasterBalls = play.positions;
+                this.xrHandler.updateHUDContent();
+                
+                const whitePos = play.positions[0];
+                this.xrHandler.alignWithShot(whitePos, optimizedShot.direction);
+            }
+
             this.executeShot(this.lastOptimizedShot);
             this.startLogging();
             this.monitorShotAndReleaseLock();
@@ -386,32 +409,37 @@ export class MasterPlayManager {
         }, 10000);
     }
 
-    findOptimizedShot(play) {
+    async findOptimizedShot(play) {
         let bestAngle = 0;
         const baseDir = play.shot.direction;
         const baseAngle = Math.atan2(baseDir.x, baseDir.z);
         
         const totalRange = 1.05; // 60 deg total
-        
-        // Búsqueda exhaustiva (120 pasos) para máxima precisión
-        // Ahora que el sistema es interrumpible, no importa si tarda 1-2 segundos.
         const steps = 120;
         let found = false;
-
-        if (this.xrHandler) this.xrHandler.showHUDMessage("Maestro calculando trayectoria perfecta...", 1000);
-
         let foundPath = [];
+
         for (let i = 0; i < steps; i++) {
+            if (this.cancelSearch) break;
+
             const offset = (i / steps - 0.5) * totalRange;
             const angle = baseAngle + offset;
             const result = this.testShot(play, angle);
+            
             if (result.success) {
                 bestAngle = angle;
                 found = true;
                 foundPath = result.path;
-                const offsetDeg = (offset * 180 / Math.PI).toFixed(1);
-                console.log(`MAESTRO: ¡Trayectoria encontrada! Corrección: ${offsetDeg}º`);
-                break; // Usamos el primero que funcione para velocidad
+                break; 
+            }
+
+            // Liberar el hilo principal cada 8 intentos para mantener fluidez (aprox 60-120ms de bloqueo máx)
+            if (i % 8 === 0) {
+                if (this.xrHandler) {
+                    const progress = Math.round((i / steps) * 100);
+                    this.xrHandler.showHUDMessage(`Maestro calculando trayectoria... ${progress}%`, 500);
+                }
+                await new Promise(resolve => setTimeout(resolve, 0));
             }
         }
 
@@ -424,7 +452,7 @@ export class MasterPlayManager {
         }
         
         console.warn("MAESTRO: No se encontró trayectoria perfecta, usando base.");
-        return { ...play.shot, direction: baseDir.clone() };
+        return { ...play.shot, direction: baseDir.clone(), path: null };
     }
 
     testShot(play, angle) {
@@ -505,9 +533,18 @@ export class MasterPlayManager {
         balls[0].applyImpulse(impulse, worldPoint);
 
         const path = [{ x: balls[0].position.x, z: balls[0].position.z }];
+        let lastPos = balls[0].position.clone();
+
         balls[0].addEventListener('collide', (e) => {
             const other = e.body;
-            path.push({ x: balls[0].position.x, z: balls[0].position.z });
+            
+            // Solo añadir al path si la bola blanca se ha movido significativamente (evitar redundancia)
+            const dist = balls[0].position.distanceTo(lastPos);
+            if (dist > 0.02) {
+                path.push({ x: balls[0].position.x, z: balls[0].position.z });
+                lastPos.copy(balls[0].position);
+            }
+
             // Identificar si es banda
             if (other.material === cushionMat) {
                 cushionCount++;
