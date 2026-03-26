@@ -18,7 +18,7 @@ export class PhysicsWorld {
             this.defaultMaterial,
             {
                 friction: 0.225, // Reduced from 0.45 by half
-                restitution: 0.7 // Bounciness
+                restitution: 0.05 // Reduced from 0.7 to avoid micro-bounces that deflect shots
             }
         );
         this.world.addContactMaterial(ballTableContactMaterial);

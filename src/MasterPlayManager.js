@@ -15,7 +15,7 @@ export class MasterPlayManager {
                 aim: "Banda izquierda a 1.3m.",
                 effect: "Efecto DERECHA",
                 power: "92%",
-                positions: [{ x: 0.0, y: 0.83075, z: 1.3 }, { x: 0.5, y: 0.83075, z: -0.2 }, { x: 0.4, y: 0.83075, z: -0.4 }],
+                positions: [{ x: 0.0, y: 0.85575, z: 1.3 }, { x: 0.5, y: 0.85575, z: -0.2 }, { x: 0.4, y: 0.85575, z: -0.4 }],
                 shot: { power: 0.92, direction: new THREE.Vector3(-0.55, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.012, 0, 0) },
                 path: [{x:0,z:1.3}, {x:-0.71,z:-0.2}, {x:0,z:-1.42}, {x:0.71,z:0}, {x:0.5,z:-0.2}, {x:0.4,z:-0.4}]
             },
@@ -25,7 +25,7 @@ export class MasterPlayManager {
                 aim: "Bola roja fina por la derecha.",
                 effect: "Efecto DERECHA ligero",
                 power: "82%",
-                positions: [{ x: 0.355, y: 0.83075, z: 1.0 }, { x: 0.55, y: 0.83075, z: -0.2 }, { x: -0.5, y: 0.83075, z: 0.8 }],
+                positions: [{ x: 0.355, y: 0.85575, z: 1.0 }, { x: 0.55, y: 0.85575, z: -0.2 }, { x: -0.5, y: 0.85575, z: 0.8 }],
                 shot: { power: 0.82, direction: new THREE.Vector3(0.25, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.005, 0, 0) },
                 path: [{x:0.355,z:1.0}, {x:0.55,z:-0.2}, {x:0.71,z:-1.0}, {x:0,z:-1.42}, {x:-0.71,z:0}, {x:-0.5,z:0.8}]
             },
@@ -35,7 +35,7 @@ export class MasterPlayManager {
                 aim: "Banda inferior a 0.4m del rincón.",
                 effect: "Efecto IZQUIERDA fuerte",
                 power: "88%",
-                positions: [{ x: -0.4, y: 0.83075, z: 1.2 }, { x: 0.3, y: 0.83075, z: 1.0 }, { x: 0.5, y: 0.83075, z: -1.0 }],
+                positions: [{ x: -0.4, y: 0.85575, z: 1.2 }, { x: 0.3, y: 0.85575, z: 1.0 }, { x: 0.5, y: 0.85575, z: -1.0 }],
                 shot: { power: 0.88, direction: new THREE.Vector3(0.75, 0, -1).normalize(), hitOffset: new THREE.Vector3(-0.015, 0, 0) },
                 path: [{x:-0.4,z:1.2}, {x:0.71,z:0.5}, {x:-0.71,z:-0.5}, {x:0.3,z:1.0}, {x:0.5,z:-1.0}]
             },
@@ -45,7 +45,7 @@ export class MasterPlayManager {
                 aim: "Banda superior izquierda.",
                 effect: "Efecto DERECHA",
                 power: "72%",
-                positions: [{ x: 0.0, y: 0.83075, z: -1.0 }, { x: -0.3, y: 0.83075, z: -1.3 }, { x: 0.3, y: 0.83075, z: -1.3 }],
+                positions: [{ x: 0.0, y: 0.85575, z: -1.0 }, { x: -0.3, y: 0.85575, z: -1.3 }, { x: 0.3, y: 0.85575, z: -1.3 }],
                 shot: { power: 0.72, direction: new THREE.Vector3(-0.45, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.01, 0, 0) },
                 path: [{x:0,z:-1.0}, {x:-0.5,z:-1.42}, {x:0.5,z:-1.42}, {x:-0.3,z:-1.3}, {x:0.3,z:-1.3}]
             },
@@ -55,7 +55,7 @@ export class MasterPlayManager {
                 aim: "Bola roja directamente a banda larga.",
                 effect: "Efecto DERECHA",
                 power: "78%",
-                positions: [{ x: -0.5, y: 0.83075, z: 1.1 }, { x: -0.6, y: 0.83075, z: 0.2 }, { x: -0.4, y: 0.83075, z: 0.0 }],
+                positions: [{ x: -0.5, y: 0.85575, z: 1.1 }, { x: -0.6, y: 0.85575, z: 0.2 }, { x: -0.4, y: 0.85575, z: 0.0 }],
                 shot: { power: 0.78, direction: new THREE.Vector3(0.12, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.008, 0, 0) },
                 path: [{x:-0.5,z:1.1}, {x:-0.6,z:0.2}, {x:-0.71,z:-0.5}, {x:0,z:-1.42}, {x:-0.4,z:0}]
             },
@@ -65,7 +65,7 @@ export class MasterPlayManager {
                 aim: "Banda derecha con efecto contrario.",
                 effect: "Efecto IZQUIERDA",
                 power: "85%",
-                positions: [{ x: 0.5, y: 0.83075, z: 0.5 }, { x: 0.55, y: 0.83075, z: -0.8 }, { x: -0.2, y: 0.83075, z: -0.5 }],
+                positions: [{ x: 0.5, y: 0.85575, z: 0.5 }, { x: 0.55, y: 0.85575, z: -0.8 }, { x: -0.2, y: 0.85575, z: -0.5 }],
                 shot: { power: 0.85, direction: new THREE.Vector3(0.08, 0, -1).normalize(), hitOffset: new THREE.Vector3(-0.012, 0, 0) },
                 path: [{x:0.5,z:0.5}, {x:0.71,z:-1.0}, {x:0,z:-1.42}, {x:-0.71,z:-1.0}, {x:-0.2,z:-0.5}]
             },
@@ -75,7 +75,7 @@ export class MasterPlayManager {
                 aim: "Bola roja al centro de la mesa.",
                 effect: "Efecto DERECHA suave",
                 power: "95%",
-                positions: [{ x: -0.6, y: 0.83075, z: 1.3 }, { x: -0.4, y: 0.83075, z: 0.8 }, { x: 0.6, y: 0.83075, z: -1.2 }],
+                positions: [{ x: -0.6, y: 0.85575, z: 1.3 }, { x: -0.4, y: 0.85575, z: 0.8 }, { x: 0.6, y: 0.85575, z: -1.2 }],
                 shot: { power: 0.95, direction: new THREE.Vector3(0.45, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.005, 0, 0) },
                 path: [{x:-0.6,z:1.3}, {x:-0.4,z:0.8}, {x:0.71,z:0}, {x:-0.71,z:-1.0}, {x:0.6,z:-1.2}]
             },
@@ -85,7 +85,7 @@ export class MasterPlayManager {
                 aim: "Centro bola roja abajo.",
                 effect: "Retroceso fuerte",
                 power: "90%",
-                positions: [{ x: 0.0, y: 0.83075, z: 0.0 }, { x: 0.0, y: 0.83075, z: -0.8 }, { x: -0.5, y: 0.83075, z: 0.5 }],
+                positions: [{ x: 0.0, y: 0.85575, z: 0.0 }, { x: 0.0, y: 0.85575, z: -0.8 }, { x: -0.5, y: 0.85575, z: 0.5 }],
                 shot: { power: 0.9, direction: new THREE.Vector3(0.02, 0, -1).normalize(), hitOffset: new THREE.Vector3(0, -0.015, 0) },
                 path: [{x:0,z:0}, {x:0,z:-0.8}, {x:0,z:-1.42}, {x:0.71,z:0}, {x:0,z:1.42}, {x:-0.5,z:0.5}]
             },
@@ -95,7 +95,7 @@ export class MasterPlayManager {
                 aim: "Paralelo a banda larga derecha.",
                 effect: "Efecto DERECHA",
                 power: "75%",
-                positions: [{ x: 0.6, y: 0.83075, z: 1.0 }, { x: 0.55, y: 0.83075, z: 0.5 }, { x: 0.6, y: 0.83075, z: -1.0 }],
+                positions: [{ x: 0.6, y: 0.85575, z: 1.0 }, { x: 0.55, y: 0.85575, z: 0.5 }, { x: 0.6, y: 0.85575, z: -1.0 }],
                 shot: { power: 0.75, direction: new THREE.Vector3(0.1, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.012, 0, 0) },
                 path: [{x:0.6,z:1.0}, {x:0.71,z:0.5}, {x:0.71,z:-0.5}, {x:0,z:-1.42}, {x:-0.71,z:-0.5}, {x:0.6,z:-1.0}]
             },
@@ -105,7 +105,7 @@ export class MasterPlayManager {
                 aim: "Bola roja muy fina al rincón.",
                 effect: "Efecto DERECHA máximo",
                 power: "98%",
-                positions: [{ x: 0.0, y: 0.83075, z: 1.3 }, { x: 0.6, y: 0.83075, z: 0.8 }, { x: -0.3, y: 0.83075, z: 1.2 }],
+                positions: [{ x: 0.0, y: 0.85575, z: 1.3 }, { x: 0.6, y: 0.85575, z: 0.8 }, { x: -0.3, y: 0.85575, z: 1.2 }],
                 shot: { power: 0.98, direction: new THREE.Vector3(0.75, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.015, 0, 0) },
                 path: [{x:0,z:1.3}, {x:0.71,z:1.0}, {x:0.71,z:-1.0}, {x:-0.71,z:-1.0}, {x:-0.71,z:1.0}, {x:-0.3,z:1.2}]
             },
@@ -115,7 +115,7 @@ export class MasterPlayManager {
                 aim: "Banda inferior abajo a la dcha.",
                 effect: "Efecto IZQUIERDA",
                 power: "88%",
-                positions: [{ x: 0.2, y: 0.83075, z: 1.3 }, { x: -0.5, y: 0.83075, z: -0.5 }, { x: 0.0, y: 0.83075, z: -1.0 }],
+                positions: [{ x: 0.2, y: 0.85575, z: 1.3 }, { x: -0.5, y: 0.85575, z: -0.5 }, { x: 0.0, y: 0.85575, z: -1.0 }],
                 shot: { power: 0.88, direction: new THREE.Vector3(-0.35, 0, 1).normalize(), hitOffset: new THREE.Vector3(-0.01, 0, 0) },
                 path: [{x:0.2,z:1.3}, {x:0,z:1.42}, {x:-0.71,z:0}, {x:-0.5,z:-0.5}, {x:0,z:-1.0}]
             },
@@ -125,7 +125,7 @@ export class MasterPlayManager {
                 aim: "Borde exterior de bola roja.",
                 effect: "Efecto DERECHA suave",
                 power: "85%",
-                positions: [{ x: -0.2, y: 0.83075, z: 1.2 }, { x: -0.6, y: 0.83075, z: 1.25 }, { x: 0.5, y: 0.83075, z: -0.8 }],
+                positions: [{ x: -0.2, y: 0.85575, z: 1.2 }, { x: -0.6, y: 0.85575, z: 1.25 }, { x: 0.5, y: 0.85575, z: -0.8 }],
                 shot: { power: 0.85, direction: new THREE.Vector3(-1, 0, 0.05).normalize(), hitOffset: new THREE.Vector3(0.005, 0, 0) },
                 path: [{x:-0.2,z:1.2}, {x:-0.6,z:1.25}, {x:-0.71,z:1.3}, {x:0.71,z:0}, {x:0.5,z:-0.8}]
             },
@@ -135,7 +135,7 @@ export class MasterPlayManager {
                 aim: "Banda izquierda superior.",
                 effect: "Efecto IZQUIERDA máximo",
                 power: "88%",
-                positions: [{ x: 0.5, y: 0.83075, z: 1.3 }, { x: 0.4, y: 0.83075, z: 0.8 }, { x: 0.6, y: 0.83075, z: -0.5 }],
+                positions: [{ x: 0.5, y: 0.85575, z: 1.3 }, { x: 0.4, y: 0.85575, z: 0.8 }, { x: 0.6, y: 0.85575, z: -0.5 }],
                 shot: { power: 0.88, direction: new THREE.Vector3(-0.15, 0, -1).normalize(), hitOffset: new THREE.Vector3(-0.015, 0, 0) },
                 path: [{x:0.5,z:1.3}, {x:0,z:1.42}, {x:-0.71,z:1.0}, {x:0.4,z:0.8}, {x:0.6,z:-0.5}]
             },
@@ -145,7 +145,7 @@ export class MasterPlayManager {
                 aim: "Banda inferior izquierda.",
                 effect: "Efecto DERECHA fuerte",
                 power: "85%",
-                positions: [{ x: -0.5, y: 0.83075, z: 0.0 }, { x: -0.55, y: 0.83075, z: 0.8 }, { x: 0.3, y: 0.83075, z: 0.0 }],
+                positions: [{ x: -0.5, y: 0.85575, z: 0.0 }, { x: -0.55, y: 0.85575, z: 0.8 }, { x: 0.3, y: 0.85575, z: 0.0 }],
                 shot: { power: 0.85, direction: new THREE.Vector3(0.04, 0, 1).normalize(), hitOffset: new THREE.Vector3(0.012, 0, 0) },
                 path: [{x:-0.5,z:0}, {x:-0.55,z:0.8}, {x:-0.5,z:1.42}, {x:0.71,z:0.5}, {x:0,z:-1.42}, {x:0.3,z:0}]
             },
@@ -155,7 +155,7 @@ export class MasterPlayManager {
                 aim: "Bola roja medio-llena.",
                 effect: "Efecto DERECHA máximo",
                 power: "100%",
-                positions: [{ x: 0.6, y: 0.83075, z: 1.4 }, { x: 0.55, y: 0.83075, z: 0.7 }, { x: -0.1, y: 0.83075, z: 1.3 }],
+                positions: [{ x: 0.6, y: 0.85575, z: 1.4 }, { x: 0.55, y: 0.85575, z: 0.7 }, { x: -0.1, y: 0.85575, z: 1.3 }],
                 shot: { power: 1.0, direction: new THREE.Vector3(-0.05, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.015, 0, 0) },
                 path: [{x:0.6,z:1.4}, {x:-0.71,z:0.5}, {x:0.71,z:-0.5}, {x:-0.1,z:1.3}]
             },
@@ -165,7 +165,7 @@ export class MasterPlayManager {
                 aim: "Banda superior derecha.",
                 effect: "Efecto IZQUIERDA fuerte",
                 power: "88%",
-                positions: [{ x: 0.0, y: 0.83075, z: -1.0 }, { x: 0.5, y: 0.83075, z: -1.2 }, { x: -0.4, y: 0.83075, z: -0.5 }],
+                positions: [{ x: 0.0, y: 0.85575, z: -1.0 }, { x: 0.5, y: 0.85575, z: -1.2 }, { x: -0.4, y: 0.85575, z: -0.5 }],
                 shot: { power: 0.88, direction: new THREE.Vector3(1, 0, -0.25).normalize(), hitOffset: new THREE.Vector3(-0.01, 0, 0) },
                 path: [{x:0,z:-1.0}, {x:0.71,z:-1.2}, {x:0.5,z:-1.42}, {x:-0.4,z:-0.5}]
             },
@@ -175,7 +175,7 @@ export class MasterPlayManager {
                 aim: "Bola roja suave al lateral.",
                 effect: "Efecto DERECHA suave",
                 power: "88%",
-                positions: [{ x: -0.6, y: 0.83075, z: 0.0 }, { x: -0.55, y: 0.83075, z: -0.8 }, { x: 0.4, y: 0.83075, z: 1.2 }],
+                positions: [{ x: -0.6, y: 0.85575, z: 0.0 }, { x: -0.55, y: 0.85575, z: -0.8 }, { x: 0.4, y: 0.85575, z: 1.2 }],
                 shot: { power: 0.88, direction: new THREE.Vector3(0.08, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.005, 0, 0) },
                 path: [{x:-0.6,z:0}, {x:-0.71,z:-0.8}, {x:0.4,z:1.2}]
             },
@@ -185,7 +185,7 @@ export class MasterPlayManager {
                 aim: "Diamante 5 (banda larga dcha).",
                 effect: "Efecto DERECHA fuerte",
                 power: "95%",
-                positions: [{ x: 0.0, y: 0.83075, z: 1.42 }, { x: 0.5, y: 0.83075, z: 0.0 }, { x: -0.6, y: 0.83075, z: 0.1 }],
+                positions: [{ x: 0.0, y: 0.85575, z: 1.42 }, { x: 0.5, y: 0.85575, z: 0.0 }, { x: -0.6, y: 0.85575, z: 0.1 }],
                 shot: { power: 0.95, direction: new THREE.Vector3(0.65, 0, -1).normalize(), hitOffset: new THREE.Vector3(0.012, 0, 0) },
                 path: [{x:0,z:1.42}, {x:0.71,z:0}, {x:-0.71,z:-1.0}, {x:-0.6,z:0.1}]
             },
@@ -195,7 +195,7 @@ export class MasterPlayManager {
                 aim: "Bola roja fina arriba.",
                 effect: "Efecto DERECHA máximo",
                 power: "95%",
-                positions: [{ x: -0.4, y: 0.83075, z: 1.2 }, { x: 0.4, y: 0.83075, z: 1.3 }, { x: -0.2, y: 0.83075, z: -1.3 }],
+                positions: [{ x: -0.4, y: 0.85575, z: 1.2 }, { x: 0.4, y: 0.85575, z: 1.3 }, { x: -0.2, y: 0.85575, z: -1.3 }],
                 shot: { power: 0.95, direction: new THREE.Vector3(1, 0, 0.05).normalize(), hitOffset: new THREE.Vector3(0.015, 0, 0) },
                 path: [{x:-0.4,z:1.2}, {x:0.71,z:1.3}, {x:-0.71,z:-1.3}, {x:-0.2,z:-1.3}]
             },
@@ -205,7 +205,7 @@ export class MasterPlayManager {
                 aim: "Borde de bola amarilla.",
                 effect: "Efecto IZQUIERDA máximo",
                 power: "95%",
-                positions: [{ x: 0.6, y: 0.83075, z: -1.2 }, { x: 0.65, y: 0.83075, z: 1.2 }, { x: -0.5, y: 0.83075, z: -1.0 }],
+                positions: [{ x: 0.6, y: 0.85575, z: -1.2 }, { x: 0.65, y: 0.85575, z: 1.2 }, { x: -0.5, y: 0.85575, z: -1.0 }],
                 shot: { power: 0.95, direction: new THREE.Vector3(-0.02, 0, 1).normalize(), hitOffset: new THREE.Vector3(-0.018, 0, 0) },
                 path: [{x:0.6,z:-1.2}, {x:0.71,z:1.2}, {x:0.65,z:1.2}, {x:-0.5,z:-1.0}]
             }

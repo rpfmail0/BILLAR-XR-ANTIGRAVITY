@@ -67,7 +67,7 @@ export class SceneSetup {
         // 6. Game Objects
         this.table = new Table(this.scene, this.physics);
 
-        const ballY = 0.8 + 0.03075;
+        const ballY = 0.825 + 0.03075; // Table surface (0.8 + 0.025) + Ball Radius
         this.balls = [];
         this.balls.push(new Ball(this.scene, this.physics, 0xffffff, new CANNON.Vec3(0, ballY, 0.75)));
         this.balls.push(new Ball(this.scene, this.physics, 0xffff00, new CANNON.Vec3(0, ballY, -0.75)));
