@@ -29,15 +29,20 @@ export class Ball {
 
         // Add rotation marker (especially for white ball to see spin)
         if (this.color === 0xffffff || this.color === 'white') {
-            const markerGeo = new THREE.SphereGeometry(0.005, 8, 8);
-            const markerMat = new THREE.MeshStandardMaterial({ color: 0x0000ff });
+            const markerGeo = new THREE.SphereGeometry(0.004, 16, 16);
+            const markerMat = new THREE.MeshStandardMaterial({ color: 0x0000ff, roughness: 0.2, metalness: 0.1 });
             const marker = new THREE.Mesh(markerGeo, markerMat);
-            marker.position.set(0, this.radius - 0.002, 0); // Just on the surface
+            
+            // Aplanar drásticamente la esfera para que sea casi bidimensional (como una pegatina/calcomanía)
+            marker.scale.set(1, 0.05, 1); 
+            
+            // Colocar justo en la superficie. Al estar tan aplanada apenas sobresaldrá
+            marker.position.set(0, this.radius, 0); 
             this.mesh.add(marker);
 
-            // Add a second one for better visibility on the other side
+            // Añadir el segundo marcador en el polo opuesto
             const marker2 = marker.clone();
-            marker2.position.set(0, -(this.radius - 0.002), 0);
+            marker2.position.set(0, -this.radius, 0);
             this.mesh.add(marker2);
         }
     }
